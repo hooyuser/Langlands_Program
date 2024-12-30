@@ -12,6 +12,14 @@
 #let PSL = math.op("PSL")
 #let GL = math.op("GL")
 
+#let Grp = math.op($sans("Grp")$)
+#let Vect(k) = math.op($#k#h(0.1em)sans("-Vect")$)
+#let Mod(k) = math.op($#k#h(0.1em)sans("-Mod")$)
+
+
+#let chargrp(G) = $frak(X)(#G)$
+#let algdual(G) = $#G^(or)$
+
 #let injlim = $limits(limits(lim)_(xarrow(#v(-50em), width: #1.8em)))$
 #let projlim = $limits(limits(lim)_(xarrow(sym:arrow.l.long, #v(-50em), width: #1.8em)))$
 
@@ -729,13 +737,359 @@ beta in op("Stab")_(op("SL")_2(ZZ))(oo)$. Then $eta$ can be written as $ eta = p
     $
 
   + $f$ is meromorphic at all cusps.
-
 ]
 
 #definition[Modular Function][
   Meromorphic modular forms of weight $0$ are called *modular functions*. Equivalently, a modular function of level $Gamma$ is a meromorphic function $f: Gamma\\ bb(H) -> bb(C)$ which is also meromorphic at all cusps.
 ]
 
+
+#pagebreak()
+
+= Linear Representations of Groups <representation-theory>
+== Linear Representations of Groups
+=== Basic Concepts
+
+#definition[Linear Representation of a Group][
+  A *linear representation* of a group $G$ has the following equivalent definitions:
+
+  + A *linear representation* of $G$ is a group homomorphism
+    $
+      rho: G &--> GL(V)\
+      g &--> rho_g
+    $
+    for some $bb(k)$-vector space $V$. (The infomation of $V$ is part of the data of $rho$.)
+
+  + A *linear representation* of $G$ is a $bb(k)[G]$-module $M$.
+
+  + A *linear representation* of $G$ is a functor $R: sans(upright("B")) G -> Vect(bb(k))$.
+]
+#remark[
+  Let's show (i) and (ii) are equivalent. Suppose $rho: G -> GL(V)$ is a linear representation of $G$. Then we can define a $bb(k)[G]$-module structure on $V$ by
+  $
+    g dot v = rho_g (v), quad forall g in G, v in V.
+  $
+  Conversely, suppose $M$ is a $bb(k)[G]$-module. Then $M$ is also a $bb(k)$-vector space and we can define a group homomorphism $rho: G -> GL(M)$ by
+
+  $
+    g arrow.long.bar (rho_(g): v arrow.long.bar g dot v, quad forall v in M).
+  $
+  It is straightforward to check that this is a bijective correspondence between linear representations of $G$ defined in (i) and $bb(k)[G]$-modules.
+]
+
+#definition[Morphisms of Linear Representations][
+  The morphisms of linear representations of a group $G$ can be defined in the following equivalent ways:
+
+  + Equivariant maps: A morphism of linear representations $f: (V, rho) -> (W, sigma)$ is a linear map $f: V -> W$ such that
+    $
+      f(g dot v) = g dot f(v), quad forall g in G, forall v in V.
+    $
+    which is equivalent to saying that for any $g in G$, the following diagram commutes
+
+    #commutative_diagram($
+      V edge("d", "->", f) edge(->, rho_g) &V edge("d", "->", f)\
+      W edge("r", "->", sigma_g, #right) &W
+    $)
+
+  + Module homomorphisms: A morphism of linear representations $f: M -> N$ is a $bb(k)[G]$-module homomorphism. That is, $f$ is a linear map such that
+    $
+      f(g dot v+w) = g dot f(v)+f(w), quad forall g in G,forall v,w in M.
+    $
+
+  + Natural transformations: A morphism of linear representations $f: R_1 => R_2$ is a natural transformation between functors $R_1, R_2: sans(upright("B")) G -> Vect(bb(k))$.
+]
+
+#definition[Category of Linear Representations][
+  The category of $bb(k)$-linear representations of a group $G$ is denoted by
+  $
+    sans("Rep")_bb(k)(G):= [sans(upright("B")) G, Vect(bb(k))] tilde.equiv Mod(bb(k)[G]).
+  $
+]
+
+#definition[Isomorphism of Linear Representations][
+  Two linear representations $rho: G -> GL(V)$ and $sigma: G -> GL(W)$ are called *isomorphic* if there exists a linear isomorphism $f: V ->^(tilde) W$ such that
+  $
+    f circle.tiny rho_g = sigma_g compose f, quad forall g in G.
+  $
+]
+
+#definition[Trivial Representation][
+  The *trivial representation* of a group $G$ is the linear representation $rho: G -> GL(bb(k))$ such that $rho_g = op("id")_V$ for all $g in G$.
+]
+
+#definition[$G$-invariant Subspace][
+  Let $rho: G -> GL(V)$ be a linear representation of a group $G$. A subspace $W subset.eq V$ is called *$G$-invariant* if
+  $
+    rho_g (W) subset.eq W, quad forall g in G.
+  $
+]
+
+#definition[Subrepresentation][
+  Let $rho: G &-> GL(V)$ be a linear representation of a group $G$. If $W$ is a $G$-invariant subspace of $V$, then we can define a linear representation $rho|_W: G -> GL(W)$ as follows
+  $
+    rho|_W: G &--> GL(W)\
+    g &--> rho_g|_W.
+  $
+  We call $rho|_W$ a *subrepresentation* of $rho$.
+]
+#remark[
+  From the viewpoint of $bb(k)[G]$-modules, a subrepresentation of a $bb(k)[G]$-module $V$ is a $bb(k)[G]$-submodule $W$ of $V$.
+]
+#definition[Proper Subrepresentation][
+  A subrepresentation $W$ of a linear representation $rho: G -> GL(V)$ is called *proper* if $W eq.not V$.
+]
+
+
+
+#definition[Irreducible Representation][
+  A linear representation $rho: G -> GL(V)$ is called *irreducible* if $V$ has no proper nontrivial subrepresentations. A linear representation is called *reducible* if it is not irreducible.
+]
+
+#lemma[Kernal and Image of a $G$-equivariant Map are $G$-invariant][
+  Let $rho: G -> GL(V)$ and $sigma: G -> GL(W)$ be two linear representations of a group $G$. Suppose $f: V -> W$ is a $G$-equivariant map. Then
+
+  + $ker f$ is a $G$-invariant subspace of $V$.
+
+  + $im f$ is a $G$-invariant subspace of $W$.
+]<kernel-and-image-of-equivariant-map-are-invariant>
+#proof[
+  + Given any $v in ker f $, for any $g in G$, we have #h(1fr)
+    $
+      f circle.tiny rho_g (v) = sigma_g circle.tiny f (v) = 0 ==> rho_g (v) in ker f,
+    $
+    which means $ker f$ is a $G$-invariant subspace of $V$.
+
+  + Given any $w=f(v) in im f$, for any $g in G$, we have
+    $
+      sigma_g (w) = sigma_g compose f(v) = f circle.tiny rho_g (v) in im f,
+    $
+    which means $im f$ is a $G$-invariant subspace of $W$.
+]
+#theorem[Schur's Lemma][
+  Let $rho: G -> GL(V)$ and $sigma: G -> GL(W)$ be two irreducible linear representations of a group $G$. Suppose $f: V -> W$ is a $G$-equivariant map. We have
+
+  + If $V$ and $W$ are not isomorphic, then $f=0$.
+
+  + If $V$ is a finite-dimensional vector space over an algebraically closed field $bb(k)$ and $W=V$, then $f=lambda op("id")_V$ for some $lambda in bb(k)$.
+]
+#proof[
+  + Suppose $f eq.not 0$. This implies $ker f eq.not V$ and $im f eq.not {0}$. According to @kernel-and-image-of-equivariant-map-are-invariant, $ker f$ and $im f$ are $G$-invariant. Since $rho$ and $sigma$ are irreducible, $G$-invariant subspaces of $V$ and $W$ are either entire space or $0$. Therefore, we have $ker f = {0}$ and $im f = W$, which implies $f$ is an isomorphism.
+
+  + Suppose $V$ is a finite-dimensional vector space over an algebraically closed field $bb(k)$ and $W=V$. Since $bb(k)$ is algebraically closed, there exists an eigenvalue $lambda in bb(k)$ such that
+    $
+      ker(lambda op("id")_V -f) eq.not {0}.
+    $
+    Since $lambda op("id")_V -f$ is a $G$-equivariant map, according to @kernel-and-image-of-equivariant-map-are-invariant, we see $ker(lambda op("id")_V -f)$ is a $G$-invariant subspace of $V$. Since $V$ is irreducible, we have $ker(lambda op("id")_V -f) = V$, which implies $lambda op("id")_V -f=0$ and $f=lambda op("id")_V$.
+]
+
+=== Basic Construction
+#definition[Direct Sum of Linear Representations][
+  Let $rho: G -> GL(V)$ and $sigma: G -> GL(W)$ be two linear representations of a group $G$. The *direct sum* of $rho$ and $sigma$ is the linear representation $rho plus.circle sigma: G -> GL(V plus.circle W)$ defined by
+  $
+    (rho plus.circle sigma)_g (v plus.circle w) = rho_g (v) plus.circle sigma_g (w), quad forall g in G, forall v in V, forall w in W.
+  $
+]
+
+== Finite Dimensional Representations of Groups
+#definition[Finite Dimensional Representation][
+  A linear representation $rho: G -> GL(V)$ is called *finite dimensional* if $V$ is a finite dimensional $bb(k)$-vector space.
+]
+
+#remark[
+  A finite dimensional representation of a group $G$ is equivalent to a functor $R: sans(upright("B")) G -> Vect(bb(k))^("fin")$.
+]
+
+#proposition[][
+  A nonzero finite-dimensional representation always contains a nonzero irreducible subrepresentation.
+]
+
+#pagebreak()
+
+= Linear Representations of Finite Groups
+
+== Finite Dimensional Representations of Finite Groups
+Recall a linear map $p:V->V$ is called a projection if $p^2=p$. If $p:V->V$ is a projection, then $V=im p plus.circle ker p$.
+
+#lemma[][
+  Let $G$ be finite Group, $V$ be a finite dimensional $bb(k)$-vector space and $rho: G -> GL(V)$ be a representation. If $W$ is a $G$-invariant subspace of $V$, then there exists a complement $W'$ of $W$ in $V$ such that $V = W plus.circle W^0$ and $W^0$ is also $G$-invariant.
+]<complement-of-invariant-subspace>
+#proof[
+  Let $W'$ be an arbitrary complement of $W$ in $V$. Then $V = W plus.circle W'$. Let $op("pr")_W: W plus.circle W' -> W$ be the projection onto $W$. Define
+  $
+    op("pr")_W^0 = 1 / abs(G) sum_(g in G) rho_g circle.tiny op("pr")_W circle.tiny rho_g^(-1) .
+  $
+  Since $im op("pr")_W =W$ and $W$ is $G$-invariant, we see $im op("pr")_W^0 subset.eq W$ and $op("pr")_W^0|_W = op("id")_W$. Therefore, $op("pr")_W^0$ is a projection onto $W$. Let $W^0 = ker op("pr")_W^0$. We have $V = W plus.circle W^0$. For any $h in G$, we can check that
+  $
+    rho_h circle.tiny op("pr")_W^0 circle.tiny rho_h^(-1) = 1 / abs(G) sum_(g in G) rho_h circle.tiny rho_g circle.tiny op("pr")_W circle.tiny rho_g^(-1) circle.tiny rho_h^(-1) = 1 / abs(G) sum_(g in G) rho_(h g) circle.tiny op("pr")_W circle.tiny rho_(h g)^(-1) = op("pr")_W^0.
+  $
+  Rewrite the above equation as
+  $
+    rho_h circle.tiny op("pr")_W^0 = op("pr")_W^0 circle.tiny rho_h.
+  $
+  For any $w in W^0$, we have $op("pr")_W^0 circle.tiny rho_h (w) = rho_h circle.tiny op("pr")_W^0 (w) = 0$, which implies $rho_h (w) in ker op("pr")_W^0 = W^0$. Therefore, $W^0$ is $G$-invariant.
+
+]
+
+
+The following property is called complete reducibility, or semisimplicity.
+
+
+#proposition[Direct Sum Decomposition of Finite Dimensional Representations][
+  Every finite-dimensional representation of a finite group is a direct sum of irreducible representations.
+]
+#proof[
+  Let $G$ be a finite group and $rho:G->GL(V)$ be a finite-dimensional representation. We proceed by induction on $dim V$.
+
+  - If $dim V = 0$, the statement is trivial.
+
+  - Suppose the statement is true for all finite-dimensional representations of $G$ with dimension less than $n$. Given an $n$-dimensional representation $rho:G->GL(V)$, if it is irreducible, then we are done. Otherwise, there exists a proper nontrivial subrepresentation $W$ of $V$. According to @complement-of-invariant-subspace, there exists a complement $W^0$ of $W$ in $V$ such that $V = W plus.circle W^0$ and $W^0$ is also $G$-invariant. By induction hypothesis, $W$ and $W^0$ are direct sums of irreducible representations. Therefore, $V$ is also a direct sum of irreducible representations.
+]
+
+
+#definition[Regular Representation][
+
+]
+
+== Characters of Groups
+
+=== Algebraic Characters of Groups
+
+#definition[Character of a Group][
+  Let $G$ be a group. A *character* of $G$ is a group homomorphism $chi: G -> CC^times$. That is, it is a function such that
+  $
+    chi(g_1 g_2) = chi(g_1) chi(g_2), quad forall g_1, g_2 in G.
+  $
+]
+#definition[Character Group of a Group][
+  All characters of $G$ form a $CC^times$-vector space, denoted by $chargrp(G):=op("Hom")_(sans("Grp"))(G,CC^times)$, called the *character group* of $G$. The group operation is given by pointwise multiplication
+  $
+    (chi_1 chi_2)(g) = chi_1(g) chi_2(g), quad forall g in G.
+  $
+  The identity element is the *trivial character*
+  $
+    chi_0(g) = 1 , quad forall g in G.
+  $
+]
+#remark[
+  If $G$ is a finite abelian group, then we can endow $G$ with discrete topology. Then the character group $chargrp(G)$ is exactly the underlying group of the Pontryagin dual of $G$. In this case, we can just write $chargrp(G) = algdual(G)$.
+]
+
+#proposition[Properties of Characters][
+  + If $G$ is a finite group of order $n$, then the range of any character $chi in chargrp(G)$ is a $n$-th root of unity, i.e. $chi(g)^n = 1$ for all $g in G$. In this case, the $chargrp(G)$ is a finite group and $|algdual(G)| <= n^n$.
+]
+#proof[
+  Let $chi in algdual(G)$ be a character of $G$. Then for any $g in G$, we have
+  $
+    chi(g)^n = chi(g^n) = chi(1) = 1,
+  $
+  which implies $chi(G) subset.eq mu_n$, where $mu_n$ is the group of $n$-th roots of unity. Therefore, $algdual(G) subset.eq op("Hom")_(sans("Set"))(G,mu_n)$ Since $|mu_n|=n$, we have $|algdual(G)| <= n^n$.
+]
+#definition[Orthogonality of Characters][
+  Let $G$ be a finite group. We say $G$ has orthogonality of characters if
+  $
+    sum_(g in G) chi(g) &= |chargrp(G)| delta_(chi,1_(chargrp(G))), quad forall chi in algdual(G),\
+    sum_(chi in algdual(G)) chargrp(g) &= |G| delta_(g,1_G), quad forall g in G.
+  $
+]
+
+#lemma[][
+  Assume that $G$ is a fnite cyclic group of order $n$ and $a in G$ is a generator of $G$. Then we have
+
+  + $algdual(G)$ has exactly $n$ elements #h(1fr)
+    $
+      algdual(G) = {chi_k : G -> CC^times mid(|) chi_k (a) = e^((2 pi i k) / n), quad k=0,1,dots.c,n-1}.
+    $
+
+  + $G$ has orthogonality of characters.
+  + $algdual(G)$ is generated by the character $chi_1$. And we have an isomorphism
+    $
+      G &-->^(tilde) algdual(G)\
+      a^m &--> chi_1^m.
+    $
+
+
+]
+#proof[
+  + If $chi in algdual(G)$, then $chi(a) in mu_n$ implies $chi(a) = e^((2 pi i k) / n)$ for some $k in {0,1, dots.c, n-1}$. Hence $chi = chi_k$ for some $k in {0,1, dots.c, n-1}$ and we get
+    $
+      algdual(G) subset.eq {chi_k : G -> CC^times mid(|) chi_k (a) = e^((2 pi i k) / n)}.
+    $
+    Then we can check the inverse inclusion and get
+    $
+      algdual(G) = {chi_k : G -> CC^times mid(|) chi_k (a) = e^((2 pi i k) / n)}.
+    $
+    Since $chi_k$ are all distinct, we have $|algdual(G)| = n$.
+
+  + For any $chi_k in algdual(G)$, we have
+    $
+      sum_(g in G) chi_k (g)= sum_(m=0)^(n-1)chi_k (a^m) = sum_(m=0)^(n-1) e^((2 pi i k m) / n) = n delta_(k,0) = |algdual(G)| delta_(chi_k,1_(algdual(G))).
+    $
+    For any $a^m in G$, we have
+    $
+      sum_(chi in algdual(G)) chi(a^m) =sum_(k =0)^(n-1) chi_k (a^m) = sum_(k=0)^(n-1) e^((2 pi i k m) / n) = n delta_(m,0) = |G| delta_(a^m,1_G).
+    $
+
+  + For any $chi_k in algdual(G)$ and $a^m in G$, we have
+    $
+      (chi_1)^k (a^m) = (chi_1(a^m))^k = e^((2 pi i m k) / n) =(chi_k (a))^m = chi_k (a^m),
+    $
+    which implies $chi_1^k = chi_k$ for all $k in {0,1,dots.c,n-1}$.
+]
+
+#proposition[Orthogonality of Characters of Finite Abelian Group][
+  Let $G$ be a finite abelian group of order $n$ and $a in G$ be a generator of $G$. Then $G tilde.equiv algdual(G)$ and $G$ has orthogonality of characters.
+]
+
+#pagebreak()
+
+= Duality for Locally Compact Abelian Groups
+
+
+== Pontryagin Dual
+
+#definition[Circle Group][
+  The *circle group* is defined as
+  $
+    T = {z in CC : abs(z) = 1} = U(1)
+  $
+  equipped with the multiplication of complex numbers and the topology induced from the standard topology of $CC$.
+]
+
+#definition[Pontryagin Dual of a Locally Compact Abelian Group][
+  Let $G$ be a locally compact Hausdorff abelian group. The *Pontryagin dual* of $G$ is a topological group $algdual(G)$ defined as follows
+  + Underlying set:
+    $
+      algdual(G) = op("Hom")_(sans("TopAb"))(G, T),
+    $
+    where $T$ is the circle group.
+
+  + Group Multiplication: $algdual(G)subset.eq op("Hom")_(sans("Ab"))(G, T)$ is abelian group with the pointwise multiplication of functions.
+
+  + Topology: $algdual(G)$ is equipped with the compact-open topology.
+]
+#proposition[Properties of Pontryagin Dual][
+  Suppose $G$ is a locally compact Hausdorff abelian group. Then
+
+  + $G$ is discrete $==>$ $algdual(G)$ is a compact.
+
+  + $G$ is compact $==>$ $algdual(G)$ is discrete.
+
+  + $G$ is discrete and torsion-free $==>$ $algdual(G)$ is a compact and connected.
+
+  + $G$ is compact and connected $==>$ $algdual(G)$ is discrete and torsion-free.
+
+  + $G$ is finite $==>$ $algdual(G)$ is finite.
+
+  + $G$ is locally compact $==>$ $algdual(G)$ is locally compact.
+
+]
+
+#example[Examples of Pontryagin Dual][
+  + $algdual(T) tilde.equiv ZZ$.
+  + $algdual(ZZ) tilde.equiv T$.
+  + $algdual(RR) tilde.equiv RR$.
+  + $algdual(((ZZ\/n ZZ)^times)) tilde.equiv (ZZ\/n ZZ)^times$.
+]
 
 #pagebreak()
 
@@ -931,7 +1285,7 @@ Though $II_(K)$ is a subset of $AA_K$, the topology of $II_(K)$ is not the subsp
 #definition[Adele Ring of $QQ$][
   The #strong[adele ring] of $QQ$ is defined as
   $
-    bb(A)_(QQ) = { (x_(oo),x_2,x_3,dots.c) in RR times product_p QQ_p mid(|)  x_p in ZZ_p "for all but finitely many" p }.
+    bb(A)_(QQ) = { (x_(oo),x_2,x_3,dots.c) in RR times product_p QQ_p mid(|) x_p in ZZ_p "for all but finitely many" p }.
   $
   The topology on $bb(A)_(QQ)$ is given by defining the basis of the form
   $
@@ -949,7 +1303,7 @@ Though $II_(K)$ is a subset of $AA_K$, the topology of $II_(K)$ is not the subsp
 #definition[Idele Group of $bb(Q)$][
   The #strong[idele group] of $bb(Q)$ is defined as
   $
-    bb(I)_(QQ) = bb(A)_(QQ)^times = op("GL")_1 (bb(A)_(QQ))= { (x_(oo),x_2,x_3,dots.c) in AA_QQ mid(|)  x_p in ZZ_p^times "for all but finitely many" p }.
+    bb(I)_(QQ) = bb(A)_(QQ)^times = op("GL")_1 (bb(A)_(QQ))= { (x_(oo),x_2,x_3,dots.c) in AA_QQ mid(|) x_p in ZZ_p^times "for all but finitely many" p }.
   $
   The topology on $bb(I)_(QQ)$ is given by defining the basis of the form
   $
@@ -958,9 +1312,11 @@ Though $II_(K)$ is a subset of $AA_K$, the topology of $II_(K)$ is not the subsp
   where $U_v$ is an open subset of $QQ_v^times$ such that $U_p = ZZ_p^times$ for all but finitely many $p$.
 ]
 
-== L-Function
+#pagebreak()
 
-=== Dirichlet Charater
+= L-Functions
+
+== Dirichlet Charater
 
 #definition[Euler's Totient Function][
   The #strong[Euler's totient function] is defined as
@@ -1018,11 +1374,12 @@ Though $II_(K)$ is a subset of $AA_K$, the topology of $II_(K)$ is not the subsp
 
 
 #definition[Dirichlet Character][
-  Given any group homomorphism
+  Let $m$ be a positive integer. Given any group homomorphism
   $chi_m^star : (bb(Z) \/ m bb(Z))^times arrow.r bb(C)^times$, we can define a
   function $chi_m : bb(Z) arrow.r bb(C)$ by
   $
-    chi_m (a) =
+    chi_m (a)& =chi_m^star ([a])bold(1)_([a] in (bb(Z) \/ m bb(Z))^times) \
+    &=
     cases(0 & upright(" if ") [a] in.not (bb(Z) \/ m bb(Z))^times & upright(" i.e. ") (a , m) eq.not 1\
     chi_m^star ([a]) & upright(" if ") [a] in (bb(Z) \/ m bb(Z))^times & upright(" i.e. ") (a , m) = 1
     )
@@ -1030,6 +1387,15 @@ Though $II_(K)$ is a subset of $AA_K$, the topology of $II_(K)$ is not the subsp
   Such function $chi_m$ is called a #strong[Dirichlet character modulo
 $m$];.
 ]
+#remark[
+  We can switch between $chi_m$ and $chi_m^star$ according to the following relation
+  $
+    chi_m^star ([a]) &= chi_m (a),\
+    chi_m (a) &= chi_m^star ([a]) bold(1)_([a] in (bb(Z) \/ m bb(Z))^times).
+  $
+]
+
+
 
 #proposition[Properties of Dirichlet Character][
   + $chi_m : bb(Z) arrow.r bb(C) $ preserves multiplication: for any $a , b in bb(Z)$, #h(1fr)
@@ -1064,6 +1430,14 @@ $m$];.
   $
 ]
 
+#definition[Multiplication of Dirichlet Characters][
+  Let $chi_m$ and $chi_m^'$ be two Dirichlet characters modulo $m$. The #strong[multiplication] of $chi_m$ and $chi_n$ is defined as
+  $
+    (chi_m chi_m^') (a) := chi_m (a) chi_m^' (a)
+  $
+  for any $a in bb(Z)$.
+]
+
 #definition[Principal Dirichlet Character][
   The #strong[principal Dirichlet character modulo $m$] is the simplest
   Dirichlet character defined by
@@ -1072,36 +1446,229 @@ $m$];.
     1 & upright(" if ") [a] in (bb(Z) \/ m bb(Z))^times & upright(" i.e. ") (a , q) = 1
     )
   $
+  This character is also called the *trivial character*.
 ]
 
-=== Dirichlet L-Function
+
+Suppose $chi_m^star: (bb(Z) \/ m bb(Z))^times -> bb(C)^times$ is a Dirichlet character modulo $m$. For any $n in bb(Z)_(>0)$, by composing $chi_m^star$ and the natural projection $pi:(bb(Z) \/ n m bb(Z))^times  -> (bb(Z) \/ m bb(Z))^times $ as follows
+#commutative_diagram($
+  (bb(Z) \/ n m bb(Z))^times edge("d", "->>", pi) edge(->, chi_(n m)^star) &CC^times\
+  (bb(Z) \/ m bb(Z))^times edge("ru", "->", chi_m^star, #right)
+$)
+#[#set par(first-line-indent: 0em)
+  we can define a Dirichlet character modulo $n m$ by
+  $
+    chi_(n m)^star ([a]) := chi_m^star (pi([a])),
+  $
+  or equivalently
+  $
+    chi_(n m) (a) := chi_m (a) bold(1)_([a] in (bb(Z) \/ n m bb(Z))^times).
+  $
+  In this case we say $chi_(m)^star$ *induces* $chi_(n m)^star$. If a Dirichlet character cannot factor through any projection $pi$, then it is called a primitive Dirichlet character. This brings us to the following definition.
+]
+
+
+#definition[Primitive Dirichlet Character][
+  A Dirichlet character $chi_m$ is called a #strong[primitive Dirichlet character] if it cannot be induced by any Dirichlet character modulo $n m$ for any integer $n > 1$. If $chi_m$ is not primitive, then it is said to be *imprimitive*.
+]
+
+
+#definition[Conductor of Dirichlet Character][
+  Let $chi_m$ be a Dirichlet character modulo $m$. We say $q$ is a *quasiperiod* of $chi_m$ if for any $a, b in ZZ$ such that $[a],[b] in (bb(Z) \/ m bb(Z))^times$ , we have
+  $
+    a equiv b med mod med q ==> chi_m (a) = chi_m (b).
+  $
+  The *conductor* of $chi_m$ is defined as the smallest quasiperiod of $chi_m$.
+
+]
+
+#proposition[
+  - If $q$ is the conductor of a Dirichlet character $chi_m$ modulo $m$, then $q | m$ and
+    $
+      &chi_m (a) = chi_q (a ) bold(1)_([a] in (bb(Z) \/ m bb(Z))^times)
+    $
+    for some Dirichlet character $chi_q$ modulo $q$.
+  - The conductor of a Dirichlet character modulo $m$ is the smallest positive integer $q$ such that $chi_m$ can be induced by a Dirichlet character $chi_q$ modulo $q$.
+  - A Dirichlet character modulo $m$ is primitive if and only if its conductor is $m$.
+]
+
+#example[Dirichlet Character of Modulus $1$][
+  The unique Dirichlet character of modulus $1$ is the constant function
+  $
+    chi_1 (a) = 1.
+  $
+  A principal Dirichlet character is primitive if and only if its modulus is $1$.
+]
+
+#definition[Parity of Dirichlet Character][
+  Let $chi_m$ be a Dirichlet character modulo $m$. We say $chi_m$ is *even* if $chi_m (-1) = 1$ and *odd* if $chi_m (-1) = -1$.
+]
+
+#definition[Order of Dirichlet Character][
+  Let $chi_m$ be a Dirichlet character modulo $m$. The #strong[order] of $chi_m$ is defined as the smallest positive integer $k$ such that $chi_m^k = chi_1$, which is exactly the order of $chi_m^star$ in $algdual(((ZZ\/m ZZ)^times))=op("Hom")_(sans("Ab"))((ZZ\/m ZZ)^times,CC^times)$.
+]
+
+#definition[Quadratic Dirichlet Character][
+  A Dirichlet character $chi_m$ modulo $m$ is called a #strong[quadratic Dirichlet character] if the order of $chi_m$ is $2$.
+]
+
+== Dirichlet L-Function
 
 #definition[Dirichlet L-function][
   Given any Dirichlet character $chi: ZZ -> CC$, the #strong[Dirichlet
   $L$-series] is defined as
   $
-    L(s, chi) = sum_(n = 1)^oo chi (n) n^(-s)
+    L(s, chi) = sum_(n = 1)^oo chi(n) / n^(s)
   $
   which is absolutely convergent for $upright(R e)(s) > 1$. It can be extended to a meromorphic function on the whole complex plane, and is then called a *Dirichlet L-function *.
 ]
 
-#proposition[Properties of Dirichlet L-function][
-  For any Dirichlet character $chi: ZZ -> CC$, the Dirichlet $L$-series
-  $L(s, chi)$ has the following properties:
+#proposition[Euler Product Formula for Dirichlet L-functions][
+  For any Dirichlet character $chi: ZZ -> CC$, the Dirichlet L-function $L(s, chi)$ has the following properties:
+  $
+    L(s, chi) = product_(p "prime") 1 / (1 - chi (p) p^(-s)) " for " upright(R e)(s) > 1.
+  $
+]
+
+#definition[Gauss Sum of Dirichlet Character][
+  Let $chi$ be a Dirichlet character modulo $m$. The #strong[Gauss sum] of $chi$ is defined as
+  $
+    G(chi)=sum_(a = 1)^(m) chi(a) e^((2 pi i a) / m).
+  $
+]
+
+
+#proposition[Properties of Gauss Sum][
+  Let $chi$ be a Dirichlet character modulo $m$. The Gauss sum of $chi$ has the following properties:
+  + If $chi$ is primitive, then $|G(chi)| = sqrt(m)$.
+]
+
+
+
+
+#definition[Root Number of Dirichlet Character][
+  Let $chi$ be a primitive Dirichlet character modulo $m$. The #strong[root number] of $chi$ is defined as
+  $
+    epsilon(chi)=G(chi) / (i^delta sqrt(q))=cases(G(chi)/( sqrt(q)) & upright(" if ") chi "is even,", -i G(chi)/( sqrt(q))& upright(" if ") chi "is odd.").
+  $
+]
+
+#proposition[Properties of Root Number][
+  Let $chi$ be a primitive Dirichlet character modulo $m$. The root number of $chi$ has the following properties:
+
+  + $|epsilon(chi)| = 1$.
+
+  + If $chi$ is a quadratic Dirichlet character, then $epsilon(chi) in {1, -1}$.
+]
+
+
+#proposition[Functional Equation for Dirichlet L-functions][
+  Let $chi$ be a primitive Dirichlet character modulo $q$ with $q>1$. Let
+  $
+    delta = cases(0 & upright(" if ") chi(-1) = 1 " i.e. " chi "is even,", 1 & upright(" if ") chi(-1) = -1 " i.e. " chi "is odd.")
+  $
+  The Euler factor of the Riemann zeta function at a prime $p$ is given by
+  $
+    L_p (s, chi)=1 / (1 - chi (p) p^(-s)).
+  $
+  The Euler factor of the Dirichlet L-function at infinity is given by
+  $
+    L_(oo)(s, chi)=pi^(-(s+delta) / 2) Gamma((s+delta) / 2) = cases(pi^(-s / 2) Gamma(s / 2) & upright(" if ") chi "is even,", pi^(-(s+1) / 2) Gamma((s+1) / 2) & upright(" if ") chi "is odd.")
+  $
+  Let
+  $
+    Lambda(s, chi) = product_v L_v (s,chi)=L_(oo)(s, chi)product_(p "prime")L_p (s,chi)=pi^(-(s+delta) / 2) Gamma((s+delta) / 2) L(s, chi),
+  $
+  and
+  $
+    W(s,chi)=epsilon(chi)q^(1 / 2-s)=(G(chi)q^(-s)) / (i^delta)=cases(G(chi)q^(-s) & upright(" if ") chi "is even,", -i G(chi)q^(-s)& upright(" if ") chi "is odd.")
+  $
+  Then $Lambda(s, chi)$ satisfies the following functional equation
+  $
+    Lambda(s, chi)=W(s,chi)Lambda(1-s, overline(chi))=epsilon(chi) q^(1 / 2-s)Lambda(1-s, overline(chi)).
+  $
+]
+
+#example[Dirichlet L-function of Primitive Dirichlet Character mod 4][
+  There are 2 Dirichlet characters modulo $4$. Let $chi_4$ be the unique primitive Dirichlet character modulo $4$, which is defined by $chi_4 (3) = -1$. Then the Dirichlet $L$-series of $chi_4$ is given by
+  $
+    L(s, chi_4) &= 1 - 1 / 3^s + 1 / 5^s - 1 / 7^s + dots.c \
+    &= sum_(n = 0)^oo (-1)^(n) / (2n + 1)^s \
+    &= 1 / Gamma(s) integral_(0)^(oo) (x^(s - 1)e^(-x)) / (1+e^(-2x)) dif x.
+  $
+  It is absolutely convergent for $upright(R e)(s) > 0$ and can be extended to a meromorphic function on the whole complex plane. $L(s, chi_4)$ also called *Dirichlet beta function*.
+  Its special values at odd positive integer are given by
+  $
+    L(2n + 1, chi_4) = ((-1)^n E_(2n)) / (2(2n)!)(pi / 2)^(2n+1) in pi^(2n+1) bb(Q),
+  $
+  where $E_(2n)$ is the $2n$-th Euler number. The number $L(2, chi_4)$ is known as *Catalan's constant*.
+
+]
+
+== Riemann Zeta Function
+
+Riemann zeta function is a Dirichlet L-function associated to the principal Dirichlet character modulo $1$.
+
+#definition[Riemann Zeta Function][
+  The #strong[Riemann zeta function] is defined as
+  $
+    zeta(s)=L(s,chi_1) = sum_(n = 1)^oo 1 / n^s
+  $
+  which is absolutely convergent for $upright(R e)(s) > 1$. It can be extended to a meromorphic function on the whole complex plane, and is then called a *Riemann zeta function*.
+]
+Thus the Riemann zeta function is a meromorphic function on the whole complex plane, which is holomorphic everywhere except for a simple pole at $s = 1$ with residue
+$
+  op("Res")_(s=1) zeta(s) = lim_(s -> 1) (s - 1) zeta(s) = 1.
+$
+
+The Euler factor of the Riemann zeta function at a prime $p$ is given by
+$
+  L_p (s, chi_1)=1 / (1 - p^(-s)).
+$
+The Euler factor of the Riemann zeta function at infinity is given by
+$
+  L_(oo)(s, chi_1)=pi^(-s / 2) Gamma(s/2).
+$
+
+
+#proposition[Properties of Riemann Zeta Function][
+  The Riemann zeta function $zeta(s)$ has the following properties:
 
   + Euler product formula #h(1fr)
     $
-      L(s, chi) = product_(p "prime") (1 - chi (p) p^(-s))^(-1).
+      zeta(s) = product_(p "prime") L_p (s,chi_1) =product_(p "prime") 1 / (1 - p^(-s)).
     $
 
   + Functional equation
     $
-      L(s, chi) = chi (1) pi^(-s) gamma(1 - s) L(1 - s, chi),
+      Lambda(s) = Lambda(1-s)
     $
-    where $gamma$ is the gamma function.
+    where $Lambda(s)=product_(v) L_v (s,chi_1)= pi^(-s/2) Gamma(s/2) zeta(s)$.
+
+]
+
+#proposition[Special Values of Riemann Zeta Function][
+  The Riemann zeta function $\zeta(s)$ has the following special values:
+
+  + For any $n in ZZ_(>0)$, #h(1fr)
+    $
+      zeta(2n) = ((-1)^(n+1) B_(2n) ) / (2(2n)!)(2 pi)^(2n) in pi^(2n) bb(Q),
+    $
+    where $B_(2n)$ is the $2n$-th Bernoulli number.
+
+  + For any $n in ZZ_(>=0)$, #h(1fr)
+    $
+      zeta(-n) = -B_(n+1) / (n+1) in bb(Q).
+    $
+
+  + $zeta(0) = -1 / 2$, $zeta(-1) = -1 / 12$, $zeta(- n) = 0$ for any $n in ZZ_(>0)$.
+
 
 
 ]
+
+
+#pagebreak()
 
 = Langlands Program <langlands-program>
 
