@@ -1,7 +1,7 @@
-#import "@preview/fletcher:0.5.1" as fletcher: diagram, node, edge
-#import "@preview/cetz:0.2.2"
-#import "@local/math-notes:0.1.0": *
-#import "@preview/xarrow:0.3.1": xarrow
+#import "@preview/fletcher:0.5.4" as fletcher: diagram, node, edge
+#import "@preview/cetz:0.3.1"
+#import "@local/math-notes:0.2.0": *
+
 
 #show: math_notes.with(
   title: [ELLIPTIC CURVES \
@@ -11,6 +11,7 @@
 #let SL = math.op("SL")
 #let PSL = math.op("PSL")
 #let GL = math.op("GL")
+#let Tr = math.op("Tr")
 
 #let Grp = math.op($sans("Grp")$)
 #let Vect(k) = math.op($#k#h(0.1em)sans("-Vect")$)
@@ -20,8 +21,18 @@
 #let chargrp(G) = $frak(X)(#G)$
 #let algdual(G) = $#G^(or)$
 
-#let injlim = $limits(limits(lim)_(xarrow(#v(-50em), width: #1.8em)))$
-#let projlim = $limits(limits(lim)_(xarrow(sym:arrow.l.long, #v(-50em), width: #1.8em)))$
+#let rightarrow = $stretch(->, size: #15pt)$
+
+#let leftarrow = $stretch(<-, size: #15pt)$
+
+#let movebase(size, x) = text(baseline: size)[#x]
+
+#let (varprojlim, varinjlim) = (leftarrow, rightarrow).map(arrow => $display(limits(lim_(movebase(#(-1.9pt),arrow))))$)
+
+#let injlim(subscript) = $varinjlim_movebase(#(-2.8pt), subscript)$
+#let projlim(subscript) = $varprojlim_movebase(#(-2.8pt), subscript)$
+
+#let xrightarrow = $stretch(->, size: #150%)$
 
 
 #let cal(x) = math.class("unary", text(font: "Computer Modern Symbol", x))
@@ -844,6 +855,9 @@ beta in op("Stab")_(op("SL")_2(ZZ))(oo)$. Then $eta$ can be written as $ eta = p
 #definition[Irreducible Representation][
   A linear representation $rho: G -> GL(V)$ is called *irreducible* if $V$ has no proper nontrivial subrepresentations. A linear representation is called *reducible* if it is not irreducible.
 ]
+#remark[
+  From the viewpoint of $bb(k)[G]$-modules, an irreducible representation of a group $G$ is a simple $bb(k)[G]$-module.
+]
 
 #lemma[Kernal and Image of a $G$-equivariant Map are $G$-invariant][
   Let $rho: G -> GL(V)$ and $sigma: G -> GL(W)$ be two linear representations of a group $G$. Suppose $f: V -> W$ is a $G$-equivariant map. Then
@@ -868,9 +882,17 @@ beta in op("Stab")_(op("SL")_2(ZZ))(oo)$. Then $eta$ can be written as $ eta = p
 #theorem[Schur's Lemma][
   Let $rho: G -> GL(V)$ and $sigma: G -> GL(W)$ be two irreducible linear representations of a group $G$. Suppose $f: V -> W$ is a $G$-equivariant map. We have
 
-  + If $V$ and $W$ are not isomorphic, then $f=0$.
+  + Either $f$ is an isomorphism, or $f=0$.
 
-  + If $V$ is a finite-dimensional vector space over an algebraically closed field $bb(k)$ and $W=V$, then $f=lambda op("id")_V$ for some $lambda in bb(k)$.
+  + If $V$ is a finite-dimensional vector space over an algebraically closed field $bb(k)$ and $W=V$, then $f=lambda op("id")_V$ for some $lambda in bb(k)$. In particular, we have
+    
+  + If $V$ and $W$ are finite-dimensional vector spaces over an algebraically closed field $bb(k)$, then
+    $
+      dim_bb(k) op("Hom")_(Mod(bb(k)[G])) (V, W) = cases(
+        1& " if " dim_bb(k) V = dim_bb(k) W, 
+        0& " if " dim_bb(k) V eq.not dim_bb(k) W
+      )
+    $
 ]
 #proof[
   + Suppose $f eq.not 0$. This implies $ker f eq.not V$ and $im f eq.not {0}$. According to @kernel-and-image-of-equivariant-map-are-invariant, $ker f$ and $im f$ are $G$-invariant. Since $rho$ and $sigma$ are irreducible, $G$-invariant subspaces of $V$ and $W$ are either entire space or $0$. Therefore, we have $ker f = {0}$ and $im f = W$, which implies $f$ is an isomorphism.
@@ -903,6 +925,69 @@ beta in op("Stab")_(op("SL")_2(ZZ))(oo)$. Then $eta$ can be written as $ eta = p
   A nonzero finite-dimensional representation always contains a nonzero irreducible subrepresentation.
 ]
 
+=== Charater Theory
+#definition[Character of a Representation][
+  Let $V$ be a finite-dimensional vector space over $bb(k)$ and $rho: G -> GL(V)$ be a linear representation of a group $G$. The *character* of $rho$ is the function $chi_rho: G -> bb(k)$ defined by
+  $
+    chi_rho (g) = Tr(rho_g), quad forall g in G.
+  $
+]
+
+#definition[Degree of a Character][
+  Let $rho: G -> GL(V)$ be a finite-dimensional representation and $chi_rho$ be the character of $rho$. The *degree* of $chi_rho$ is the dimension of the vector space $V$.
+ 
+]
+
+#definition[Class Function][
+  A function $f: G -> bb(k)$ is called a *class function* if it is constant on each conjugacy class of $G$. The set of all class functions of $G$ is a $bb(k)$-vector space.
+]
+
+#proposition[Class Function Form the Center of $bb(k)[G]$][
+  If $G$ is a finite group. Then a class function $f: G -> bb(k)$ can be viewed as an element
+  $
+    sum_(g in G) f(g) g.
+  $
+  The set of all class functions of $G$ is precisely the center of $bb(k)[G]$.
+]
+#proof[
+  Suppose $f: G -> bb(k)$ is a function. If $f$ is a class function, then for any $h in G$, we have
+  $
+    (sum_(g in G) f(g) g)h = sum_(g in G) f(h g h^(-1)) h g h^(-1) h= sum_(g in G) f(g) h g =h(sum_(g in G) f(g) g).
+  $
+  which implies $sum_(g in G) f(g) g in Z(bb(k)[G])$.
+
+  Conversely, if $sum_(g in G) f(g) g in Z(bb(k)[G])$, then for any $h in G$, we have
+  $
+    sum_(g in G) f(g) g = h (sum_(g in G) f(g) g)h^(-1) = sum_(g in G) f(g) h g h^(-1)= sum_(g in G) f(h^(-1) g h) g ==> f(g) = f(h^(-1) g h),
+  $
+  which implies $f$ is a class function.
+  
+]
+
+#definition[Irreducible Character][
+  The character $chi_rho$ of a linear representation $rho: G -> GL(V)$ is called an *irreducible character* if $rho$ is an irreducible representation.
+]
+
+#proposition[Properties of Characters][
+  Let $V$ be a $n$-dimensional vector space over $bb(k)$ and $rho: G -> GL(V)$ be a representation. Then the character $chi_rho$ of $rho$ has the following properties:
+
+  + $chi_rho$ is a class function. The set of irreducible characters of $G$ forms a basis of the $bb(k)$-vector space of class functions of $G$.
+
+  + Isomorphic representations have the same characters.
+
+
+]
+
+#proposition[Properties of Characters over Field of Characteristic 0][
+  Let $V$ be a $n$-dimensional vector space over $bb(k)$ and $rho: G -> GL(V)$ be a representation. Suppose $bb(k)$ has characteristic $0$. Then the character $chi_rho$ of $rho$ has the following properties:
+
+  + Two representations are isomorphic if and only if they have the same character.
+
+  + $chi(1)=n$.
+]
+
+
+
 #pagebreak()
 
 = Linear Representations of Finite Groups
@@ -911,7 +996,7 @@ beta in op("Stab")_(op("SL")_2(ZZ))(oo)$. Then $eta$ can be written as $ eta = p
 Recall a linear map $p:V->V$ is called a projection if $p^2=p$. If $p:V->V$ is a projection, then $V=im p plus.circle ker p$.
 
 #lemma[][
-  Let $G$ be finite Group, $V$ be a finite dimensional $bb(k)$-vector space and $rho: G -> GL(V)$ be a representation. If $W$ is a $G$-invariant subspace of $V$, then there exists a complement $W'$ of $W$ in $V$ such that $V = W plus.circle W^0$ and $W^0$ is also $G$-invariant.
+  Let $G$ be finite Group, $V$ be a finite dimensional $bb(k)$-vector space and $rho: G -> GL(V)$ be a representation. Suppose $op("char")(bb(k))$ does not divide $|G|$. If $W$ is a $G$-invariant subspace of $V$, then there exists a complement $W'$ of $W$ in $V$ such that $V = W plus.circle W^0$ and $W^0$ is also $G$-invariant.
 ]<complement-of-invariant-subspace>
 #proof[
   Let $W'$ be an arbitrary complement of $W$ in $V$. Then $V = W plus.circle W'$. Let $op("pr")_W: W plus.circle W' -> W$ be the projection onto $W$. Define
@@ -934,8 +1019,14 @@ Recall a linear map $p:V->V$ is called a projection if $p^2=p$. If $p:V->V$ is a
 The following property is called complete reducibility, or semisimplicity.
 
 
-#proposition[Direct Sum Decomposition of Finite Dimensional Representations][
-  Every finite-dimensional representation of a finite group is a direct sum of irreducible representations.
+#proposition[Maschke's theorem][
+  Let $G$ be a finite group and $bb(k)$ be a field such that $op("char")(bb(k))$ does not divide $|G|$. Then 
+  
+  + every finite-dimensional representation of a $G$ over $bb(k)$ is a direct sum of irreducible representations.
+
+  + $bb(k)[G]$ is semisimple.
+
+  + $[sans(upright("B"))G, Vect(bb(k))^("fin")]$ is a semi-simple category.
 ]
 #proof[
   Let $G$ be a finite group and $rho:G->GL(V)$ be a finite-dimensional representation. We proceed by induction on $dim V$.
@@ -1101,7 +1192,7 @@ The following property is called complete reducibility, or semisimplicity.
 #definition[$p$-adic Integer][
   Let $p$ be a prime number. The $p$-adic integer topological ring is defined as
   $
-    ZZ_p = projlim_n ZZ \/ p^n ZZ.
+    ZZ_p = projlim(n) ZZ \/ p^n ZZ.
   $
   The universal property of $ZZ_p$ is given by the following commutative diagram
 
