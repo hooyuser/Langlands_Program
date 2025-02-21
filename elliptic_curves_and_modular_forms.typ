@@ -1,5 +1,6 @@
-#import "@preview/fletcher:0.5.4" as fletcher: diagram, node, edge
-#import "@preview/cetz:0.3.1"
+#import "@preview/fletcher:0.5.5" as fletcher: diagram, node, edge
+#import "@preview/cetz:0.3.2"
+#import "@preview/in-dexter:0.7.0" as in-dexter: index
 #import "@local/math-notes:0.2.0": *
 
 
@@ -7,6 +8,8 @@
   title: [ELLIPTIC CURVES \
     And MODULAR FORMS],
 )
+
+#let index_math = index.with(index: "Math")
 
 #let SL = math.op("SL")
 #let PSL = math.op("PSL")
@@ -44,9 +47,16 @@
   $
 )
 
+#let noindent(body) = {
+  set par(first-line-indent: 0pt)
+  body
+}
+
 = Basic Concepts of Elliptic Curves <basic-concepts-of-elliptic-curves>
 == Elliptic Curves <elliptic-curves>
-An elliptic curve is a smooth, projective, algebraic curve of genus one with a distinguished point.
+#definition[Elliptic Curve][
+  An *elliptic curve* is a smooth, projective, algebraic curve of genus one with a distinguished point.
+]
 
 === Long Weierstrass form <long-weierstrass-form>
 Affine part $ y^2 + a_1 x y + a_3 y = x^3 + a_2 x^2 + a_4 x + a_6 $
@@ -65,7 +75,10 @@ Then the discriminant is defined as
 $
   Delta = - b_2^2 b_8 - 8 b_4^3 - 27 b_6^2 + 9 b_2 b_4 b_6 = frac(c_4^3 - c_6^2, 1728)
 $
-And the $j$-invariant is defined as $ j = c_4^3 \/ Delta $ Invariant holomorphic differential form (Néron differential) $ omega = upright(d) p lr((z)) \/ p^prime lr((z)) = upright(d) z = frac(upright(d) x, 2 y + a_1 x + a_3) $
+And the $j$-invariant is defined as $ j = c_4^3 \/ Delta $ Invariant holomorphic differential form (Néron differential)
+$
+  omega = dif p lr((z)) \/ p^prime lr((z)) = dif z = (dif x) / (2 y + a_1 x + a_3)
+$
 
 === Short Weierstrass form <short-weierstrass-form>
 Affine part $ y^2 = x^3 + a x + b $ with determinant $ Delta = - 16 lr((4 a^3 + 27 b^2)) eq.not 0 $ The $j$-invariant is defined as $ j = 1728 frac(4 a^3, 4 a^3 + 27 b^2) $
@@ -77,10 +90,10 @@ $
 $
 Complete elliptic integral of the first kind
 $
-  K(k)= integral_0^1 (upright(d) x) / sqrt((1-x^2)(1-k^2 x^2))
+  K(k)= integral_0^1 (dif x) / sqrt((1-x^2)(1-k^2 x^2))
 $
 
-Let $omega = (upright(d) x) / y$, then
+Let $omega = (dif x) / y$, then
 $
   integral_(C_1) omega = 4 K lr((k)) ,
 $
@@ -89,7 +102,11 @@ where $C_1$ is a closed path around from $0$ to $1$ and back to $0$.
 === Carlson symmetric form <carlson-symmetric-form>
 $
   y^2 = x lr((x + 1 - k^2)) lr((x + 1))
-$ Complete elliptic integral of the first kind $ K(k)=R_F (0,1-k^2,1)=1/2 integral_0^infinity (upright(d) x)/sqrt(x(x+1-k^2)(x+1)) $ where $R_F$ is the Carlson symmetric form.
+$ Complete elliptic integral of the first kind
+$
+  K(k)=R_F (0,1-k^2,1)=1 / 2 integral_0^oo (dif x) / sqrt(x(x+1-k^2)(x+1))
+$
+where $R_F$ is the Carlson symmetric form.
 
 === Carlson to Legendre <carlson-to-legendre>
 Suppose $ E_1 : y^2 & = lr((1 - x^2)) lr((1 - k^2 x^2))\
@@ -347,7 +364,7 @@ $
 #proof[
   It is sufficient to show that for any $(a:c)in upright(bold(P))^1_QQ$, where $a$, $c$ are coprime integers, there exists $gamma in SL_2(ZZ)$ such $gamma oo = (a:c) $. Note that coprimeness guarantees that there exist $b,d in ZZ$ such that $a d - b c = 1$. So take $ gamma=mat(a,b;c,d)in SL_2(ZZ) $ and we have
   $
-    gamma oo=mat(a,b;c,d) mat(1;..;0)=mat(a;..;c).
+    gamma oo=mat(a,b;c,d) mat(1;dot dot;0)=mat(a;dot dot;c).
   $
 ]
 
@@ -361,12 +378,12 @@ $
     pi_N : SL_2 (bb(Z)) --> SL_2 (bb(Z) \/ N bb(Z)).
   $
   The *principal congruence subgroup of
-level $N$* in $ upright(S L)_2 (bb(Z))$ is the kernel of $pi_N$,
+level $N$* #index("congruence subgroup", "principal") in $ upright(S L)_2 (bb(Z))$ is the kernel of $pi_N$,
   and it is usually denoted by
   $
     Gamma (N) = ker pi_N = { mat( a, b; c, d) in upright(S L)_2 (bb(Z)) : mat(delim: "[", a, b; c, d) equiv mat( 1, ; , 1) med(mod med N) }.
   $
-  where the matrix congruence is interpreted entrywise, i.e.
+  #index_math(display: [$Gamma (N)$], "Gamma(N)") where the matrix congruence is interpreted entrywise, i.e.
   $
     a &equiv d &equiv 1 med &(mod med N),\
     b &equiv c &equiv 0 med &(mod med N).
@@ -413,7 +430,7 @@ level $N$* in $ upright(S L)_2 (bb(Z))$ is the kernel of $pi_N$,
 ]
 
 #definition[Congruence Subgroup of $SL_2(ZZ)$][
-  A subgroup $Gamma$ of $SL_2(ZZ)$ is called a *congruence subgroup* if it contains $Gamma(N)$ for some positive integer $N$.
+  A subgroup $Gamma$ of $SL_2(ZZ)$ is called a *congruence subgroup* #index("congruence subgroup") if it contains $Gamma(N)$ for some positive integer $N$.
 ]
 
 #proposition[Properties of Congruence Subgroups][
@@ -433,7 +450,7 @@ level $N$* in $ upright(S L)_2 (bb(Z))$ is the kernel of $pi_N$,
 ]
 
 #example[Congruence Subgroups $Gamma_1(N)$][
-  Let $N$ be a positive integer. Define $P$ to be the subgroup of $SL_2(ZZ\/N ZZ)$ consisting of unipotent upper triangular matrices. For each $N$,
+  Let $N$ be a positive integer. Define $P$ to be the subgroup of $SL_2(ZZ\/N ZZ)$ consisting of unipotent upper triangular matrices. For each $N$, #index_math(display: [$Gamma_1 (N)$], "Gamma_1(N)")
   $
     Gamma_1 (N) = pi_N^(-1)(P) = { mat( a, b; c, d) in upright(S L)_2 (bb(Z)) : mat(delim: "[", a, b; c, d) equiv mat( 1, *; , 1) med(mod med N) }
   $
@@ -469,7 +486,7 @@ level $N$* in $ upright(S L)_2 (bb(Z))$ is the kernel of $pi_N$,
 
 
 #example[Hecke Congruence Subgroups $Gamma_0(N)$][
-  Let $N$ be a positive integer. Define $SL_2^◹(ZZ\/N ZZ)$ to be the subgroup of $SL_2(ZZ\/N ZZ)$ consisting of upper triangular matrices. The *Hecke congruence subgroup of level $N$* is defined as
+  Let $N$ be a positive integer. Define $SL_2^◹(ZZ\/N ZZ)$ to be the subgroup of $SL_2(ZZ\/N ZZ)$ consisting of upper triangular matrices. The *Hecke congruence subgroup of level $N$* is defined as #index_math(display: [$Gamma_0 (N)$], "Gamma_0(N)")
   $
     Gamma_0 (N) = pi_N^(-1)(SL_2^◹(ZZ\/N ZZ)) = { mat( a, b; c, d) in upright(S L)_2 (bb(Z)) : mat(delim: "[", a, b; c, d) equiv mat( *, *; , *) med(mod med N) }.
   $
@@ -484,7 +501,7 @@ level $N$* in $ upright(S L)_2 (bb(Z))$ is the kernel of $pi_N$,
 ]
 
 #definition[Cusp of a Congruence Subgroup][
-  Let $Gamma$ be a congruence subgroup of $SL_2(ZZ)$. Then $Gamma$ acts on $QQ union {oo}$ through Mobius transformations. A *cusp* of $Gamma$ is a $Gamma$-orbit in $upright(bold(P))^1_QQ=QQ union.sq {oo}$.
+  Let $Gamma$ be a congruence subgroup of $SL_2(ZZ)$. Then $Gamma$ acts on $QQ union {oo}$ through Mobius transformations. A *cusp* of $Gamma$ is a $Gamma$-orbit in $upright(bold(P))^1_QQ=QQ union.sq {oo}$. #index_math(display: [$upright(bold(P))^1_QQ$], "P^1(Q)")
 ]
 
 #proposition[Congruence Subgroups have Finite Number of Cusps][
@@ -511,7 +528,7 @@ level $N$* in $ upright(S L)_2 (bb(Z))$ is the kernel of $pi_N$,
 
 
 #definition[Factor of Automorphy][
-  For any $gamma = mat( a, b; c, d) in upright("GL")_2 (bb(C))$, the *factor of automorphy* of $gamma$ is defined as
+  For any $gamma = mat( a, b; c, d) in upright("GL")_2 (bb(C))$, the *factor of automorphy* of $gamma$ is defined as #index_math(display: [$j(gamma, tau)$], "j(gamma, tau)")
   $
     j(gamma, tau) = c tau + d, quad tau in bb(H).
   $
@@ -598,12 +615,14 @@ $
   q_N(tau_1) = q_N(tau_2) <==> tau_1 equiv tau_2 med(mod med N) <==> tau_1 - tau_2 in N bb(Z).
 $
 $q_N$ has the following universal property: for any holomorphic function $f: bb(H) --> bb(C)$ such that $f(tau + N) = f(tau)$, there exists a unique holomorphic function $tilde(f): bb(D)^* --> bb(C)$ such that $f = tilde(f) circle.tiny q_N$.
+
 #commutative_diagram($
   HH edge("d", "->>", q_N) edge(->, f) &CC\
   DD^* edge("ru", "-->", tilde(f), #right)
 $)
 
-This motivates the following definition.
+#noindent[This motivates the following definition.]
+
 #definition[$q$-expansion of $N ZZ$-periodic Function][
   Let $N in ZZ_(>=1)$ and $f: bb(H) --> bb(C)$ be a holomorphic function such that $f(tau + N) = f(tau)$. Suppose $f = tilde(f) circle.tiny q_N$ and $tilde(f)$ has Laurent expansion $tilde(f)(q)=limits(sum)_(n in ZZ)  a_n q^n$. Then $f$ can be written as
   $
@@ -631,7 +650,7 @@ Since $q_N (x + i y) -> 0$ as $y -> oo$ uniformly with respect to $x$, it is sen
 
   - $f$ *vanishes at $oo$* if $a_n = 0$ for all $n <= 0$.
 ]
-If $f$ is $f: bb(H) --> bb(C)$ is a $N ZZ$-periodic holomorphic function, then for any $d in ZZ_(>=1)$, $f$ is also a $d N ZZ$-periodic holomorphic function and we have $q_N=q_(d N)^d$
+If $f: bb(H) --> bb(C)$ is a $N ZZ$-periodic holomorphic function, then for any $d in ZZ_(>=1)$, $f$ is also a $d N ZZ$-periodic holomorphic function and we have $q_N=q_(d N)^d$
 . The $q$-expansion of $f$ with respect to $q_(d N) $ is given by
 $
   f( q ) = sum_(n in ZZ) a_n q^n_(N)= sum_(n in ZZ) a_n e^((2 pi i n tau) / (N))= sum_(n in ZZ) a_n q^(d n)_(d N) = sum_(n in ZZ) a_n e^((2 pi i d n tau) / (d N)).
@@ -707,23 +726,23 @@ beta in op("Stab")_(op("SL")_2(ZZ))(oo)$. Then $eta$ can be written as $ eta = p
   + #emph[Growth condition]: $f$ is holomorphic at all cusps. That is, for any cusp $Gamma x in Gamma\\ upright(bold(P))^1_QQ$, there exists $alpha in op("SL")_2(ZZ)$ such $x = alpha oo$ and $f[alpha]_k $ is holomorphic at $oo$.
 
   All modular forms of weight $k$ and level $Gamma$
-  form a $CC$-vector space, denoted by $M_k (Gamma)$. If $f$ is a modular form of level $Gamma(N)$, then $f$ is called a *modular form of level $N$*.
+  form a $CC$-vector space, denoted by $M_k (Gamma)$. If $f$ is a modular form of level $Gamma(N)$, then $f$ is called a *modular form of level $N$*. #index("modular form")
 ]
 
 #definition[Cuspidal Form][
-  A modular form $f$ of weight $k$ and level $Gamma$ is called a *cuspidal form* if $f$ vanishes at all cusps. The space of cuspidal forms of weight $k$ and level $Gamma$ is denoted by $S_k (Gamma)$.
+  A modular form $f$ of weight $k$ and level $Gamma$ is called a *cuspidal form* #index("cuspidal form") if $f$ vanishes at all cusps. The space of cuspidal forms of weight $k$ and level $Gamma$ is denoted by $S_k (Gamma)$.
 ]
 
 #proposition[Graded $CC$-algebra $M(Gamma)$][
-  Define
+  Define #index_math(display: [$M_k (Gamma)$], "M_k(Gamma)")
   $
     M(Gamma) := plus.big_(k in ZZ) M_k (Gamma).
   $
-  as the direct sum of $CC$-vector spaces. Then $M(Gamma)$ is a graded $CC$-algebra where the multiplication is given by the multiplication of modular forms.
+  #index_math(display: [$M(Gamma)$], "M(Gamma)") as the direct sum of $CC$-vector spaces. Then $M(Gamma)$ is a graded $CC$-algebra where the multiplication is given by the multiplication of modular forms. #index_math(display: [$S_k (Gamma)$], "S_k(Gamma)")
   $
     S(Gamma) := plus.big_(k in ZZ) S_k (Gamma)
   $
-  is a graded ideal of $M(Gamma)$.
+  #index_math(display: [$S(Gamma)$], "S(Gamma)")is a graded ideal of $M(Gamma)$.
 ]
 #proof[
   For any $f in M_k (Gamma)$, $g in M_l (Gamma)$, and $gamma in Gamma$, we have
@@ -758,7 +777,12 @@ beta in op("Stab")_(op("SL")_2(ZZ))(oo)$. Then $eta$ can be written as $ eta = p
 #pagebreak()
 
 = Linear Representations of Groups <representation-theory>
-== Linear Representations of Groups
+#[
+  #set par(first-line-indent: 0pt)
+  This chapter is about the linear representation theory of groups.
+]
+== Representations of Groups
+
 === Basic Concepts
 
 #definition[Linear Representation of a Group][
@@ -815,6 +839,7 @@ beta in op("Stab")_(op("SL")_2(ZZ))(oo)$. Then $eta$ can be written as $ eta = p
   $
     sans("Rep")_bb(k)(G):= [sans(upright("B")) G, Vect(bb(k))] tilde.equiv Mod(bb(k)[G]).
   $
+  #index_math(display: [$sans("Rep")_bb(k)(G)$], "Rep_k(G)")
 ]
 
 #definition[Isomorphism of Linear Representations][
@@ -885,11 +910,11 @@ beta in op("Stab")_(op("SL")_2(ZZ))(oo)$. Then $eta$ can be written as $ eta = p
   + Either $f$ is an isomorphism, or $f=0$.
 
   + If $V$ is a finite-dimensional vector space over an algebraically closed field $bb(k)$ and $W=V$, then $f=lambda op("id")_V$ for some $lambda in bb(k)$. In particular, we have
-    
+
   + If $V$ and $W$ are finite-dimensional vector spaces over an algebraically closed field $bb(k)$, then
     $
       dim_bb(k) op("Hom")_(Mod(bb(k)[G])) (V, W) = cases(
-        1& " if " dim_bb(k) V = dim_bb(k) W, 
+        1& " if " dim_bb(k) V = dim_bb(k) W,
         0& " if " dim_bb(k) V eq.not dim_bb(k) W
       )
     $
@@ -912,7 +937,7 @@ beta in op("Stab")_(op("SL")_2(ZZ))(oo)$. Then $eta$ can be written as $ eta = p
   $
 ]
 
-== Finite Dimensional Representations of Groups
+== Finite Dimensional Representations
 #definition[Finite Dimensional Representation][
   A linear representation $rho: G -> GL(V)$ is called *finite dimensional* if $V$ is a finite dimensional $bb(k)$-vector space.
 ]
@@ -935,7 +960,7 @@ beta in op("Stab")_(op("SL")_2(ZZ))(oo)$. Then $eta$ can be written as $ eta = p
 
 #definition[Degree of a Character][
   Let $rho: G -> GL(V)$ be a finite-dimensional representation and $chi_rho$ be the character of $rho$. The *degree* of $chi_rho$ is the dimension of the vector space $V$.
- 
+
 ]
 
 #definition[Class Function][
@@ -961,7 +986,6 @@ beta in op("Stab")_(op("SL")_2(ZZ))(oo)$. Then $eta$ can be written as $ eta = p
     sum_(g in G) f(g) g = h (sum_(g in G) f(g) g)h^(-1) = sum_(g in G) f(g) h g h^(-1)= sum_(g in G) f(h^(-1) g h) g ==> f(g) = f(h^(-1) g h),
   $
   which implies $f$ is a class function.
-  
 ]
 
 #definition[Irreducible Character][
@@ -974,8 +998,6 @@ beta in op("Stab")_(op("SL")_2(ZZ))(oo)$. Then $eta$ can be written as $ eta = p
   + $chi_rho$ is a class function. The set of irreducible characters of $G$ forms a basis of the $bb(k)$-vector space of class functions of $G$.
 
   + Isomorphic representations have the same characters.
-
-
 ]
 
 #proposition[Properties of Characters over Field of Characteristic 0][
@@ -990,9 +1012,15 @@ beta in op("Stab")_(op("SL")_2(ZZ))(oo)$. Then $eta$ can be written as $ eta = p
 
 #pagebreak()
 
-= Linear Representations of Finite Groups
+= Representations of Finite Groups
+#[
+  #set par(first-line-indent: 0pt)
+  This chapter is devoted to the study of linear representations of finite groups.
+]
 
-== Finite Dimensional Representations of Finite Groups
+== Finite Dimensional Representations
+In this section we focus on the finite-dimensional representations of finite groups.
+
 Recall a linear map $p:V->V$ is called a projection if $p^2=p$. If $p:V->V$ is a projection, then $V=im p plus.circle ker p$.
 
 #lemma[][
@@ -1012,7 +1040,6 @@ Recall a linear map $p:V->V$ is called a projection if $p^2=p$. If $p:V->V$ is a
     rho_h circle.tiny op("pr")_W^0 = op("pr")_W^0 circle.tiny rho_h.
   $
   For any $w in W^0$, we have $op("pr")_W^0 circle.tiny rho_h (w) = rho_h circle.tiny op("pr")_W^0 (w) = 0$, which implies $rho_h (w) in ker op("pr")_W^0 = W^0$. Therefore, $W^0$ is $G$-invariant.
-
 ]
 
 
@@ -1020,8 +1047,8 @@ The following property is called complete reducibility, or semisimplicity.
 
 
 #proposition[Maschke's theorem][
-  Let $G$ be a finite group and $bb(k)$ be a field such that $op("char")(bb(k))$ does not divide $|G|$. Then 
-  
+  Let $G$ be a finite group and $bb(k)$ be a field such that $op("char")(bb(k))$ does not divide $|G|$. Then
+
   + every finite-dimensional representation of a $G$ over $bb(k)$ is a direct sum of irreducible representations.
 
   + $bb(k)[G]$ is semisimple.
@@ -1052,7 +1079,7 @@ The following property is called complete reducibility, or semisimplicity.
   $
 ]
 #definition[Character Group of a Group][
-  All characters of $G$ form a $CC^times$-vector space, denoted by $chargrp(G):=op("Hom")_(sans("Grp"))(G,CC^times)$, called the *character group* of $G$. The group operation is given by pointwise multiplication
+  All characters of $G$ form a $CC^times$-vector space, denoted by $chargrp(G):=op("Hom")_(sans("Grp"))(G,CC^times)$, called the *character group*#index("Ch") of $G$. The group operation is given by pointwise multiplication
   $
     (chi_1 chi_2)(g) = chi_1(g) chi_2(g), quad forall g in G.
   $
@@ -1083,7 +1110,7 @@ The following property is called complete reducibility, or semisimplicity.
   $
 ]
 
-#lemma[][
+#lemma[
   Assume that $G$ is a fnite cyclic group of order $n$ and $a in G$ is a generator of $G$. Then we have
 
   + $algdual(G)$ has exactly $n$ elements #h(1fr)
@@ -1097,8 +1124,6 @@ The following property is called complete reducibility, or semisimplicity.
       G &-->^(tilde) algdual(G)\
       a^m &--> chi_1^m.
     $
-
-
 ]
 #proof[
   + If $chi in algdual(G)$, then $chi(a) in mu_n$ implies $chi(a) = e^((2 pi i k) / n)$ for some $k in {0,1, dots.c, n-1}$. Hence $chi = chi_k$ for some $k in {0,1, dots.c, n-1}$ and we get
@@ -1251,15 +1276,15 @@ $
 
 
 #definition[Global Field][
-  A #strong[global field] is a field isomorphic to one of the following:
+  A #strong[global field]#index("global field") is a field isomorphic to one of the following:
 
-  - a #strong[number field];: finite extension of $bb(Q)$,
+  - a #strong[number field]#index("global field", "number field"): finite extension of $bb(Q)$,
 
-  - a #strong[function field] over a finite field $bb(F)_q$: finite extension of $bb(F)_q (t)$.
+  - a #strong[function field] over a finite field $bb(F)_q$#index("global field", "function field"): finite extension of $bb(F)_q (t)$.
 ]
 
 #definition[Local Field][
-  A #strong[local field] is a field isomorphic to one of the following:
+  A #strong[local field] #index("local field") is a field isomorphic to one of the following:
 
   - (Character zero): $bb(R)$, $bb(C)$ or a finite extension of $bb(Q)_p$,
 
@@ -1306,7 +1331,6 @@ $
     y & arrow.bar.long p^(-n) (y - a).
   $
   The continuity of $phi$ and $phi^(-1)$ follows from the fact that the addition and multiplication are continuous in $QQ_p$.
-
 ]
 
 #proposition[Open Ball in $QQ_p$ is Compact][
@@ -1374,7 +1398,7 @@ Though $II_(K)$ is a subset of $AA_K$, the topology of $II_(K)$ is not the subsp
 === Adele Ring of $QQ$
 
 #definition[Adele Ring of $QQ$][
-  The #strong[adele ring] of $QQ$ is defined as
+  The #strong[adele ring] #index("adele ring") of $QQ$ is defined as
   $
     bb(A)_(QQ) = { (x_(oo),x_2,x_3,dots.c) in RR times product_p QQ_p mid(|) x_p in ZZ_p "for all but finitely many" p }.
   $
@@ -1392,7 +1416,7 @@ Though $II_(K)$ is a subset of $AA_K$, the topology of $II_(K)$ is not the subsp
 === Idele Group of $bb(Q)$
 
 #definition[Idele Group of $bb(Q)$][
-  The #strong[idele group] of $bb(Q)$ is defined as
+  The #strong[idele group] #index("idele group") of $bb(Q)$ is defined as
   $
     bb(I)_(QQ) = bb(A)_(QQ)^times = op("GL")_1 (bb(A)_(QQ))= { (x_(oo),x_2,x_3,dots.c) in AA_QQ mid(|) x_p in ZZ_p^times "for all but finitely many" p }.
   $
@@ -1405,7 +1429,7 @@ Though $II_(K)$ is a subset of $AA_K$, the topology of $II_(K)$ is not the subsp
 
 #pagebreak()
 
-= L-Functions
+= _L_-Functions
 
 == Dirichlet Charater
 
@@ -1418,7 +1442,7 @@ Though $II_(K)$ is a subset of $AA_K$, the topology of $II_(K)$ is not the subsp
 ]
 
 #proposition[Euler's Product Formula][
-  For any $n in bb(N)$, we have
+  For any $n in bb(N)$, we have the #strong[Euler's product formula] #index("Euler's product formula")
   $ phi (n) = sum_(k = 1)^n bb(1)_((k , n) = 1) = n product_(p divides n) (1 - 1 / p) . $
 ]
 
@@ -1476,7 +1500,7 @@ Though $II_(K)$ is a subset of $AA_K$, the topology of $II_(K)$ is not the subsp
     )
   $
   Such function $chi_m$ is called a #strong[Dirichlet character modulo
-$m$];.
+$m$]. #index("Dirichlet character")
 ]
 #remark[
   We can switch between $chi_m$ and $chi_m^star$ according to the following relation
@@ -1530,14 +1554,14 @@ $m$];.
 ]
 
 #definition[Principal Dirichlet Character][
-  The #strong[principal Dirichlet character modulo $m$] is the simplest
+  The #strong[principal Dirichlet character modulo $m$]#index("Dirichlet Character", "principal") is the simplest
   Dirichlet character defined by
   $
     chi_(m,1) (a) = cases(0 & upright(" if ") [a] in.not (bb(Z) \/ m bb(Z))^times & upright(" i.e. ") (a , q) eq.not 1\
     1 & upright(" if ") [a] in (bb(Z) \/ m bb(Z))^times & upright(" i.e. ") (a , q) = 1
     )
   $
-  This character is also called the *trivial character*.
+  This character is also called the *trivial character*#index("Dirichlet Character", "trivial").
 ]
 
 
@@ -1560,7 +1584,7 @@ $)
 
 
 #definition[Primitive Dirichlet Character][
-  A Dirichlet character $chi_m$ is called a #strong[primitive Dirichlet character] if it cannot be induced by any Dirichlet character modulo $n m$ for any integer $n > 1$. If $chi_m$ is not primitive, then it is said to be *imprimitive*.
+  A Dirichlet character $chi_m$ is called a #strong[primitive Dirichlet character] #index("Dirichlet Character", "primitive") if it cannot be induced by any Dirichlet character modulo $n m$ for any integer $n > 1$. If $chi_m$ is not primitive, then it is said to be *imprimitive*#index("Dirichlet Character", "imprimitive").
 ]
 
 
@@ -1569,7 +1593,7 @@ $)
   $
     a equiv b med mod med q ==> chi_m (a) = chi_m (b).
   $
-  The *conductor* of $chi_m$ is defined as the smallest quasiperiod of $chi_m$.
+  The *conductor* #index("Dirichlet Character", "conductor") of $chi_m$ is defined as the smallest quasiperiod of $chi_m$.
 
 ]
 
@@ -1592,29 +1616,29 @@ $)
 ]
 
 #definition[Parity of Dirichlet Character][
-  Let $chi_m$ be a Dirichlet character modulo $m$. We say $chi_m$ is *even* if $chi_m (-1) = 1$ and *odd* if $chi_m (-1) = -1$.
+  Let $chi_m$ be a Dirichlet character modulo $m$. We say $chi_m$ is *even* if $chi_m (-1) = 1$ and *odd* if $chi_m (-1) = -1$. #index("Dirichlet character", "parity")
 ]
 
 #definition[Order of Dirichlet Character][
-  Let $chi_m$ be a Dirichlet character modulo $m$. The #strong[order] of $chi_m$ is defined as the smallest positive integer $k$ such that $chi_m^k = chi_1$, which is exactly the order of $chi_m^star$ in $algdual(((ZZ\/m ZZ)^times))=op("Hom")_(sans("Ab"))((ZZ\/m ZZ)^times,CC^times)$.
+  Let $chi_m$ be a Dirichlet character modulo $m$. The #strong[order] of $chi_m$ is defined as the smallest positive integer $k$ such that $chi_m^k = chi_1$, which is exactly the order of $chi_m^star$ in $algdual(((ZZ\/m ZZ)^times))=op("Hom")_(sans("Ab"))((ZZ\/m ZZ)^times,CC^times)$. #index("Dirichlet character", "order")
 ]
 
 #definition[Quadratic Dirichlet Character][
-  A Dirichlet character $chi_m$ modulo $m$ is called a #strong[quadratic Dirichlet character] if the order of $chi_m$ is $2$.
+  A Dirichlet character $chi_m$ modulo $m$ is called a #strong[quadratic Dirichlet character] if the order of $chi_m$ is $2$. #index("Dirichlet character", "quadratic")
 ]
 
-== Dirichlet L-Function
+== Dirichlet $L$-Function
 
-#definition[Dirichlet L-function][
+#definition[Dirichlet $L$-function][
   Given any Dirichlet character $chi: ZZ -> CC$, the #strong[Dirichlet
-  $L$-series] is defined as
+  $L$-series] is defined as #index_math(display: [$L(s, chi)$], "L(s, chi)")
   $
     L(s, chi) = sum_(n = 1)^oo chi(n) / n^(s)
   $
-  which is absolutely convergent for $upright(R e)(s) > 1$. It can be extended to a meromorphic function on the whole complex plane, and is then called a *Dirichlet L-function *.
+  which is absolutely convergent for $upright(R e)(s) > 1$. It can be extended to a meromorphic function on the whole complex plane, and is then called a *Dirichlet $L$-function*. #index(display:[$L$-function], "L-function") #index("L-function", "Dirichlet")
 ]
 
-#proposition[Euler Product Formula for Dirichlet L-functions][
+#proposition[Euler Product Formula for Dirichlet $L$-functions][
   For any Dirichlet character $chi: ZZ -> CC$, the Dirichlet L-function $L(s, chi)$ has the following properties:
   $
     L(s, chi) = product_(p "prime") 1 / (1 - chi (p) p^(-s)) " for " upright(R e)(s) > 1.
@@ -1622,7 +1646,7 @@ $)
 ]
 
 #definition[Gauss Sum of Dirichlet Character][
-  Let $chi$ be a Dirichlet character modulo $m$. The #strong[Gauss sum] of $chi$ is defined as
+  Let $chi$ be a Dirichlet character modulo $m$. The #strong[Gauss sum]#index("Gauss Sum") of $chi$ is defined as #index_math(display:[$G(chi)$], "G(chi)")
   $
     G(chi)=sum_(a = 1)^(m) chi(a) e^((2 pi i a) / m).
   $
@@ -1638,10 +1662,11 @@ $)
 
 
 #definition[Root Number of Dirichlet Character][
-  Let $chi$ be a primitive Dirichlet character modulo $m$. The #strong[root number] of $chi$ is defined as
+  Let $chi$ be a primitive Dirichlet character modulo $m$. The #strong[root number] #index("Dirichlet Character", "Root Number") of $chi$ is defined as
   $
     epsilon(chi)=G(chi) / (i^delta sqrt(q))=cases(G(chi)/( sqrt(q)) & upright(" if ") chi "is even,", -i G(chi)/( sqrt(q))& upright(" if ") chi "is odd.").
   $
+  #index_math(display: [$epsilon(chi)$], "epsilon(chi)")
 ]
 
 #proposition[Properties of Root Number][
@@ -1658,11 +1683,11 @@ $)
   $
     delta = cases(0 & upright(" if ") chi(-1) = 1 " i.e. " chi "is even,", 1 & upright(" if ") chi(-1) = -1 " i.e. " chi "is odd.")
   $
-  The Euler factor of the Riemann zeta function at a prime $p$ is given by
+  The Euler factor of the Riemann zeta function at a prime $p$ is given by #index_math(display:[$L_p(s, chi)$], "L_p(s, chi)")
   $
     L_p (s, chi)=1 / (1 - chi (p) p^(-s)).
   $
-  The Euler factor of the Dirichlet L-function at infinity is given by
+  The Euler factor of the Dirichlet L-function at infinity is given by #index_math(display:[$L_(oo)(s, chi)$], "L_(oo)(s, chi)")
   $
     L_(oo)(s, chi)=pi^(-(s+delta) / 2) Gamma((s+delta) / 2) = cases(pi^(-s / 2) Gamma(s / 2) & upright(" if ") chi "is even,", pi^(-(s+1) / 2) Gamma((s+1) / 2) & upright(" if ") chi "is odd.")
   $
@@ -1687,12 +1712,12 @@ $)
     &= sum_(n = 0)^oo (-1)^(n) / (2n + 1)^s \
     &= 1 / Gamma(s) integral_(0)^(oo) (x^(s - 1)e^(-x)) / (1+e^(-2x)) dif x.
   $
-  It is absolutely convergent for $upright(R e)(s) > 0$ and can be extended to a meromorphic function on the whole complex plane. $L(s, chi_4)$ also called *Dirichlet beta function*.
+  It is absolutely convergent for $upright(R e)(s) > 0$ and can be extended to a meromorphic function on the whole complex plane. $L(s, chi_4)$ also called *Dirichlet beta function*#index("Dirichlet beta function").
   Its special values at odd positive integer are given by
   $
     L(2n + 1, chi_4) = ((-1)^n E_(2n)) / (2(2n)!)(pi / 2)^(2n+1) in pi^(2n+1) bb(Q),
   $
-  where $E_(2n)$ is the $2n$-th Euler number. The number $L(2, chi_4)$ is known as *Catalan's constant*.
+  where $E_(2n)$ is the $2n$-th Euler number. The number $L(2, chi_4)$ is known as *Catalan's constant*#index("Catalan's constant").
 
 ]
 
@@ -1701,7 +1726,7 @@ $)
 Riemann zeta function is a Dirichlet L-function associated to the principal Dirichlet character modulo $1$.
 
 #definition[Riemann Zeta Function][
-  The #strong[Riemann zeta function] is defined as
+  The #strong[Riemann zeta function] is defined as #index_math(display: [$zeta(s)$], "zeta(s)")
   $
     zeta(s)=L(s,chi_1) = sum_(n = 1)^oo 1 / n^s
   $
@@ -1766,6 +1791,16 @@ $
 == $n=1$
 
 === Automorphic Side
+#let myrightarrow = pad(top: -0.7em, math.stretch(math.arrow, size: 1.9em))
+#let padlim = $op(#pad(bottom: 0.43em, $limits(lim)_myrightarrow$))$
+
+#let movebaselim = movebase(0.085em, padlim)
+$
+  limits(lim_(myrightarrow))_(i in I) F(U_i)
+  = limits(padlim)_(i in I) F(U_i)
+  = limits(movebaselim)_(i in I) F(U_i)
+  = varinjlim(i in I) F(U_i)
+$
 
 
 
