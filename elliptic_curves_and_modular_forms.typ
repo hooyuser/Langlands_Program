@@ -1,12 +1,13 @@
-#import "@preview/fletcher:0.5.5" as fletcher: diagram, node, edge
-#import "@preview/cetz:0.3.2"
+#import "@preview/fletcher:0.5.7" as fletcher: diagram, node, edge
+#import "@preview/cetz:0.3.4"
 #import "@preview/in-dexter:0.7.0" as in-dexter: index
-#import "@local/math-notes:0.2.0": *
+#import "@local/math-notes:0.3.0": *
 
 
 #show: math_notes.with(
   title: [ELLIPTIC CURVES \
     And MODULAR FORMS],
+  theme: "light",
 )
 
 #let index_math = index.with(index: "Math")
@@ -16,13 +17,17 @@
 #let GL = math.op("GL")
 #let Tr = math.op("Tr")
 
+#let Gal = math.op("Gal")
+#let Frob = math.op("Frob")
+
 #let Grp = math.op($sans("Grp")$)
 #let Vect(k) = math.op($#k#h(0.1em)sans("-Vect")$)
 #let Mod(k) = math.op($#k#h(0.1em)sans("-Mod")$)
 
+#let pmod(n) = $med (mod med #n)$
 
 #let chargrp(G) = $frak(X)(#G)$
-#let algdual(G) = $#G^(or)$
+#let algdual(G) = $#G^(or.curly)$
 
 #let rightarrow = $stretch(->, size: #15pt)$
 
@@ -57,6 +62,7 @@
 #definition[Elliptic Curve][
   An *elliptic curve* is a smooth, projective, algebraic curve of genus one with a distinguished point.
 ]
+
 
 === Long Weierstrass form <long-weierstrass-form>
 Affine part $ y^2 + a_1 x y + a_3 y = x^3 + a_2 x^2 + a_4 x + a_6 $
@@ -193,69 +199,130 @@ $
   cal(D) = {tau in HH mid(|) -1 / 2 <= op("Re")(tau) <= 1 / 2, med |tau| >= 1}
 $
 
-#{
-  set align(center)
-  v(1em)
-  cetz.canvas(
-    length: 1.2cm,
-    {
-      import cetz.draw: *
-      scale(200%)
-      set-style(stroke: (paint: luma(40%), thickness: 1pt))
-      // Your drawing code goes here
-      let rho_y = calc.sqrt(3) / 2
-      let boundry_color_1 = teal.darken(10%)
-      let boundry_color_2 = orange.lighten(10%).desaturate(15%)
-      let boundry_point_color = red.darken(5%).desaturate(15%)
+#cetz_canvas({
+  import cetz.draw: *
+  scale(200%)
+  set-style(stroke: (paint: luma(40%), thickness: 1pt))
+  // Your drawing code goes here
+  let rho_y = calc.sqrt(3) / 2
+  let boundry_color_1 = teal.darken(10%)
+  let boundry_color_2 = orange.lighten(10%).desaturate(15%)
+  let boundry_point_color = red.darken(5%).desaturate(15%)
 
-      let region_color = gradient.linear(aqua.desaturate(90%), aqua.desaturate(50%), angle: 90deg)
+  let boundry_stroke_1 = (paint: boundry_color_1, thickness: 2pt)
+  let boundry_stroke_2 = (paint: boundry_color_2, thickness: 2pt)
 
-      let boundry_stroke_1 = (paint: boundry_color_1, thickness: 2pt)
-      let boundry_stroke_2 = (paint: boundry_color_2, thickness: 2pt)
+  get-ctx(ctx => {
+    let background_color = ctx.background
+    let luma = background_color.luma().components(alpha: false).at(0)
 
+    let region_color = gradient.linear(background_color.desaturate(10%), aqua.desaturate(80%), angle: 90deg)
 
-      rect((-0.5, 0), (0.5, 2.299), fill: region_color, stroke: none) // region
+    rect((-0.5, 0), (0.5, 2.299), fill: region_color, stroke: none) // region
 
+    line((0.5, 0), (0.5, rho_y))
 
-      line((0.5, 0), (0.5, rho_y))
-      arc((1, 0), start: 0deg, delta: 180deg, fill: white)
+    arc((1, 0), start: 0deg, delta: 180deg, fill: ctx.background)
+  })
 
-      arc(
-        (60deg, 1),
-        start: 60deg,
-        delta: 60deg,
-        stroke: boundry_stroke_2,
-        mark: (symbol: "straight", stroke: boundry_stroke_2, offset: 12%, scale: 0.7),
-      ) // mark
+  arc(
+    (60deg, 1),
+    start: 60deg,
+    delta: 60deg,
+    stroke: boundry_stroke_2,
+    mark: (symbol: "straight", stroke: boundry_stroke_2, offset: 12%, scale: 0.7),
+  ) // mark
 
-      arc((60deg, 1), start: 60deg, delta: 60deg, stroke: boundry_stroke_2)
+  arc((60deg, 1), start: 60deg, delta: 60deg, stroke: boundry_stroke_2)
 
-      line((-1.5, 0), (1.5, 0)) // x-axis
-
-
-      line((0.5, 0), (0.5, rho_y))
-      line((0.5, rho_y), (0.5, 2.3), stroke: boundry_stroke_1)
-      mark((0.5, rho_y), (0.5, 1.8), symbol: "straight", stroke: boundry_stroke_1, scale: 0.7)
+  line((-1.5, 0), (1.5, 0)) // x-axis
 
 
-      line((-0.5, 0), (-0.5, 2.3))
-      line((-0.5, rho_y), (-0.5, 2.3), stroke: boundry_stroke_1)
-      mark((-0.5, rho_y), (-0.5, 1.8), symbol: "straight", stroke: boundry_stroke_1, scale: 0.7)
+  line((0.5, 0), (0.5, rho_y))
+  line((0.5, rho_y), (0.5, 2.3), stroke: boundry_stroke_1)
+  mark((0.5, 1.75), (0.5, 1.8), symbol: "straight", stroke: boundry_stroke_1, scale: 0.7)
 
-      circle((0, 1), radius: .04, fill: boundry_point_color, stroke: none)
-      circle((60deg, 1), radius: .04, fill: rgb("#19bf13"), stroke: none)
-      circle((120deg, 1), radius: .04, fill: rgb("#19bf13"), stroke: none)
 
-      content((0.5, -0.15), $1 / 2$)
-      content((-0.5, -0.15), $-1 / 2$)
-      content((1, -0.15), $1$)
-      content((-1, -0.15), $-1$)
-      content((0, 0.85), $i$)
-      content((0.63, 0.97), $rho$)
-      content((-0.63, 0.97), $rho^2$)
-    },
-  )
-}
+  line((-0.5, 0), (-0.5, 2.3))
+  line((-0.5, rho_y), (-0.5, 2.3), stroke: boundry_stroke_1)
+  mark((-0.5, 1.75), (-0.5, 1.8), symbol: "straight", stroke: boundry_stroke_1, scale: 0.7)
+
+  circle((0, 1), radius: .04, fill: boundry_point_color, stroke: none)
+  circle((60deg, 1), radius: .04, fill: rgb("#19bf13"), stroke: none)
+  circle((120deg, 1), radius: .04, fill: rgb("#19bf13"), stroke: none)
+
+  content((0.5, -0.15), $1 / 2$)
+  content((-0.5, -0.15), $-1 / 2$)
+  content((1, -0.15), $1$)
+  content((-1, -0.15), $-1$)
+  content((0, 0.85), $i$)
+  content((0.63, 0.97), $rho$)
+  content((-0.63, 0.97), $rho^2$)
+})
+
+// #{
+//   set align(center)
+//   v(1em)
+//   cetz.canvas(
+//     length: 1.2cm,
+//     {
+//       import cetz.draw: *
+//       scale(200%)
+//       set-style(stroke: (paint: luma(40%), thickness: 1pt))
+//       // Your drawing code goes here
+//       let rho_y = calc.sqrt(3) / 2
+//       let boundry_color_1 = teal.darken(10%)
+//       let boundry_color_2 = orange.lighten(10%).desaturate(15%)
+//       let boundry_point_color = red.darken(5%).desaturate(15%)
+
+//       let region_color = gradient.linear(aqua.desaturate(90%), aqua.desaturate(50%), angle: 90deg)
+
+//       let boundry_stroke_1 = (paint: boundry_color_1, thickness: 2pt)
+//       let boundry_stroke_2 = (paint: boundry_color_2, thickness: 2pt)
+
+
+//       rect((-0.5, 0), (0.5, 2.299), fill: region_color, stroke: none) // region
+
+
+//       line((0.5, 0), (0.5, rho_y))
+//       arc((1, 0), start: 0deg, delta: 180deg, fill: white)
+
+//       arc(
+//         (60deg, 1),
+//         start: 60deg,
+//         delta: 60deg,
+//         stroke: boundry_stroke_2,
+//         mark: (symbol: "straight", stroke: boundry_stroke_2, offset: 12%, scale: 0.7),
+//       ) // mark
+
+//       arc((60deg, 1), start: 60deg, delta: 60deg, stroke: boundry_stroke_2)
+
+//       line((-1.5, 0), (1.5, 0)) // x-axis
+
+
+//       line((0.5, 0), (0.5, rho_y))
+//       line((0.5, rho_y), (0.5, 2.3), stroke: boundry_stroke_1)
+//       mark((0.5, 1.75), (0.5, 1.8), symbol: "straight", stroke: boundry_stroke_1, scale: 0.7)
+
+
+//       line((-0.5, 0), (-0.5, 2.3))
+//       line((-0.5, rho_y), (-0.5, 2.3), stroke: boundry_stroke_1)
+//       mark((-0.5, 1.75), (-0.5, 1.8), symbol: "straight", stroke: boundry_stroke_1, scale: 0.7)
+
+//       circle((0, 1), radius: .04, fill: boundry_point_color, stroke: none)
+//       circle((60deg, 1), radius: .04, fill: rgb("#19bf13"), stroke: none)
+//       circle((120deg, 1), radius: .04, fill: rgb("#19bf13"), stroke: none)
+
+//       content((0.5, -0.15), $1 / 2$)
+//       content((-0.5, -0.15), $-1 / 2$)
+//       content((1, -0.15), $1$)
+//       content((-1, -0.15), $-1$)
+//       content((0, 0.85), $i$)
+//       content((0.63, 0.97), $rho$)
+//       content((-0.63, 0.97), $rho^2$)
+//     },
+//   )
+// }
 
 #lemma[$SL_2(ZZ)$-Actions in $cal(D)$][
   Let
@@ -323,8 +390,8 @@ $
 
   - $T: tau |-> tau + 1$ is the action that translates the point $tau$ one unit to the right.
 
-
   Moreover, $PSL_2(ZZ)$ has the following group presentation:
+
   $
     phi :PSL_2(ZZ) &-->^(tilde)angle.l x, y mid(|) x^2 = y^3 = 1 angle.r tilde.equiv C_2 * C_3\
     S &arrow.bar.long x,\
@@ -432,22 +499,22 @@ level $N$* #index("congruence subgroup", "principal") in $ upright(S L)_2 (bb(Z)
 #definition[Congruence Subgroup of $SL_2(ZZ)$][
   A subgroup $Gamma$ of $SL_2(ZZ)$ is called a *congruence subgroup* #index("congruence subgroup") if it contains $Gamma(N)$ for some positive integer $N$.
 ]
-
 #proposition[Properties of Congruence Subgroups][
   Let $Gamma$ be a congruence subgroup of $SL_2(ZZ)$.
 
   - $Gamma$ is a discrete subgroup of $SL_2(RR)$.
 
-  - The index $|SL_2(ZZ):Gamma|$ is finite.
+  - The index $abs(SL_2(ZZ):Gamma)$ is finite.
 ]
 #proof[
   - It is clear that $upright(M)_2(ZZ)$ is a discrete subspace of $upright(M)_2(RR)$. Since any subspace of a discrete space is discrete, any concruence subgroup is discrete in $upright(M)_2(RR)$.
-  - Suppose $Gamma$ has a subgroup $Gamma(N)$. Since $pi_N : SL_2 (bb(Z)) ->> SL_2 (bb(Z) \/ N bb(Z))$ is surjective, we have $|SL_2(ZZ):Gamma(N)|=|im pi_N|= |SL_2 (bb(Z) \/ N bb(Z))|<oo$. From
+  - Suppose $Gamma$ has a subgroup $Gamma(N)$. Since $pi_N : SL_2 (bb(Z)) ->> SL_2 (bb(Z) \/ N bb(Z))$ is surjective, we have $abs(SL_2(ZZ):Gamma(N))=abs(im pi_N)= abs(SL_2 (bb(Z) \/ N bb(Z)))<oo$. From
     $
-      |SL_2(ZZ):Gamma|med |Gamma:Gamma(N)|=|SL_2(ZZ):Gamma(N)|
+      abs(SL_2(ZZ):Gamma) med abs(Gamma : Gamma(N))=abs(SL_2(ZZ):Gamma(N))
     $
-    we see both $|SL_2(ZZ):Gamma|$ and $|Gamma:Gamma(N)|$ are finite.
+    we see both $abs(SL_2(ZZ):Gamma)$ and $abs(Gamma :Gamma(N))$ are finite.
 ]
+
 
 #example[Congruence Subgroups $Gamma_1(N)$][
   Let $N$ be a positive integer. Define $P$ to be the subgroup of $SL_2(ZZ\/N ZZ)$ consisting of unipotent upper triangular matrices. For each $N$, #index_math(display: [$Gamma_1 (N)$], "Gamma_1(N)")
@@ -456,31 +523,31 @@ level $N$* #index("congruence subgroup", "principal") in $ upright(S L)_2 (bb(Z)
   $
   is a congruence subgroup of $SL_2(ZZ)$. We can check that
   $
-    p_(12): Gamma_1 (N) &--> bb(Z)\/N bb(Z), \
+    op("pr")_(12): Gamma_1 (N) &--> bb(Z)\/N bb(Z), \
     mat( a, b; c, d) &arrow.long.bar b med(mod med N).
   $
   is a surjective group homomorphism and we have the exact sequence
   $
-    1 --> Gamma (N) --> Gamma_1 (N) -->^(p_12) bb(Z)\/N bb(Z) --> 1.
+    1 --> Gamma (N) --> Gamma_1 (N) -->^(op("pr")_12) bb(Z)\/N bb(Z) --> 1.
   $
   Therefore, $[Gamma_1 (N): Gamma (N)] = N$.
 ]
 #proof[
-  First we show that $p_(12)$ is a group homomorphism.
+  First we show that $op("pr")_(12)$ is a group homomorphism.
   $
-    p_12 ( mat( a_1, b_1; c_1, d_1) mat( a_2, b_2; c_2, d_2) ) = a_1 b_2 + b_1 d_2 med(mod med N) equiv b_1+ b_2 med(mod med N)
+    op("pr")_12 ( mat( a_1, b_1; c_1, d_1) mat( a_2, b_2; c_2, d_2) ) = a_1 b_2 + b_1 d_2 med(mod med N) equiv b_1+ b_2 med(mod med N)
   $
   implies
   $
-    p_12 (mat( a_1, b_1; c_1, d_1) mat( a_2, b_2; c_2, d_2)) = p_12 (mat( a_1, b_1; c_1, d_1)) +p_12 ( mat( a_2, b_2; c_2, d_2) ).
+    op("pr")_12 (mat( a_1, b_1; c_1, d_1) mat( a_2, b_2; c_2, d_2)) = op("pr")_12 (mat( a_1, b_1; c_1, d_1)) +op("pr")_12 ( mat( a_2, b_2; c_2, d_2) ).
   $
   Then we see $p_(12)$ is surjective because for any $b in bb(Z)\/N bb(Z)$, we can find $mat( 1, b; 0, 1) in Gamma_1 (N)$ such that
   $
-    p_12 (mat( 1, b; , 1)) = b.
+    op("pr")_12 (mat( 1, b; , 1)) = b.
   $
-  Finally we check the kernel of $p_(12)$ is
+  Finally we check the kernel of $op("pr")_(12)$ is
   $
-    ker p_(12) = {mat( a, b; c, d) in Gamma_1 (N) : b equiv 0 med(mod med N)} = Gamma (N).
+    ker op("pr")_(12) = {mat( a, b; c, d) in Gamma_1 (N) : b equiv 0 med(mod med N)} = Gamma (N).
   $
 ]
 
@@ -501,7 +568,7 @@ level $N$* #index("congruence subgroup", "principal") in $ upright(S L)_2 (bb(Z)
 ]
 
 #definition[Cusp of a Congruence Subgroup][
-  Let $Gamma$ be a congruence subgroup of $SL_2(ZZ)$. Then $Gamma$ acts on $QQ union {oo}$ through Mobius transformations. A *cusp* of $Gamma$ is a $Gamma$-orbit in $upright(bold(P))^1_QQ=QQ union.sq {oo}$. #index_math(display: [$upright(bold(P))^1_QQ$], "P^1(Q)")
+  Let $Gamma$ be a congruence subgroup of $SL_2(ZZ)$. Then $Gamma$ acts on $QQ union.sq {oo}$ through Mobius transformations. A *cusp* of $Gamma$ is a $Gamma$-orbit in $upright(bold(P))^1_QQ=QQ union.sq {oo}$. #index_math(display: [$upright(bold(P))^1_QQ$], "P^1(Q)")
 ]
 
 #proposition[Congruence Subgroups have Finite Number of Cusps][
@@ -1078,82 +1145,204 @@ The following property is called complete reducibility, or semisimplicity.
     chi(g_1 g_2) = chi(g_1) chi(g_2), quad forall g_1, g_2 in G.
   $
 ]
+
+#definition[Conjugate Character][
+  Let $G$ be a group and $chi: G -> CC^times$ be a character of $G$. The *conjugate character* of $chi$ is the character $overline(chi): G -> CC^times$ defined by $overline(chi)(g) = overline(chi(g))$.
+]
+
+
 #definition[Character Group of a Group][
   All characters of $G$ form a $CC^times$-vector space, denoted by $chargrp(G):=op("Hom")_(sans("Grp"))(G,CC^times)$, called the *character group*#index("Ch") of $G$. The group operation is given by pointwise multiplication
   $
     (chi_1 chi_2)(g) = chi_1(g) chi_2(g), quad forall g in G.
   $
-  The identity element is the *trivial character*
+  The identity element of $chargrp(G)$ is the *trivial character*
   $
-    chi_0(g) = 1 , quad forall g in G.
+    1_(chargrp(G)): G &--> CC^times\
+    g &arrow.bar.long 1.
   $
 ]
 #remark[
   If $G$ is a finite abelian group, then we can endow $G$ with discrete topology. Then the character group $chargrp(G)$ is exactly the underlying group of the Pontryagin dual of $G$. In this case, we can just write $chargrp(G) = algdual(G)$.
 ]
+#proposition[Character Group Functor][
+  Taking the character group of a group defines a hom functor $frak(X)=op("Hom")_(sans("Grp"))(-, CC^times)$ as follows
+  #functor_diagram(
+    F: $op("Hom")_(sans("Grp"))(-, CC^times)$,
+    C: $sans("Grp")^(op("op"))$,
+    D: $sans("Ab")$,
+    g: $iota^(op("op"))$,
+    X: $G$,
+    Y: $H$,
+    Fg: $$,
+    FX: $chargrp(G)$,
+    FY: $chargrp(H)$,
+  )
+  If we restricted the functor to the category of abelian groups, we get a left exact functor $op("Hom")_(sans("Ab"))(-, CC^times): sans("Ab")^(op("op")) -> sans("Ab")$, which preserves finite biproducts. Therefore, given abelian groups $G$ and $H$, we have natural isomorphism
+  $
+    chargrp(G) times chargrp(H)&-->^(tilde) chargrp(G times H)\
+    (chi_1, chi_2) & arrow.long.bar lr(((g,h) arrow.long.bar chi_1(g) chi_2(h)),size: #120%)\
+    (chi compose i_G, chi compose i_H) & arrow.long.bar.l chi \
+  $
+  where
+  $
+    i_G: G &--> G times H\
+    g &--> (g, 1_H)
+  $
+  and
+  $
+    i_H: H &--> G times H\
+    h &--> (1_G, h)
+  $
+  are the canonical embeddings.
+]<character-group-functor>
+
 
 #proposition[Properties of Characters][
-  + If $G$ is a finite group of order $n$, then the range of any character $chi in chargrp(G)$ is a $n$-th root of unity, i.e. $chi(g)^n = 1$ for all $g in G$. In this case, the $chargrp(G)$ is a finite group and $|algdual(G)| <= n^n$.
+  + If $G$ is a finite group with $abs(G)=n$, then for any character $chi in chargrp(G)$, the image of $chi$ is a subgroup of the group of $n$-th roots of unity, that is,
+    $
+      im chi subset.eq mu_n= {z in CC : abs(z) = 1, z^n = 1}.
+    $
+    Hence $chi(g)^n = 1$ for all $g in G$. In this case, $chargrp(G)$ is a finite group and
+    $
+      |chargrp(G)| <= n^n.
+    $
+  + The inverse of $chi$ is given by $chi^(-1) = overline(chi)$.
 ]
 #proof[
-  Let $chi in algdual(G)$ be a character of $G$. Then for any $g in G$, we have
-  $
-    chi(g)^n = chi(g^n) = chi(1) = 1,
-  $
-  which implies $chi(G) subset.eq mu_n$, where $mu_n$ is the group of $n$-th roots of unity. Therefore, $algdual(G) subset.eq op("Hom")_(sans("Set"))(G,mu_n)$ Since $|mu_n|=n$, we have $|algdual(G)| <= n^n$.
+  + Let $chi in algdual(G)$ be a character of $G$. Then for any $g in G$, we have
+    $
+      chi(g)^n = chi(g^n) = chi(1) = 1,
+    $
+    which implies $chi(G) subset.eq mu_n$, where $mu_n$ is the group of $n$-th roots of unity. Therefore, $algdual(G) subset.eq op("Hom")_(sans("Set"))(G,mu_n)$ Since $|mu_n|=n$, we have $|algdual(G)| <= n^n$.
+  + For any $g in G$, we have
+    $
+      chi(g) overline(chi)(g) = chi(g) overline(chi(g)) = |chi(g)|^2 = 1.
+    $
 ]
 #definition[Orthogonality of Characters][
-  Let $G$ be a finite group. We say $G$ has orthogonality of characters if
+  Let $G$ be a finite group. We say $G$ has orthogonality of characters if it satisfies the following conditions:
+
+  + For any $chi in chargrp(G)$,
+    $
+      sum_(g in G) chi(g) &= abs(G)med bold(1)_(chi = 1_chargrp(G))=cases(gap:#0.5em,
+      |G| & " if " chi = 1_chargrp(G),
+      0 & " if " chi eq.not 1_chargrp(G)
+    )
+    $
+  + For any $g in G$,
+    $
+      sum_(chi in algdual(G)) chi(g) = abs(chargrp(G))med bold(1)_(g = 1_G)=cases(gap:#0.5em,
+      abs(algdual(G))& " if " g = 1_G,
+      0 & " if " g eq.not 1_G
+    )
+    $
+]<orthogonality-of-characters>
+
+#proposition[][
+  Suppose $G$ is a finite group that has orthogonality of characters. Then
+  + For any $chi_1, chi_2 in chargrp(G)$, we have
+    $
+      sum_(g in G) chi_1(g) overline(chi_2)(g) = abs(G) med bold(1)_(chi_1 = chi_2)=cases(gap:#0.5em,
+      abs(G) & " if " chi_1 = chi_2,
+      0 & " if " chi_1 eq.not chi_2
+    )
+    $
+  + For any $g_1, g_2 in G$, we have
+    $
+      sum_(chi in chargrp(G)) chi(g_1) overline(chi)(g_2) = abs(chargrp(G)) med bold(1)_(g_1 = g_2)=cases(gap:#0.5em,
+      abs(chargrp(G)) & " if " g_1 = g_2,
+      0 & " if " g_1 eq.not g_2
+    )
+    $
+]
+#proof[
+  + In the first equation, let $chi=chi_1 overline(chi)_2$. Then we have
+    $
+      sum_(g in G) chi(g) = sum_(g in G) chi_1(g) overline(chi_2)(g) = abs(G) med bold(1)_(chi_1 overline(chi)_2=1_())=cases(gap:#0.5em, abs(G) & " if " chi_1 = chi_2, 0 & " if " chi_1 eq.not chi_2
+    )
+    $
+  + In the second equation, let $g=g_1 g_2^(-1)$. Then we have
+    $
+      sum_(chi in algdual(G)) chi(g) =sum_(chi in chargrp(G)) chi(g_1) overline(chi)(g_2) = abs(chargrp(G)) med bold(1)_(g_1 g_2^(-1)=1_G)=cases(gap:#0.5em, abs(chargrp(G)) & " if " g_1 = g_2, 0 & " if " g_1 eq.not g_2
+    )
+    $
+]
+
+#lemma[Orthogonality of Characters of Product Groups][
+  If $G$ and $H$ are finite abelian groups which have orthogonality of characters, then $G times H$ also has orthogonality of characters.
+]<orthogonality-of-characters-of-product-groups>
+#proof[
+  For any $chi in algdual((G times H))$, by @character-group-functor it can written as $chi(g,h)=chi_1(g)chi_2(h)$ for $chi_1=chi compose i_G in algdual(G)$ and $chi_2 =chi compose i_H in algdual(H)$. We can check that
   $
-    sum_(g in G) chi(g) &= |chargrp(G)| delta_(chi,1_(chargrp(G))), quad forall chi in algdual(G),\
-    sum_(chi in algdual(G)) chargrp(g) &= |G| delta_(g,1_G), quad forall g in G.
+    sum_((g times h) in G times H) chi(g,h)&= sum_((g times h) in G times H) chi_1(g)chi_2(h) \
+    &=sum_(g in G) chi_1(g) sum_(h in H) chi_2(h)\
+    &=|G| |H| bold(1)_(chi_1 = 1_(algdual(G))) bold(1)_(chi_2 = 1_(algdual(H)))\
+    &=|G| |H| bold(1)_(chi = 1_algdual((G times H))).
   $
+  For any $g in G$ and $h in H$, we have
+  $
+    sum_(chi in algdual((G times H))) chi(g,h)&=sum_((chi_1,chi_2) in algdual(G)times algdual(H)) chi_1(g)chi_2(h)\
+    &=sum_(chi_1 in algdual(G)) chi_1(g) sum_(chi_2 in algdual(H)) chi_2(h)\
+    &=|algdual(G)| |algdual(H)| bold(1)_(g = 1_G) bold(1)_(h = 1_H)\
+    &=|algdual(G)| |algdual(H)| bold(1)_((g,h) = 1_(G times H)).
+  $
+  This shows that $G times H$ has orthogonality of characters.
 ]
 
 #lemma[
-  Assume that $G$ is a fnite cyclic group of order $n$ and $a in G$ is a generator of $G$. Then we have
-
-  + $algdual(G)$ has exactly $n$ elements #h(1fr)
+  Assume that $G$ is a fnite cyclic group of order $n$ and $a in G$ is a generator of $G$. Define a character
+  $
+    chi: G &--> CC^times\
+    a^m& arrow.long.bar e^((2 pi i m ) / n)=zeta_n^(m)
+  $
+  Then we have
+  + For each $k in ZZ$, the $k$-th power of $chi$ is given by
     $
-      algdual(G) = {chi_k : G -> CC^times mid(|) chi_k (a) = e^((2 pi i k) / n), quad k=0,1,dots.c,n-1}.
+      chi^k: G &--> CC^times\
+      a^m& arrow.long.bar e^((2 pi i k m ) / n)=zeta_n^(k m)
     $
-
-  + $G$ has orthogonality of characters.
-  + $algdual(G)$ is generated by the character $chi_1$. And we have an isomorphism
+  + $algdual(G)$ is a cyclic group of order $n$ generated by the character $chi$ #h(1fr)
+    $
+      algdual(G) = {chi^k : G -> CC^times mid(|) k=0,1,dots.c,n-1}.
+    $
+    And we have an isomorphism
     $
       G &-->^(tilde) algdual(G)\
-      a^m &--> chi_1^m.
+      a^m & arrow.long.bar chi^m.
     $
-]
+  + $G$ has #link(<orthogonality-of-characters>)[orthogonality of characters].
+
+]<cyclic-group-characters-lemma>
 #proof[
-  + If $chi in algdual(G)$, then $chi(a) in mu_n$ implies $chi(a) = e^((2 pi i k) / n)$ for some $k in {0,1, dots.c, n-1}$. Hence $chi = chi_k$ for some $k in {0,1, dots.c, n-1}$ and we get
-    $
-      algdual(G) subset.eq {chi_k : G -> CC^times mid(|) chi_k (a) = e^((2 pi i k) / n)}.
-    $
-    Then we can check the inverse inclusion and get
-    $
-      algdual(G) = {chi_k : G -> CC^times mid(|) chi_k (a) = e^((2 pi i k) / n)}.
-    $
-    Since $chi_k$ are all distinct, we have $|algdual(G)| = n$.
+  + This is straightforward.
 
-  + For any $chi_k in algdual(G)$, we have
+  + If $theta in algdual(G)$, then $theta(a) in mu_n$ implies $theta(a) = e^((2 pi i k) / n)$ for some $k in {0,1, dots.c, n-1}$. Hence $theta = chi^k$ for some $k in {0,1, dots.c, n-1}$ and we get
     $
-      sum_(g in G) chi_k (g)= sum_(m=0)^(n-1)chi_k (a^m) = sum_(m=0)^(n-1) e^((2 pi i k m) / n) = n delta_(k,0) = |algdual(G)| delta_(chi_k,1_(algdual(G))).
+      algdual(G) subset.eq {chi^k : G -> CC^times mid(|) k=0,1,dots.c,n-1}.
     $
-    For any $a^m in G$, we have
+    Then we can check the inverse inclusion and conclude that
     $
-      sum_(chi in algdual(G)) chi(a^m) =sum_(k =0)^(n-1) chi_k (a^m) = sum_(k=0)^(n-1) e^((2 pi i k m) / n) = n delta_(m,0) = |G| delta_(a^m,1_G).
+      algdual(G) = {chi^k : G -> CC^times mid(|) k=0,1,dots.c,n-1}.
+    $
+    Since $chi^k$ are all distinct, we have $|algdual(G)| = n$. Note that both $G$ and $algdual(G)$ are cyclic groups of order $n$ and $a^m |-> chi^m$ sends a generator of $G$ to a generator of $algdual(G)$. We see $a^m |-> chi^m$ is an isomorphism.
+
+  + For any $chi^k in algdual(G)$, we have
+    $
+      sum_(g in G) chi^k (g)= sum_(m=0)^(n-1)chi^k (a^m) = sum_(m=0)^(n-1) e^((2 pi i k m) / n) = n delta_(k,0) = |G| bold(1)_(chi^k = chi_0).
+    $
+    For any $a^m in G$ with $m=0,1,dots.c, n-1$, we have
+    $
+      sum_(chi in algdual(G)) chi(a^m) =sum_(k =0)^(n-1) chi^k (a^m) = sum_(k=0)^(n-1) e^((2 pi i k m) / n) = n delta_(m,0) = |algdual(G)|bold(1)_(a^m = 1_G).
     $
 
-  + For any $chi_k in algdual(G)$ and $a^m in G$, we have
-    $
-      (chi_1)^k (a^m) = (chi_1(a^m))^k = e^((2 pi i m k) / n) =(chi_k (a))^m = chi_k (a^m),
-    $
-    which implies $chi_1^k = chi_k$ for all $k in {0,1,dots.c,n-1}$.
 ]
 
 #proposition[Orthogonality of Characters of Finite Abelian Group][
   Let $G$ be a finite abelian group of order $n$ and $a in G$ be a generator of $G$. Then $G tilde.equiv algdual(G)$ and $G$ has orthogonality of characters.
+]<orthogonality-of-characters-of-finite-abelian-group>
+#proof[
+  The fundamental theorem of abelian groups implies that $G$ is isomorphic to a finite direct product of cyclic groups. Then, it follows from @cyclic-group-characters-lemma, @character-group-functor and @orthogonality-of-characters-of-product-groups.
 ]
 
 #pagebreak()
@@ -1207,9 +1396,241 @@ The following property is called complete reducibility, or semisimplicity.
   + $algdual(((ZZ\/n ZZ)^times)) tilde.equiv (ZZ\/n ZZ)^times$.
 ]
 
+#example[$C_c (G)$ is Dense in $L^p (G)$][
+  Let $G$ be a locally compact abelian group. We use $C_c (G)$ to denote the space of continuous complex-valued functions on $G$ with compact support.
+]
+
+#definition[Functions of Positive Type][
+  Let $G$ be a locally compact abelian group. A Haar measurable
+  function function $phi: G -> CC$ is called a *function of positive type* if for any $f in C_c (G)$, we have
+  $
+    integral_G integral_G phi(g^(-1) h) f(g) dif mu(g) overline(f(h)) dif mu(h) >= 0.
+  $
+]
+
+== Fourier Transform
+
+
+#definition[Fourier Transform on $L^1(G)$][
+  Let $G$ be a locally compact abelian group and $mu$ be a Haar measure on $G$. The *Fourier transform* of a function $f in L^1(G)$ is defined as
+  $
+    hat(f): algdual(G) &--> CC\
+    chi & arrow.bar.long integral_G f(g) overline(chi(g)) dif mu .
+  $
+  The Fourier transform is a continuous linear map from $L^1(G)$ to $L^oo (algdual(G))$ defined by
+  $
+    cal(F): L^1(G) &--> L^oo (algdual(G))\
+    f & arrow.bar.long hat(f).
+  $
+]
+#remark[
+  Note $abs(chi(g))=1$ for all $g in G$ and $chi in algdual(G)$. For any $f in L^1(G)$ and $chi in algdual(G)$, we have
+  $
+    abs(hat(f)(chi)) = abs(integral_G f(g) overline(chi(g)) dif mu(g)) <= integral_G abs(f(g)) dif mu(g) = norm(f)_(L^1(G)).
+  $
+  Thus for any $f in L^1(G)$, we have
+  $
+    norm(hat(f))_(L^oo (algdual(G)))= sup_(chi in algdual(G)) abs(hat(f)(chi)) <= norm(f)_(L^1(G)) <infinity,
+  $
+  which implies $cal(F)f=hat(f) in L^oo (algdual(G))$.
+]
+
 #pagebreak()
 
 = Number Theory <number-theory>
+
+== Questions
+#example[Fermat's Theorem on Sums of Two Squares][
+  + If $p$ is a prime number and $p equiv 1 pmod(4)$, then there integers $a$ and $b$ such that
+    $
+      p = a^2 + b^2= (a+b i)(a-b i).
+    $
+    For example,
+    $
+      5&=2^2+1^2 =(2+i)(2-i),\
+      13&=3^2+2^2=(3+2i)(3-2i),\
+      17&=4^2+1^2=(4+i)(4-i).
+    $
+    If $p$ is a prime number and $p equiv 3 pmod(4)$, then there are no rational numbers $a$ and $b$ such that $p = a^2 + b^2$.
+
+  + Moreover, we have the following tables for more cases:
+  #align(center)[
+    #show table.cell.where(y: 0): strong
+    #table(
+      columns: 3,
+      stroke: none,
+      row-gutter: 0.1em,
+      inset: 8pt,
+      table.hline(),
+      table.header([Equation], [Has integer solutions], [Number ring]),
+      table.hline(stroke: 0.5pt),
+      [$p=x^2+y^2$], [$p equiv 1 pmod(4)$], [$ZZ[sqrt(-1)thin]$],
+      [$p=x^2+2y^2$], [$p equiv 1 "or" 3 pmod(8)$], [$ZZ[sqrt(-2)thin]$],
+      [$p=x^2+3y^2$], [$p equiv 1 pmod(3)$], [$ZZ[sqrt(-3)thin]$],
+      [$p=x^2-2y^2$], [$p equiv 1 "or" 7 pmod(8)$], [$ZZ[sqrt(2)thin]$],
+      table.hline(),
+    )
+  ]
+]
+
+#example[Pell's Equation][
+  If $n$ is a positive integer that is not a perfect square, then the equation
+  $
+    x^2 - n y^2 =(x+y sqrt(n))(x-y sqrt(n))= 1
+  $
+  has infinitely many integer solutions $(x,y) in ZZ^2$. In other words, the unit group $(ZZ[sqrt(n)thin])^times$ is an infinite group.
+]
+
+#example[Sum of Four Squares][
+  If $n$ is a positive integer, then the following equation
+  $
+    x^2 + y^2 + z^2 + w^2 = n
+  $
+  has integer solutions $(x,y,z,w) in ZZ^4$.
+]
+
+A triangle number is an integer of the form $T_n =1/2 n(n+1)$ for some $n in ZZ_(>0)$.
+
+#example[][
+  A triangular number different from 1 is not a cubic number. Furthermore, the equation
+  $
+    1 / 2 n(n+1) = m^3.
+  $
+  has a unique positive integer solution $(n,m)=(1,1)$.
+]
+
+#example[][
+  The equation
+  $
+    y^2 = x^3-2
+  $
+  has exactly 2 integer solution $(x,y)=(3,plus.minus 5)$.
+]
+
+#example[][
+  The equation
+  $
+    y^2 = x^3-4
+  $
+  has exactly 4 integer solutions $(x,y)=(2,plus.minus 2)$ and $(x,y)=(5,plus.minus 11)$.
+]
+
+#definition[Height of a Rational Number][
+  Suppose $q=a/b$ is a rational number and $a,b in ZZ$ are coprime. The *height* of a rational number $a / b$ is defined as
+  $
+    H(a / b) = max { |a|, |b| }.
+  $
+]
+
+#example[][
+  Suppose $d in QQ$. Consider the equation
+  $
+    y^2 = x^3-d^2 x
+  $
+  + If $d=1$ or $d=2$, then the equation has exactly 3 rational solutions: $(0,0)$ and $(plus.minus d,0)$.
+
+  + If this equation has a rational solution $(x,y)$ other than $(0,0)$ and $(plus.minus d,0)$, then it has infinitely many rational solutions.
+]
+
+#example[Fermat's Last Theorem][
+  Suppose $n >= 3$ is an integer. The equation
+  $
+    x^n + y^n = z^n
+  $
+  has no positive integer solutions $(x,y,z)$ other than $(0,0,0)$.
+]
+
+== Rational points on Quadratic Curves
+Give an algebraic curve $C:f(x)=0$ embedded in $bold("A")_(bb(k))^n$. We define the set of $bb(k)$-rational points on $C$ as
+$
+  C(bb(k)):={ x in bold("A")_(bb(k))^n mid(|) f(x)=0 }.
+$
+$QQ$-rational points are also called rational points for simplicity.
+
+
+#proposition[][
+  + Consider circle as an affine curve defined by the equation
+    $
+      C: x^2 + y^2 = 1.
+    $
+    Then we have the following bijection
+    $
+      f:C(QQ)-{(-1,0)} &-->^(tilde) QQ\
+      (x,y) &arrow.bar.long y / (x+1),\
+      ((1-t^2) / (1+t^2), (2t) / (1+t^2)) &arrow.bar.long.l t.
+    $
+    which maps the rational point $(x,y)$ on the circle to the slope of the line passing through the point $(x,y)$ and the point $(-1,0)$ on the circle.
+  + Consider circle as a projective curve defined by the equation
+    $
+      C': X^2 + Y^2 = Z^2.
+    $
+    Then we have the following bijection
+    $
+      overline(f):C'(QQ) &-->^(tilde) bold("P")_QQ^1=QQ union.sq {oo} \
+      [X:Y:Z] &arrow.bar.long cases(
+        [Y: X+Z]&quad " if" X+Z eq.not 0\
+        \
+        [1,0]   &quad  " if" X+Z = 0
+        )\
+      [S^2-R^2: 2R S: R^2+S^2] &arrow.bar.long.l [R:S].
+    $
+]
+For a general irreducible projective quadratic curve $C$, if it has a rational point $x in C(QQ)$, then we can construct a bijection
+$
+  C(QQ) &-->^(tilde) bold("P")_QQ^1
+$
+in a similar way.
+
+== Reciprocity Laws
+
+#definition[Quadratic Residue][
+  Let $p$ be a prime number and $a in ZZ$ be an integer. The integer $a$ is called a *quadratic residue* modulo $p$ if the equation
+  $
+    x^2 equiv a pmod(p)
+  $
+  has a solution $x in ZZ$. Otherwise, $a$ is called a *quadratic non-residue* modulo $p$.
+]
+
+#proposition[Equivalent Characterization of Quadratic Residue][
+  Let $p$ be a prime number and $a in ZZ$ be an integer. Then the following statements are equivalent:
+
+  + $a$ is a quadratic residue modulo $p$.
+
+  + The polynomial $x^2 - a in FF_p [x]$ splits over $FF_p$.
+
+  + The field $FF_p [x] \/ (x^2 - a)$ is isomorphic to $FF_p$.
+
+  Also the following statements are equivalent:
+
+  + $a$ is a quadratic non-residue modulo $p$.
+
+  + The polynomial $x^2 - a in FF_p [x]$ is irreducible over $FF_p$.
+
+  + The field $FF_p [x] \/ (x^2 - a)$ is isomorphic to $FF_(p^2)$.
+]
+
+
+
+
+
+#definition[Legendre Symbol][
+  Let $p$ be an odd prime number and $a in ZZ$ be an integer. The *Legendre symbol* is defined as
+  $
+    (a / p) = cases(
+      0 & "if" a equiv 0 pmod(p),\
+      1 & "if" a equiv.not 0 pmod(p) "and" a "is a quadratic residue" mod p,\
+      -1 & "if" a equiv.not 0 pmod(p) "and" a "is a quadratic non-residue" mod p.
+    )
+  $
+]
+
+With the Legendre symbol, for odd prime number $p$, we can describe the structure of $FF_p (sqrt(a)):=FF_p [x]\/(x^2-a)$ as follows
+$
+  FF_p (sqrt(a)) tilde.equiv cases(
+    FF_p & "if" (a / p) = 1",", \
+    FF_(p^2) & "if" (a / p) = -1.
+  )
+$
 
 == $p$-adic Numbers
 
@@ -1339,7 +1760,7 @@ $
 #proof[
   According to @open-balls-in-QQp-are-homeomorphic, it is sufficient to show that $B_(p^(-1)) (0)=bb(Z)_p$ is compact. Given any $epsilon>0$, we can find $n in bb(Z)_(gt 0)$ such that $p^(-n) < epsilon$. Then we have
   $
-    bb(Z)_p = union.big_(k = 0)^(p^(n+1) - 1) (k + p^(n+1) bb(Z)_p) = union.big_(k = 0)^(p^(n+1) - 1) B_(p^(-n)) (k) ==> bb(Z)_p = union.big_(k = 0)^(p^(n+1) - 1) (B_(epsilon) (k) sect bb(Z)_p).
+    bb(Z)_p = union.big_(k = 0)^(p^(n+1) - 1) (k + p^(n+1) bb(Z)_p) = union.big_(k = 0)^(p^(n+1) - 1) B_(p^(-n)) (k) ==> bb(Z)_p = union.big_(k = 0)^(p^(n+1) - 1) (B_(epsilon) (k) inter bb(Z)_p).
   $
   This shows that $bb(Z)_p$ can be covered by a finite number of open balls of radius $epsilon$. Thus $bb(Z)_p$ is totally bounded. Since $bb(Z)_p$ is also closed in $QQ_p$, it is complete. A complete and totally bounded metric space is compact. Therefore, $bb(Z)_p$ is compact and we complete the proof.
 ]
@@ -1584,7 +2005,13 @@ $)
 
 
 #definition[Primitive Dirichlet Character][
-  A Dirichlet character $chi_m$ is called a #strong[primitive Dirichlet character] #index("Dirichlet Character", "primitive") if it cannot be induced by any Dirichlet character modulo $n m$ for any integer $n > 1$. If $chi_m$ is not primitive, then it is said to be *imprimitive*#index("Dirichlet Character", "imprimitive").
+  A Dirichlet character $chi_m$ is called a #strong[primitive Dirichlet character] #index("Dirichlet Character", "primitive") if it cannot be induced by any Dirichlet character $chi_d:(bb(Z) \/ d bb(Z))^times -> CC^(times)$ with $d divides m$ , that is, it cannot be factored as
+  #commutative_diagram($
+    (bb(Z) \/ m bb(Z))^times edge("d", "->>", pi, #right) edge(->, chi_(m)^star) &CC^times\
+    (bb(Z) \/ d bb(Z))^times edge("ru", "->", chi_d^star, #right)
+  $)
+  through projection $pi:(bb(Z) \/ m bb(Z))^times  -> (bb(Z) \/ d bb(Z))^times $ for any integer $d > 1$ and any Dirichlet character $chi_d^star$ modulo $d$.
+  If $chi_m$ is not primitive, then it is said to be *imprimitive*#index("Dirichlet Character", "imprimitive").
 ]
 
 
@@ -1607,6 +2034,7 @@ $)
   - A Dirichlet character modulo $m$ is primitive if and only if its conductor is $m$.
 ]
 
+
 #example[Dirichlet Character of Modulus $1$][
   The unique Dirichlet character of modulus $1$ is the constant function
   $
@@ -1620,11 +2048,43 @@ $)
 ]
 
 #definition[Order of Dirichlet Character][
-  Let $chi_m$ be a Dirichlet character modulo $m$. The #strong[order] of $chi_m$ is defined as the smallest positive integer $k$ such that $chi_m^k = chi_1$, which is exactly the order of $chi_m^star$ in $algdual(((ZZ\/m ZZ)^times))=op("Hom")_(sans("Ab"))((ZZ\/m ZZ)^times,CC^times)$. #index("Dirichlet character", "order")
+  Let $chi_m$ be a Dirichlet character modulo $m$. The #strong[order] of $chi_m$ is defined as the smallest positive integer $k$ such that $chi_m^k = chi_(m,1)$, which is exactly the order of $chi_m^star$ in $algdual(((ZZ\/m ZZ)^times))=op("Hom")_(sans("Ab"))((ZZ\/m ZZ)^times,CC^times)$. #index("Dirichlet character", "order")
 ]
 
 #definition[Quadratic Dirichlet Character][
   A Dirichlet character $chi_m$ modulo $m$ is called a #strong[quadratic Dirichlet character] if the order of $chi_m$ is $2$. #index("Dirichlet character", "quadratic")
+]
+#proposition[Orthogonality of Dirichlet Character][
+  - Let $chi_m$ be a Dirichlet characters modulo $m$. Then we have
+  $
+    sum_(k = 1)^(m) chi_m (k) = cases( phi(m) & upright(" if ") chi_m = chi_(m,1),\
+    0 & upright(" if ") chi_m eq.not chi_(m,1)
+    )
+  $
+  - Given $n in ZZ$,
+  $
+    sum_(chi^star in algdual(((ZZ\/m ZZ)^times)) )chi (n) = cases( phi(m) & upright(" if ") n equiv 1 mod m,\
+    0 & upright(" if ") n equiv.not 1 mod m
+    )
+  $
+]
+#proof[
+  This follows from @orthogonality-of-characters-of-finite-abelian-group.
+]
+
+
+#corollary[][
+  Let $chi_m$ be a Dirichlet character modulo $m$. Suppose $n in ZZ$ and $[a] in (ZZ\/m ZZ)^times$. Then we have
+  $
+    1 / (phi(a)) sum_(chi^star in algdual(((ZZ\/m ZZ)^times)) )overline(chi)(a)chi (n) = cases( 1 & upright(" if ")  n equiv a mod m,\
+    0 & upright(" if ") n equiv.not a mod m
+    )
+  $
+]
+#proof[
+
+
+
 ]
 
 == Dirichlet $L$-Function
@@ -1778,29 +2238,69 @@ $
     $
 
   + $zeta(0) = -1 / 2$, $zeta(-1) = -1 / 12$, $zeta(- n) = 0$ for any $n in ZZ_(>0)$.
-
-
-
 ]
 
 
 #pagebreak()
 
-= Langlands Program <langlands-program>
+= Langlands Program For $bold(n=1)$ <langlands-program>
 
-== $n=1$
+== Motivic Side
 
-=== Automorphic Side
-#let myrightarrow = pad(top: -0.7em, math.stretch(math.arrow, size: 1.9em))
-#let padlim = $op(#pad(bottom: 0.43em, $limits(lim)_myrightarrow$))$
+=== Artin $L$-Function
 
-#let movebaselim = movebase(0.085em, padlim)
-$
-  limits(lim_(myrightarrow))_(i in I) F(U_i)
-  = limits(padlim)_(i in I) F(U_i)
-  = limits(movebaselim)_(i in I) F(U_i)
-  = varinjlim(i in I) F(U_i)
-$
+#definition[Artin $L$-function][
+  Let $K$ be a number field and $rho: Gal(overline(K)\/K) -> GL_n (CC)$ be a continuous representation of the absolute Galois group of $K$. The #strong[Artin $L$-function] #index("Artin L-function") associated to $rho$ is defined as
+  $
+    L(s, rho) = product_(v in mono("pl")_K) L_v (s, rho)
+  $
+  where $L_v (s, rho)$ is the local $L$-function associated to $rho$ at $v$, which is defined as
+  $
+    L_v (s, rho) = det(1 - rho(Frob_v) N(v)^(-s))^(-1).
+  $
+]
+
+#definition[Artin L-function over $QQ$][
+  Let $rho: Gal(overline(QQ)\/QQ) -> GL_n (CC)$ be a continuous representation of the absolute Galois group of $QQ$. The #strong[Artin $L$-function over $QQ$] #index("Artin L-function") associated to $rho$ is defined as
+  $
+    L(s, rho) = product_(p "prime") L_p (s, rho)
+  $
+  where $L_p (s, rho)$ is the local $L$-function associated to $rho$ at $p$, which is defined as
+  $
+    L_p (s, rho) = det(1 - rho(Frob_p) p^(-s))^(-1).
+  $
+]
+
+#lemma[Compact Subgroup of $CC^times$][
+  The only compact subgroups of $CC^times$ are:
+
+  + The unit circle
+  $
+    T= {z in CC^times mid(|) z = 1}.
+  $
+
+  + The groups of roots of unity
+  $
+    mu_n= {z in CC^times mid(|) z^n = 1} tilde.equiv ZZ\/n ZZ.
+  $
+
+]
+
+#proposition[][
+  Let $K$ be a field. Every continuous homomorphism $rho: Gal(K^(op("sep"))\/K) -> CC^times$ factors through the Galois group of a finite cyclic extension $L\/K$, yielding the epimorphism-monomorphism decomposition
+
+  #commutative_diagram($
+    Gal(K^(op("sep"))\/K) edge("d", ->>, pi) edge(->, rho) &CC^times\
+    Gal(L\/K) edge("ru", "hook->", iota, #right)
+  $)
+]
+#proof[
+  Denote $G_K=Gal(K^(op("sep"))\/K)$. Since $Gal(K^(op("sep"))\/K)$ is a profinite group, it is compact. Recall the fact that the image of a compact set under a continuous map is compact. Therefore, $rho(G_K)$ is a compact subgroup of $CC^times$. Since the only compact subgroups of $CC^times$ are
+  groups of roots of unity, there exists $n in ZZ_(>0)$ such that
+  $
+    rho(G_K)=mu_n= {z in CC^times mid(|) z^n = 1} tilde.equiv ZZ\/n ZZ.
+  $
+]
 
 
 
