@@ -12,4 +12,4 @@ jobs:
   release_pdf:
     uses: hooyuser/pdf-ci-templates/.github/workflows/typst-pdf-release.yml@main
     with:
-      TYPST_FILE_NAME: Functional_Analysis
+      TYPST_FILE_NAME: elliptic_curves_and_modular_forms
