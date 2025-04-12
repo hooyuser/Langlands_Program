@@ -1,0 +1,15 @@
+name: Generate Release PDF
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '.gitignore'
+      - '**/*.md'
+
+jobs:
+  release_pdf:
+    uses: hooyuser/pdf-ci-templates/.github/workflows/typst-pdf-release.yml@main
+    with:
+      TYPST_FILE_NAME: Functional_Analysis
