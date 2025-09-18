@@ -1,6 +1,6 @@
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, edge, node
 #import "@preview/cetz:0.3.4"
-#import "@preview/in-dexter:0.7.0" as in-dexter: index
+#import "@preview/in-dexter:0.7.2" as in-dexter: index
 #import "@local/math-notes:0.3.0": *
 
 
@@ -20,9 +20,19 @@
 #let Gal = math.op("Gal")
 #let Frob = math.op("Frob")
 
+#let Top = math.op($sans("Top")$)
 #let Grp = math.op($sans("Grp")$)
+#let FinGrp = math.op($sans("FinGrp")$)
+#let Ab = math.op($sans("Ab")$)
+#let FinAb = math.op($sans("FinAb")$)
+#let TopGrp = math.op($sans("TopGrp")$)
+#let LCHGrp = math.op($sans("LCHGrp")$)
+#let LCA = math.op($sans("LCA")$)  // locally compact Hausdorff abelian groups
 #let Vect(k) = math.op($#k#h(0.1em)sans("-Vect")$)
+#let FinVect(k) = math.op($#k#h(0.1em)sans("-FinVect")$)
 #let Mod(k) = math.op($#k#h(0.1em)sans("-Mod")$)
+#let CHilb = math.op($CC#h(0.07em)sans("-Hilb")$)  // Common Definitions of Morphisms in Hilb: Bounded Linear Maps / All Linear Maps / Short Linear Maps / Isometric Isomorphisms, Here We Use Bounded Linear Maps
+#let Fld = math.op($sans("Fld")$)
 
 #let pmod(n) = $med (mod med #n)$
 
@@ -43,6 +53,7 @@
 #let xrightarrow = $stretch(->, size: #150%)$
 
 
+
 #let cal(x) = math.class("unary", text(font: "Computer Modern Symbol", x))
 #let racts = $arrow.ccw.half$
 
@@ -57,6 +68,82 @@
   body
 }
 
+// Badge
+#let rounded_badge(left, right, color: rgb("#907a6b").desaturate(20%)) = {
+  (
+    box(
+      stroke: color,
+      radius: (left: 50pt), // Pill/capsule shape
+      inset: (left: 5pt, y: 4pt), // Generous horizontal, moderate vertical padding
+      baseline: 25%, // Center with surrounding text
+      {
+        set text(
+          fill: color.darken(25%),
+          size: 0.8em,
+        )
+        $left #h(4pt)$
+      },
+    )
+      + box(
+        stroke: color,
+        fill: color,
+        radius: (right: 50pt), // Pill/capsule shape
+        inset: (right: 5pt, y: 4pt), // Generous horizontal, moderate vertical padding
+        baseline: 25%, // Center with surrounding text
+        {
+          set text(
+            fill: white,
+            weight: "bold",
+            size: 0.8em,
+          )
+          $#h(4pt)right$
+        },
+      )
+  )
+}
+
+#let type_badge_internal(badge_func, ..args) = {
+  let result = ()
+  // Parse matrix-like arguments (semicolon creates rows, comma creates columns)
+  let rows = args.pos()
+
+  // If input is a single row
+  if type(rows) == array and rows.len() > 0 and type(rows.at(0)) != array {
+    return badge_func(rows.at(0), rows.at(1))
+  }
+
+  // Else, input is a 2D array
+
+  let separator = h(0.3em)
+
+  for (i, row) in rows.enumerate() {
+    // Each row is an array of elements
+    if type(row) == array and row.len() >= 2 {
+      // Take first two elements as the pair
+      result.push(badge_func(row.at(0), row.at(1)))
+      if i < rows.len() - 1 {
+        result.push(separator)
+      }
+    }
+  }
+  //result.push(hide($display(in_(()))$))
+  result.join()
+}
+
+
+#let typebadge(..args) = with_theme_config(theme => context {
+  let thm-env = current-env-name()
+  let front-color = if thm-env == "example" {
+    theme.at("example_env_color_dict").at("frame").darken(2%).desaturate(-25%)
+  } else {
+    theme.at("thm_env_color_dict").at(thm-env).at("front").desaturate(20%)
+  }
+  type_badge_internal(rounded_badge.with(color: front-color), ..args)
+})
+
+
+
+
 = Basic Concepts of Elliptic Curves <basic-concepts-of-elliptic-curves>
 == Elliptic Curves <elliptic-curves>
 #definition[Elliptic Curve][
@@ -70,11 +157,11 @@ Affine part $ y^2 + a_1 x y + a_3 y = x^3 + a_2 x^2 + a_4 x + a_6 $
 #strong[Discriminant and $j$-invariant] \
 Let
 $
-  b_2 & colon.eq a_1^2 + 4 a_2                                           \
-  b_4 & colon.eq a_1 a_3 + 2 a_4                                         \
-  b_6 & colon.eq a_3^2 + 4 a_6                                           \
+  b_2 & colon.eq a_1^2 + 4 a_2 \
+  b_4 & colon.eq a_1 a_3 + 2 a_4 \
+  b_6 & colon.eq a_3^2 + 4 a_6 \
   b_8 & colon.eq a_1^2 a_6 - a_1 a_3 a_4 + a_2 a_3^2 + 4 a_2 a_6 - a_4^2 \
-  c_4 & colon.eq b_2^2 - 24 b_4                                          \
+  c_4 & colon.eq b_2^2 - 24 b_4 \
   c_6 & colon.eq - b_2^3 + 36 b_2 b_4 - 216 b_6
 $
 Then the discriminant is defined as
@@ -114,7 +201,7 @@ where $R_F$ is the Carlson symmetric form.
 
 === Carlson to Legendre <carlson-to-legendre>
 Suppose $ E_1 : y^2 & = lr((1 - x^2)) lr((1 - k^2 x^2)) \
-E_2 : Y^2 & = X lr((X + 1 - k^2)) lr((X + 1)) $ There is a rational map $ phi.alt : E_1 & --> E_2                                                    \
+E_2 : Y^2 & = X lr((X + 1 - k^2)) lr((X + 1)) $ There is a rational map $ phi.alt : E_1 & --> E_2 \
   lr((x , y)) & arrow.r.long.bar lr((1 / x^2 - 1 , y / x^3)) = lr((X , Y)) $ We can check it by substituting $X = 1 / x^2 - 1$ and $Y = y / x^3$ into $E_2$ $ y^2 / x^6 & = lr((1 / x^2 - 1)) lr((1 / x^2 - k^2)) 1 / x^2 $ Then we can use $phi.alt$ to pullback the integral on $E_2$ to $E_1$
 $
   integral_0^infinity (upright(d) X) / sqrt(X(X+1-k^2)(X+1))=integral_0^infinity (upright(d) X) / Y =integral_1^0 (-2\/x^3) / (y\/x^3)upright(d) x=2integral_0^1 (upright(d) x) / y=2 integral_0^1 (upright(d) x) / sqrt((1-x^2)(1-k^2 x^2)).
@@ -159,9 +246,9 @@ $
 #proof[
   On the one hand, we have $γ z - overline(γ z) = 2i op("Im")(γ z)$. On the other hand, we have
   $
-    γ z - overline(γ z) & =frac(a z + b, c z + d) - frac(a overline(z) + b, c overline(z) + d)             \
+    γ z - overline(γ z) & =frac(a z + b, c z + d) - frac(a overline(z) + b, c overline(z) + d) \
                         & = frac((a z + b)(c overline(z) + d) - (a overline(z) + d)(c z + d), |c z + d|^2) \
-                        & = ((a d - b c)(z - overline(z))) / abs(c z + d)^2                                \
+                        & = ((a d - b c)(z - overline(z))) / abs(c z + d)^2 \
                         & = det(γ) ·(2i op("Im")(z)) / abs(c z + d)^2.
   $
 
@@ -170,7 +257,6 @@ $
 
 #proposition[Generators of $SL_2(ZZ)$][
   The group $SL_2(ZZ)$ is generated by the matrices $S=mat(0, -1; 1, 0)$ and $T=mat(1, 1; 0, 1)$.
-
 ]
 #proof[
   We can check that for any integer $n in ZZ$, we have
@@ -391,8 +477,8 @@ $
 
   $
     phi :PSL_2(ZZ) & -->^(tilde)angle.l x, y mid(|) x^2 = y^3 = 1 angle.r tilde.equiv C_2 * C_3 \
-                 S & arrow.bar.long x,                                                          \
-               S T & arrow.bar.long y.
+                 S & mapsto.long x, \
+               S T & mapsto.long y.
   $
 ]
 
@@ -405,7 +491,6 @@ $
   $
   where $S=mat(0, -1; 1, 0)$ and $T=mat(1, 1; 0, 1)$.
 ]
-
 
 
 === Action of $SL_2(ZZ)$ on $upright(bold(P))_RR^1=RR union.sq {oo}$ <action-of-SL2-on-H>
@@ -442,7 +527,7 @@ $
     pi_N : SL_2 (bb(Z)) --> SL_2 (bb(Z) \/ N bb(Z)).
   $
   The *principal congruence subgroup of
-  level $N$* #index("congruence subgroup", "principal") in $upright(S L)_2 (bb(Z))$ is the kernel of $pi_N$,
+    level $N$* #index("congruence subgroup", "principal") in $upright(S L)_2 (bb(Z))$ is the kernel of $pi_N$,
   and it is usually denoted by
   $
     Gamma (N) = ker pi_N = { mat(a, b; c, d) in upright(S L)_2 (bb(Z)) : mat(delim: "[", a, b; c, d) equiv mat(1, ; , 1) med(mod med N) }.
@@ -521,7 +606,7 @@ $
   $
   is a congruence subgroup of $SL_2(ZZ)$. We can check that
   $
-    op("pr")_(12): Gamma_1 (N) & --> bb(Z)\/N bb(Z),              \
+    op("pr")_(12): Gamma_1 (N) & --> bb(Z)\/N bb(Z), \
                mat(a, b; c, d) & arrow.long.bar b med(mod med N).
   $
   is a surjective group homomorphism and we have the exact sequence
@@ -631,7 +716,7 @@ $
   For any integer $k in ZZ$, and $gamma in op("GL")_2(RR)^+$, the *weight-$k$ operator* is defined as
   $
     [gamma]_k : op("Hom")_(sans("Set")) (HH, CC) & --> op("Hom")_(sans("Set")) (HH, CC) \
-                                               f & arrow.bar.long f[gamma]_k
+                                               f & mapsto.long f[gamma]_k
   $
   where
   $
@@ -647,7 +732,7 @@ $
   $op("GL")_2(RR)^+$ acts on $op("Hom")_(sans("Set")) (HH, CC)$ on the right by
   $
     op("Hom")_(sans("Set")) (HH, CC) times op("GL")_2(RR)^+ & --> op("Hom")_(sans("Set")) (HH, CC) \
-                                                 (f, gamma) & arrow.bar.long f[gamma]_k
+                                                 (f, gamma) & mapsto.long f[gamma]_k
   $
 ]
 #proof[
@@ -664,7 +749,7 @@ $
 For $N in ZZ_(>=1)$, we have a surjective holomorphic complex Lie group homomorphism
 $
   q_N: bb(C) & --> bb(C)^* = {z in CC mid(|) z eq.not 0} \
-         tau & arrow.bar.long e^((2 pi i tau) / N).
+         tau & mapsto.long e^((2 pi i tau) / N).
 $
 The kernel of $q_N$ is the subgroup of $H$ given by
 $
@@ -672,8 +757,8 @@ $
 $
 By restricting $q_N$ to the upper half plane $bb(H)$, we get a surjective holomorphic semigroup homomorphism
 $
-  q_N: bb(H) & --> bb(D)^*={z in CC mid(|) 0<|z|<1}  \
-         tau & arrow.bar.long e^((2 pi i tau) / N ).
+  q_N: bb(H) & --> bb(D)^*={z in CC mid(|) 0<|z|<1} \
+         tau & mapsto.long e^((2 pi i tau) / N ).
 $
 And we have
 $
@@ -853,6 +938,12 @@ $
 === Basic Concepts
 
 #definition[Linear Representation of a Group][
+  $typebadge(
+    G, Grp;
+    bb(k), Fld;
+    V, Vect(bb(k))
+  )$
+
   A *linear representation* of a group $G$ has the following equivalent definitions:
 
   + A *linear representation* of $G$ is a group homomorphism
@@ -880,6 +971,12 @@ $
 ]
 
 #definition[Morphisms of Linear Representations][
+  $typebadge(
+    G, Grp;
+    bb(k), Fld;
+    V\, W, Vect(bb(k))
+  )$
+
   The morphisms of linear representations of a group $G$ can be defined in the following equivalent ways:
 
   + Equivariant maps: A morphism of linear representations $f: (V, rho) -> (W, sigma)$ is a linear map $f: V -> W$ such that
@@ -904,6 +1001,11 @@ $
 ]
 
 #definition[Category of Linear Representations][
+  $typebadge(
+    G, Grp;
+    bb(k), Fld;
+  )$
+
   The category of $bb(k)$-linear representations of a group $G$ is denoted by
   $
     sans("Rep")_bb(k)(G):= [sans(upright("B")) G, Vect(bb(k))] tilde.equiv Mod(bb(k)[G]).
@@ -912,6 +1014,12 @@ $
 ]
 
 #definition[Isomorphism of Linear Representations][
+  $typebadge(
+    G, Grp;
+    bb(k), Fld;
+    V\, W, Mod(bb(k)[G])
+  )$
+
   Two linear representations $rho: G -> GL(V)$ and $sigma: G -> GL(W)$ are called *isomorphic* if there exists a linear isomorphism $f: V ->^(tilde) W$ such that
   $
     f circle.tiny rho_g = sigma_g compose f, quad forall g in G.
@@ -919,10 +1027,21 @@ $
 ]
 
 #definition[Trivial Representation][
+  $typebadge(
+    G, Grp;
+    bb(k), Fld;
+  )$
+
   The *trivial representation* of a group $G$ is the linear representation $rho: G -> GL(bb(k))$ such that $rho_g = op("id")_V$ for all $g in G$.
 ]
 
 #definition[$G$-invariant Subspace][
+  $typebadge(
+    G, Grp;
+    bb(k), Fld;
+    V\, W, Mod(bb(k)[G])
+  )$
+
   Let $rho: G -> GL(V)$ be a linear representation of a group $G$. A subspace $W subset.eq V$ is called *$G$-invariant* if
   $
     rho_g (W) subset.eq W, quad forall g in G.
@@ -930,9 +1049,15 @@ $
 ]
 
 #definition[Subrepresentation][
+  $typebadge(
+    G, Grp;
+    bb(k), Fld;
+    V\, W, Mod(bb(k)[G])
+  )$
+
   Let $rho: G &-> GL(V)$ be a linear representation of a group $G$. If $W$ is a $G$-invariant subspace of $V$, then we can define a linear representation $rho|_W: G -> GL(W)$ as follows
   $
-    rho|_W: G & --> GL(W)     \
+    rho|_W: G & --> GL(W) \
             g & --> rho_g|_W.
   $
   We call $rho|_W$ a *subrepresentation* of $rho$.
@@ -941,12 +1066,24 @@ $
   From the viewpoint of $bb(k)[G]$-modules, a subrepresentation of a $bb(k)[G]$-module $V$ is a $bb(k)[G]$-submodule $W$ of $V$.
 ]
 #definition[Proper Subrepresentation][
+  $typebadge(
+    G, Grp;
+    bb(k), Fld;
+    V\, W, Mod(bb(k)[G])
+  )$
+
   A subrepresentation $W$ of a linear representation $rho: G -> GL(V)$ is called *proper* if $W eq.not V$.
 ]
 
 
 
 #definition[Irreducible Representation][
+  $typebadge(
+    G, Grp;
+    bb(k), Fld;
+    V, Mod(bb(k)[G])
+  )$
+
   A linear representation $rho: G -> GL(V)$ is called *irreducible* if $V$ has no proper nontrivial subrepresentations. A linear representation is called *reducible* if it is not irreducible.
 ]
 #remark[
@@ -954,6 +1091,12 @@ $
 ]
 
 #lemma[Kernal and Image of a $G$-equivariant Map are $G$-invariant][
+  $typebadge(
+    G, Grp;
+    bb(k), Fld;
+    V\, W, Mod(bb(k)[G])
+  )$
+
   Let $rho: G -> GL(V)$ and $sigma: G -> GL(W)$ be two linear representations of a group $G$. Suppose $f: V -> W$ is a $G$-equivariant map. Then
 
   + $ker f$ is a $G$-invariant subspace of $V$.
@@ -974,6 +1117,12 @@ $
     which means $im f$ is a $G$-invariant subspace of $W$.
 ]
 #theorem[Schur's Lemma][
+  $typebadge(
+    G, Grp;
+    bb(k), Fld;
+    V\, W, Mod(bb(k)[G])
+  )$
+
   Let $rho: G -> GL(V)$ and $sigma: G -> GL(W)$ be two irreducible linear representations of a group $G$. Suppose $f: V -> W$ is a $G$-equivariant map. We have
 
   + Either $f$ is an isomorphism, or $f=0$.
@@ -1012,7 +1161,7 @@ $
 ]
 
 #remark[
-  A finite dimensional representation of a group $G$ is equivalent to a functor $R: sans(upright("B")) G -> Vect(bb(k))^("fin")$.
+  A finite dimensional representation of a group $G$ is equivalent to a functor $R: sans(upright("B")) G -> FinVect(bb(k))$.
 ]
 
 #proposition[][
@@ -1021,6 +1170,12 @@ $
 
 === Charater Theory
 #definition[Character of a Representation][
+  $typebadge(
+    G, Grp;
+    bb(k), Fld;
+    V, FinVect(bb(k))
+  )$
+
   Let $V$ be a finite-dimensional vector space over $bb(k)$ and $rho: G -> GL(V)$ be a linear representation of a group $G$. The *character* of $rho$ is the function $chi_rho: G -> bb(k)$ defined by
   $
     chi_rho (g) = Tr(rho_g), quad forall g in G.
@@ -1028,15 +1183,31 @@ $
 ]
 
 #definition[Degree of a Character][
+  $typebadge(
+    G, Grp;
+    bb(k), Fld;
+    V, FinVect(bb(k))
+  )$
+
   Let $rho: G -> GL(V)$ be a finite-dimensional representation and $chi_rho$ be the character of $rho$. The *degree* of $chi_rho$ is the dimension of the vector space $V$.
 
 ]
 
 #definition[Class Function][
+  $typebadge(
+    G, Grp;
+    bb(k), Fld;
+  )$
+
   A function $f: G -> bb(k)$ is called a *class function* if it is constant on each conjugacy class of $G$. The set of all class functions of $G$ is a $bb(k)$-vector space.
 ]
 
 #proposition[Class Function Form the Center of $bb(k)[G]$][
+  $typebadge(
+    G, FinGrp;
+    bb(k), Fld;
+  )$
+
   If $G$ is a finite group. Then a class function $f: G -> bb(k)$ can be viewed as an element
   $
     sum_(g in G) f(g) g.
@@ -1055,13 +1226,26 @@ $
     sum_(g in G) f(g) g = h (sum_(g in G) f(g) g)h^(-1) = sum_(g in G) f(g) h g h^(-1)= sum_(g in G) f(h^(-1) g h) g ==> f(g) = f(h^(-1) g h),
   $
   which implies $f$ is a class function.
+
 ]
 
 #definition[Irreducible Character][
+  $typebadge(
+    G, Grp;
+    bb(k), Fld;
+    V, FinVect(bb(k))
+  )$
+
   The character $chi_rho$ of a linear representation $rho: G -> GL(V)$ is called an *irreducible character* if $rho$ is an irreducible representation.
 ]
 
 #proposition[Properties of Characters][
+  $typebadge(
+    G, Grp;
+    bb(k), Fld;
+    V, FinVect(bb(k))
+  )$
+
   Let $V$ be a $n$-dimensional vector space over $bb(k)$ and $rho: G -> GL(V)$ be a representation. Then the character $chi_rho$ of $rho$ has the following properties:
 
   + $chi_rho$ is a class function. The set of irreducible characters of $G$ forms a basis of the $bb(k)$-vector space of class functions of $G$.
@@ -1070,6 +1254,12 @@ $
 ]
 
 #proposition[Properties of Characters over Field of Characteristic 0][
+  $typebadge(
+    G, Grp;
+    bb(k), Fld_0;
+    V, FinVect(bb(k))
+  )$
+
   Let $V$ be a $n$-dimensional vector space over $bb(k)$ and $rho: G -> GL(V)$ be a representation. Suppose $bb(k)$ has characteristic $0$. Then the character $chi_rho$ of $rho$ has the following properties:
 
   + Two representations are isomorphic if and only if they have the same character.
@@ -1092,8 +1282,17 @@ In this section we focus on the finite-dimensional representations of finite gro
 
 Recall a linear map $p:V->V$ is called a projection if $p^2=p$. If $p:V->V$ is a projection, then $V=im p plus.circle ker p$.
 
+
+
+
 #lemma[][
-  Let $G$ be finite Group, $V$ be a finite dimensional $bb(k)$-vector space and $rho: G -> GL(V)$ be a representation. Suppose $op("char")(bb(k))$ does not divide $|G|$. If $W$ is a $G$-invariant subspace of $V$, then there exists a complement $W'$ of $W$ in $V$ such that $V = W plus.circle W^0$ and $W^0$ is also $G$-invariant.
+  $typebadge(
+    bb(k), Fld;
+    G, FinGrp;
+    V, FinVect(bb(k))
+  )$
+
+  Let $rho: G -> GL(V)$ be a representation. Suppose $op("char")(bb(k))$ does not divide $|G|$. If $W$ is a $G$-invariant subspace of $V$, then there exists a complement $W^0$ of $W$ in $V$ such that $V = W plus.circle W^0$ and $W^0$ is also $G$-invariant.
 ]<complement-of-invariant-subspace>
 #proof[
   Let $W'$ be an arbitrary complement of $W$ in $V$. Then $V = W plus.circle W'$. Let $op("pr")_W: W plus.circle W' -> W$ be the projection onto $W$. Define
@@ -1116,7 +1315,12 @@ The following property is called complete reducibility, or semisimplicity.
 
 
 #proposition[Maschke's theorem][
-  Let $G$ be a finite group and $bb(k)$ be a field such that $op("char")(bb(k))$ does not divide $|G|$. Then
+  $typebadge(
+    bb(k), Fld;
+    G, FinGrp
+  )$
+
+  Suppose $op("char")(bb(k))$ does not divide $|G|$. Then
 
   + every finite-dimensional representation of a $G$ over $bb(k)$ is a direct sum of irreducible representations.
 
@@ -1142,6 +1346,8 @@ The following property is called complete reducibility, or semisimplicity.
 === Algebraic Characters of Groups
 
 #definition[Character of a Group][
+  $typebadge(G, Grp)$
+
   Let $G$ be a group. A *character* of $G$ is a group homomorphism $chi: G -> CC^times$. That is, it is a function such that
   $
     chi(g_1 g_2) = chi(g_1) chi(g_2), quad forall g_1, g_2 in G.
@@ -1149,19 +1355,23 @@ The following property is called complete reducibility, or semisimplicity.
 ]
 
 #definition[Conjugate Character][
+  $typebadge(G, Grp)$
+
   Let $G$ be a group and $chi: G -> CC^times$ be a character of $G$. The *conjugate character* of $chi$ is the character $overline(chi): G -> CC^times$ defined by $overline(chi)(g) = overline(chi(g))$.
 ]
 
 
 #definition[Character Group of a Group][
+  $typebadge(G, Grp)$
+
   All characters of $G$ form a $CC^times$-vector space, denoted by $chargrp(G):=op("Hom")_(sans("Grp"))(G,CC^times)$, called the *character group*#index("Ch") of $G$. The group operation is given by pointwise multiplication
   $
     (chi_1 chi_2)(g) = chi_1(g) chi_2(g), quad forall g in G.
   $
   The identity element of $chargrp(G)$ is the *trivial character*
   $
-    1_(chargrp(G)): G & --> CC^times      \
-                    g & arrow.bar.long 1.
+    1_(chargrp(G)): G & --> CC^times \
+                    g & mapsto.long 1.
   $
 ]
 #remark[
@@ -1184,9 +1394,9 @@ The following property is called complete reducibility, or semisimplicity.
 
   If we restricted the functor to the category of abelian groups, we get a left exact functor $op("Hom")_(sans("Ab"))(-, CC^times): sans("Ab")^(op("op")) -> sans("Ab")$, which preserves finite biproducts. Therefore, given abelian groups $G$ and $H$, we have natural isomorphism
   $
-           chargrp(G) times chargrp(H) & -->^(tilde) chargrp(G times H)                                           \
+           chargrp(G) times chargrp(H) & -->^(tilde) chargrp(G times H) \
                         (chi_1, chi_2) & arrow.long.bar lr(((g,h) arrow.long.bar chi_1(g) chi_2(h)), size: #120%) \
-    (chi compose i_G, chi compose i_H) & arrow.long.bar.l chi                                                     \
+    (chi compose i_G, chi compose i_H) & arrow.long.bar.l chi \
   $
   where
   $
@@ -1225,6 +1435,8 @@ The following property is called complete reducibility, or semisimplicity.
     $
 ]
 #definition[Orthogonality of Characters][
+  $typebadge(G, FinGrp)$
+
   Let $G$ be a finite group. We say $G$ has orthogonality of characters if it satisfies the following conditions:
 
   + For any $chi in chargrp(G)$,
@@ -1246,6 +1458,8 @@ The following property is called complete reducibility, or semisimplicity.
 ]<orthogonality-of-characters>
 
 #proposition[][
+  $typebadge(G, FinGrp)$
+
   Suppose $G$ is a finite group that has orthogonality of characters. Then
   + For any $chi_1, chi_2 in chargrp(G)$, we have
     $
@@ -1280,36 +1494,40 @@ The following property is called complete reducibility, or semisimplicity.
 ]
 
 #lemma[Orthogonality of Characters of Product Groups][
+  $typebadge(G\, H, FinAb)$
+
   If $G$ and $H$ are finite abelian groups which have orthogonality of characters, then $G times H$ also has orthogonality of characters.
 ]<orthogonality-of-characters-of-product-groups>
 #proof[
   For any $chi in algdual((G times H))$, by @character-group-functor it can written as $chi(g, h)=chi_1(g)chi_2(h)$ for $chi_1=chi compose i_G in algdual(G)$ and $chi_2 =chi compose i_H in algdual(H)$. We can check that
   $
-    sum_((g times h) in G times H) chi(g, h) & = sum_((g times h) in G times H) chi_1(g)chi_2(h)                          \
-                                             & =sum_(g in G) chi_1(g) sum_(h in H) chi_2(h)                               \
+    sum_((g times h) in G times H) chi(g, h) & = sum_((g times h) in G times H) chi_1(g)chi_2(h) \
+                                             & =sum_(g in G) chi_1(g) sum_(h in H) chi_2(h) \
                                              & =|G| |H| bold(1)_(chi_1 = 1_(algdual(G))) bold(1)_(chi_2 = 1_(algdual(H))) \
                                              & =|G| |H| bold(1)_(chi = 1_algdual((G times H))).
   $
   For any $g in G$ and $h in H$, we have
   $
-    sum_(chi in algdual((G times H))) chi(g, h) & =sum_((chi_1,chi_2) in algdual(G)times algdual(H)) chi_1(g)chi_2(h)    \
+    sum_(chi in algdual((G times H))) chi(g, h) & =sum_((chi_1,chi_2) in algdual(G)times algdual(H)) chi_1(g)chi_2(h) \
                                                 & =sum_(chi_1 in algdual(G)) chi_1(g) sum_(chi_2 in algdual(H)) chi_2(h) \
-                                                & =|algdual(G)| |algdual(H)| bold(1)_(g = 1_G) bold(1)_(h = 1_H)         \
+                                                & =|algdual(G)| |algdual(H)| bold(1)_(g = 1_G) bold(1)_(h = 1_H) \
                                                 & =|algdual(G)| |algdual(H)| bold(1)_((g,h) = 1_(G times H)).
   $
   This shows that $G times H$ has orthogonality of characters.
 ]
 
 #lemma[
+  $typebadge(G, FinAb)$
+
   Assume that $G$ is a fnite cyclic group of order $n$ and $a in G$ is a generator of $G$. Define a character
   $
-    chi: G & --> CC^times                                  \
+    chi: G & --> CC^times \
        a^m & arrow.long.bar e^((2 pi i m ) / n)=zeta_n^(m)
   $
   Then we have
   + For each $k in ZZ$, the $k$-th power of $chi$ is given by
     $
-      chi^k: G & --> CC^times                                      \
+      chi^k: G & --> CC^times \
            a^m & arrow.long.bar e^((2 pi i k m ) / n)=zeta_n^(k m)
     $
   + $algdual(G)$ is a cyclic group of order $n$ generated by the character $chi$ #h(1fr)
@@ -1349,6 +1567,8 @@ The following property is called complete reducibility, or semisimplicity.
 ]
 
 #proposition[Orthogonality of Characters of Finite Abelian Group][
+  $typebadge(G, FinAb)$
+
   Let $G$ be a finite abelian group of order $n$ and $a in G$ be a generator of $G$. Then $G tilde.equiv algdual(G)$ and $G$ has orthogonality of characters.
 ]<orthogonality-of-characters-of-finite-abelian-group>
 #proof[
@@ -1364,25 +1584,35 @@ In this chapter, we study representations of locally compact Hausdorff groups.
 == Unitary Representations
 
 #definition[Unitary Representation][
+  $typebadge(
+    G, LCHGrp;
+    H_pi, CHilb
+  )$
+
   A *unitary representation* of a locally compact Hausdorff group $G$ on a complex Hilbert space $H_pi$ is a continuous group homomorphism $pi: G -> U(H_pi)$, where $U(H_pi)$ is the group of unitary operators on $H_pi$ and the topology on $U(H_pi)$ is the topology induced by the strong operator norm.
   The map $pi$ is called a *unitary representation* of $G$.
 ]
 
 #proposition[][
-  Given a locally compact Hausdorff group $G$ on a complex Hilbert space $H_pi$, the weak and strong operator topologies coincide on $U(H_pi)$. Let $pi: G -> U(H_pi)$ be group homomorphism. The following statement is equivalent:
+  $typebadge(
+    G, LCHGrp;
+    H_pi, CHilb
+  )$
+
+  Given a complex Hilbert space $H_pi$, the weak and strong operator topologies coincide on $U(H_pi)$. Let $pi: G -> U(H_pi)$ be group homomorphism. The following statement is equivalent:
 
   + $pi$ is a continuous  with respect to the strong operator topology.
 
   + For any $v in H_pi$, the map
     $
-      pi_v: G & --> H_pi                \
+      pi_v: G & --> H_pi \
             g & arrow.long.bar pi(g)(v)
     $
     is continuous.
 
   + For any $u , v in H_pi$, the map
     $
-      G & --> CC                                     \
+      G & --> CC \
       g & arrow.long.bar angle.l pi(g)(u), v angle.r
     $
     is continuous.
@@ -1391,14 +1621,19 @@ In this chapter, we study representations of locally compact Hausdorff groups.
 
 
 #example[][
+  $typebadge(
+    G, LCHGrp;
+    X, Top
+  )$
+
   If a locally compact Hausdorff group $G$ acts on a locally compact Hausdorff space $X$, then $G$ acts on $op("Hom")_(sans("Set"))(X, CC)$, the space of  functions from $X$ to $CC$, by
   $
-    G times op("Hom")_(sans("Set"))(X, CC) & --> op("Hom")_(sans("Set"))(X, CC)             \
+    G times op("Hom")_(sans("Set"))(X, CC) & --> op("Hom")_(sans("Set"))(X, CC) \
                                     (g, f) & arrow.long.bar (x arrow.long.bar f(g^(-1) x)).
   $
-  Moreover, if $S$ admits a $G$-invariant Radon measure $mu$, then the above action gives a unitary representation of $G$ on the Hilbert space $L^2(X, cal(B)(X), mu)$, the space of square integrable functions on $X$ with respect to the measure $mu$. The representation is given by
+  Moreover, if $X$ admits a $G$-invariant Radon measure $mu$, then the above action gives a unitary representation of $G$ on the Hilbert space $L^2(X, cal(B)(X), mu)$, the space of square integrable functions on $X$ with respect to the measure $mu$. The representation is given by
   $
-    pi: G & --> U(L^2(X, cal(B)(X), mu))                                      \
+    pi: G & --> U(L^2(X, cal(B)(X), mu)) \
         g & arrow.long.bar (f arrow.long.bar (x arrow.long.bar f(g^(-1) x))).
   $
 ]
@@ -1406,9 +1641,11 @@ In this chapter, we study representations of locally compact Hausdorff groups.
 By considering the action of $G$ on $G$ itself by left multiplication, we get the *left regular representation* of $G$ defined as follows.
 
 #definition[Regular representation][
+  $typebadge(G, LCHGrp)$
+
   Let $G$ be a locally compact Hausdorff group and $mu, rho$ be the left and right Harr measure on $G$, respectively. The *left regular representation* of $G$ is the unitary representation
   $
-    pi_L: G & --> U(L^2(G, cal(B)(G), mu))                                             \
+    pi_L: G & --> U(L^2(G, cal(B)(G), mu)) \
           g & arrow.long.bar (f arrow.long.bar (L_g f: h arrow.long.bar f(g^(-1) h))).
   $
 ]
@@ -1416,21 +1653,35 @@ By considering the action of $G$ on $G$ itself by left multiplication, we get th
 #example[Regular representation of $RR$][
   Let $RR$ be the additive group of real numbers. The regular representation of $RR$ on $L^2(RR, cal(B)(RR), mu)$ is given by
   $
-    pi_L: RR & --> U(L^2(RR, cal(B)(RR), mu))                                       \
+    pi_L: RR & --> U(L^2(RR, cal(B)(RR), mu)) \
            x & arrow.long.bar (f arrow.long.bar (L_x f: t arrow.long.bar f(t -x))).
   $
-  $pi_L$ representation has no irreducible subrepresentations.
+  $pi_L$ has no irreducible subrepresentations.
 ]
 #proof[
-  If $pi_L$ has an irreducible subrepresentation $pi^V: G -> U(V)$, then by @irreducible-unitary-representation-of-lca-group-is-one-dimensional we have $dim V =1$. Suppose $V={c F mid(|) c in CC}$ for some nonzero $F in L^2(RR, cal(B)(RR), mu)$. Then for any $f in V$, we have $f=c(f)F$, where $c: V -> CC$ is the coordinate function. And we have $forall x in RR, forall f in V$
+  If $pi_L$ has an irreducible subrepresentation $pi^V_L: RR -> U(V)$, then by @irreducible-unitary-representation-of-lca-group-is-one-dimensional we have $dim V =1$. According to @identify-one-dimensional-unitary-representations-of-lca-group-with-characters, there exists a character $chi: RR -> TT$ such that
   $
-    [pi^V_L (x)(f)](t) = c(f) [pi^V (x)(F)](t)=c(f) F(t-x)
+    pi_L^V (x) (f) = chi(x) f
   $
+  for all $x in RR$ and $f in V$. Thus for all $x in RR$, $f in V$, $t in RR$, we have
+  $
+    [pi_L^V (x) (f)](t)= chi(x) f(t) = f(t - x).
+  $
+  Take $t=0$ and some $f^* in V-{0}$. Then for all $x in RR$, we have
+  $
+    f^*(x)=chi(-x) f^*(0)=> abs(f^*(x))=|f^*(0)|,
+  $
+  which implies $t|->|f^*(t)|$ is a constant function. Since $f^* in L^2(RR, cal(B)(RR), mu)$, we have $f^*=0$, which leads to a contradiction. Therefore, $pi_L$ has no irreducible subrepresentations.
 
 ]
 
 #definition[Intertwining Operator][
-  Let $pi_1: G -> U(H_1)$ and $pi_2: G -> U(H_2)$ be two unitary representations of a locally compact Hausdorff group $G$. An bounded linear operator $T: H_1 -> H_2$ is called an *intertwining operator* if
+  $typebadge(
+    G, LCHGrp;
+    H_1\, H_2, CHilb
+  )$
+
+  Let $pi_1: G -> U(H_1)$ and $pi_2: G -> U(H_2)$ be two unitary representations of $G$. An bounded linear operator $T: H_1 -> H_2$ is called an *intertwining operator* if
   $
     T pi_1(g) = pi_2(g) T, quad forall g in G.
   $
@@ -1438,42 +1689,71 @@ By considering the action of $G$ on $G$ itself by left multiplication, we get th
 ]
 
 #definition[Commutant of a Unitary Representation][
-  Let $pi: G -> U(H)$ be a unitary representation of a locally compact Hausdorff group $G$. The *commutant* of $pi$ is the set of all intertwining operators from $pi$ to itself, which is denoted by $op("End")_(sans("URep"))(pi):= op("Hom")_(sans("URep"))(pi, pi)$.
+  $typebadge(
+    G, LCHGrp;
+    H, CHilb
+  )$
+
+  Let $pi: G -> U(H)$ be a unitary representation of $G$. The *commutant* of $pi$ is the set of all intertwining operators from $pi$ to itself, which is denoted by $op("End")_(sans("URep"))(pi):= op("Hom")_(sans("URep"))(pi, pi)$.
 ]
 
 #definition[Unitary equivalence][
-  Let $pi_1: G -> U(H_1)$ and $pi_2: G -> U(H_2)$ be two unitary representations of a locally compact Hausdorff group $G$. We say $pi_1$ and $pi_2$ are *unitarily equivalent* if there exists a unitary operator $U in op("Hom")_(sans("URep"))(pi_1, pi_2)$ such that
+  $typebadge(
+    G, LCHGrp;
+    H_1\, H_2, CHilb
+  )$
+
+  Let $pi_1: G -> U(H_1)$ and $pi_2: G -> U(H_2)$ be two unitary representations of $G$. We say $pi_1$ and $pi_2$ are *unitarily equivalent* if there exists a unitary operator $U in op("Hom")_(sans("URep"))(pi_1, pi_2)$ such that
   $
     pi_2(g) = U pi_1(g) U^(-1), quad forall g in G.
   $
 ]
 
 
-#definition[Invariant
-  Subspace of a Unitary Representation][
+#definition[Invariant Subspace of a Unitary Representation][
+  $typebadge(
+    G, LCHGrp;
+    H, CHilb
+  )$
+
   Let $pi: G -> U(H)$ be a unitary representation of a locally compact Hausdorff group $G$. An *invariant subspace of $H$ for $pi$* is a closed subspace $V subset.eq H$ such that
   $
     pi(g)(V) subset.eq V, quad forall g in G.
   $
-]
+]<invariant-subspace-of-a-unitary-representation>
 
 #definition[Subrepresentation of a Unitary Representation][
-  Let $pi: G -> U(H)$ be a unitary representation of a locally compact Hausdorff group $G$. If $V subset.eq H$ is a invariant subspace for $pi$, then the map
+  $typebadge(
+    G, LCHGrp;
+    H\, V, CHilb
+  )$
+
+  Let $pi: G -> U(H)$ be a unitary representation of a locally compact Hausdorff group $G$. If $V subset.eq H$ is an #link(<invariant-subspace-of-a-unitary-representation>)[invariant subspace for $pi$], then the map
 
   $
-    pi^V: G & --> U(V)                \
+    pi^V: G & --> U(V) \
           g & arrow.long.bar pi(g)|_V
   $
   is called a *subrepresentation* of $pi$.
 ]
 
 #definition[Irreducible Representation][
+  $typebadge(
+    G, LCHGrp;
+    H, CHilb
+  )$
+
   A unitary representation $pi: G -> U(H)$ of a locally compact Hausdorff group $G$ is called *irreducible* if the only invariant subspaces of $H$ for $pi$ are $\{0\}$ and $H$ itself. Otherwise, it is called *reducible*.
 ]
 
 
 #proposition[Orthogonral Complement of a Invariant Subspace is Invariant
 ][
+  $typebadge(
+    G, LCHGrp;
+    H\, V, CHilb
+  )$
+
   Let $pi: G -> U(H)$ be a unitary representation of a locally compact Hausdorff group $G$. If $V subset.eq H$ is a invariant subspace for $pi$, then $V^(perp)$ is also a invariant subspace for $pi$. And we have
   $
     pi = pi^V plus.circle pi^(V^(perp)).
@@ -1497,16 +1777,21 @@ By considering the action of $G$ on $G$ itself by left multiplication, we get th
   For any $g in G$ and $v in V$, $v$ can be uniquely written as $v = v_1 + v_2$ with $v_1 in V$ and $v_2 in V^(perp)$. Since
   $
     (pi^V plus.circle pi^(V^(perp)) ) (g)(v) & = (pi^V plus.circle pi^(V^(perp)) ) (g) (v_1 + v_2) \
-                                             & = pi^V (g) (v) plus pi^(V^(perp)) (g) (w)           \
-                                             & = pi^V (g)(v_1) + pi^(V^(perp)) (g)(v_2)            \
-                                             & = pi (g)(v_1) + pi (g)(v_2)                         \
-                                             & = pi (g)(v_1 + v_2)                                 \
+                                             & = pi^V (g) (v) plus pi^(V^(perp)) (g) (w) \
+                                             & = pi^V (g)(v_1) + pi^(V^(perp)) (g)(v_2) \
+                                             & = pi (g)(v_1) + pi (g)(v_2) \
+                                             & = pi (g)(v_1 + v_2) \
                                              & = pi (g)(v), quad forall g in G, forall v in V,
   $
   we have $pi = pi^V plus.circle pi^(V^(perp))$.
 ]
 
 #definition[Cyclic Subspace][
+  $typebadge(
+    G, LCHGrp;
+    H_pi, CHilb
+  )$
+
   Let $pi: G -> U(H_pi)$ be a unitary representation of a locally compact Hausdorff group $G$. Suppose $v in H_pi$. The *cyclic subspace generated by $v$* is the closed subspace of $H_pi$ defined by
   $
     M_v := overline(op("span"){pi(g)(v) mid(|) g in G})
@@ -1517,6 +1802,11 @@ By considering the action of $G$ on $G$ itself by left multiplication, we get th
 ]
 
 #definition[Cyclic Representation][
+  $typebadge(
+    G, LCHGrp;
+    H_pi, CHilb
+  )$
+
   Let $pi: G -> U(H_pi)$ be a unitary representation of a locally compact Hausdorff group $G$.
   - If $H_pi = M_v$, then $v$ is called a *cyclic vector* for $pi$.
 
@@ -1525,6 +1815,11 @@ By considering the action of $G$ on $G$ itself by left multiplication, we get th
 
 #proposition[Every Unitary Representation is a Direct Sum of Cyclic
   Representations][
+  $typebadge(
+    G, LCHGrp;
+    H, CHilb
+  )$
+
   Let $pi: G -> U(H)$ be a unitary representation of a locally compact Hausdorff group $G$. Then there exists a decomposition
   $
     H = plus.big_(alpha in I) M_alpha
@@ -1536,6 +1831,11 @@ By considering the action of $G$ on $G$ itself by left multiplication, we get th
 ]
 
 #proposition[Characterization of Invariant Subspaces][
+  $typebadge(
+    G, LCHGrp;
+    H_pi, CHilb
+  )$
+
   Let $pi: G -> U(H_pi)$ be a unitary representation of a locally compact Hausdorff group $G$. Let $M$ be a closed subspace of a Hilbert space $H_pi$. Let $op("pr")_M: H_pi -> M$ be the orthogonal projection onto $M$. Then $M$ is invariant for $pi$ if and only if $op("pr")_M in op("End")_(sans("URep"))(pi)$.
 ]<characterization-of-invariant-subspaces>
 #proof[
@@ -1557,17 +1857,22 @@ By considering the action of $G$ on $G$ itself by left multiplication, we get th
 ]
 
 #theorem[Schur's Lemma for Unitary Representations][
-  + Let $pi: G -> U(H_pi)$ be a unitary representation of a locally compact Hausdorff group $G$. Then
+  $typebadge(
+    G, LCHGrp;
+    H_pi\,H_1\, H_2, CHilb
+  )$
+
+  + Let $pi: G -> U(H_pi)$ be a unitary representation of $G$. Then
     $
       pi "is irreducible" <==> op("End")_(sans("URep"))(pi) = {lambda id_H_pi mid(|) lambda in CC}.
     $
 
-  + Let $pi_1: G -> U(H_1)$ and $pi_2: G -> U(H_2)$ be two irreducible unitary representations of a locally compact Hausdorff group $G$. Then
+  + Let $pi_1: G -> U(H_1)$ and $pi_2: G -> U(H_2)$ be two irreducible unitary representations of  $G$. Then
     $
       dim op("Hom")_(sans("URep"))(pi_1, pi_2) = cases(
         gap: #0.5em,
         1\, & quad " if" pi_1 "is unitarily equivalent to" pi_2,
-        0\, & quad " otherwise ".
+        0\, & quad " otherwise".
       )
     $
 ]<Schur-lemma-for-unitary-representations>
@@ -1585,8 +1890,12 @@ By considering the action of $G$ on $G$ itself by left multiplication, we get th
 
 ]
 
-#corollary[Irreducible Unitary Representation of LCA Group is One-dimensional
-][
+#corollary[Irreducible Unitary Representation of LCA Group is One-dimensional][
+  $typebadge(
+    G, LCA;
+    H_pi, CHilb
+  )$
+
   Let $pi: G -> U(H_pi)$ be a unitary representation of a locally compact Hausdorff abelian group $G$. Then
   $
     pi "is irreducible" <==> dim H_pi = 1.
@@ -1606,6 +1915,66 @@ By considering the action of $G$ on $G$ itself by left multiplication, we get th
 ]
 
 
+== Representations of a Group and Its Group Algebra
+
+#definition[$*$-Representation of Banach $*$-Algebra][
+  $typebadge(H, CHilb)$
+
+  Let $A$ be a Banach $*$-algebra. A *$*$-representation* of $A$ on a complex Hilbert space $H$ is a $*$-homomorphism $phi.alt: A -> op("End")_CHilb (H)$.
+]<star-representation-of-banach-star-algebra>
+#remark[
+  The norm-closure of $phi.alt(A)$ is a $upright(C)^*$-subalgebra of $op("End")_CHilb (H)$, which is a Banach $*$-algebra.
+]
+
+#definition[Nondegenerate $*$-Representation of Banach $*$-Algebra][
+  $typebadge(H, CHilb)$
+
+  A $*$-representation $phi.alt: A -> op("End")_CHilb (H)$ of a Banach $*$-algebra $A$ is called *nondegenerate* if one of the following equivalent conditions holds:
+
+  + The norm-closure of $phi.alt(A)$ is nondegenerate.
+
+  + There exists no nonzero $v in H$ such that for all $a in A$,
+    $
+      phi.alt(a)(v) = 0.
+    $
+
+]
+
+#definition[$*$-representation of $L^1(G)$][
+  $typebadge(
+    G, LCA;
+    H_pi, CHilb
+  )$
+
+  Let $G$ be a locally compact Hausdorff abelian group and $pi: G -> U(H_pi)$ be a unitary representation of $G$. For each $u in H_pi$, define
+  $
+    pi_u: G & --> H_pi \
+          g & arrow.long.bar pi(g)(u).
+  $
+  Then $pi_u$ is a bounded continuous map from $G$ to $H_pi$. For any $f in L^1(G, cal(B)(G), mu)$, the weak integral $integral_G f pi_u dif mu in H_pi$ exists, which satisfies
+  $
+    integral_G f(g) angle.l pi(g)(u),v angle.r dif mu(g) = lr(angle.l integral_G f pi_u dif mu, v angle.r),quad forall v in H_pi.
+  $
+
+  So we can define a representation of $L^1(G, cal(B)(G), mu)$ on $H_pi$ by
+  $
+    tilde(pi): L^1(G, cal(B)(G), mu) & --> op("End")_CHilb (H_pi) \
+    f & arrow.long.bar (u arrow.long.bar tilde(pi)(f)(u):=integral_G f pi_u dif mu=integral_G f(g)pi(g)(u) dif mu (g)).
+  $
+  $tilde(pi)$ is a nondegenerate $*$-representation of $L^1(G, cal(B)(G), mu)$.
+]
+#remark[
+  It is easy to check that $tilde(pi)$ is a linear map and
+  $
+    norm(tilde(pi)(f)(u))_H_pi <= integral_G |f(g)| norm(pi(g)(u))_H_pi dif mu(g) <= norm(f)_1 norm(u)_H_pi, quad forall f in L^1(G, cal(B)(G), mu), forall u in H_pi.
+  $
+  So for any $f in L^1(G, cal(B)(G), mu)$, we have $tilde(pi)(f) in op("End")_CHilb (H_pi)$, which means that $tilde(pi)$ is well-defined. And we have
+  $
+    norm(tilde(pi)(f))_(op("op")) <= norm(f)_1, quad forall f in L^1(G, cal(B)(G), mu).
+  $
+
+]
+
 
 
 == Quasi‑character of Restricted Product
@@ -1619,7 +1988,7 @@ $
 $
 Let
 $
-  i_v: G_v & --> G                                             \
+  i_v: G_v & --> G \
        g_v & arrow.long.bar (1, dots.c, 1, g_v, 1, dots.c, 1),
 $
 be the canonical embedding of $G_v$ into $G$.
@@ -1627,7 +1996,7 @@ be the canonical embedding of $G_v$ into $G$.
 #example[Canonical Embedding of $G_v$][
   Define
   $
-    i_v: G_v & --> G                                             \
+    i_v: G_v & --> G \
          g_v & arrow.long.bar (1, dots.c, 1, g_v, 1, dots.c, 1),
   $
   We say $i_v in op("Hom")_(sans("TopGrp"))(G_v, G)$ is the *canonical embedding* of $G_v$ into $G$. It is a continuous injective group homomorphism.
@@ -1636,7 +2005,7 @@ be the canonical embedding of $G_v$ into $G$.
 #example[Local Quasi-character][
   Let $omega in op("Hom")_(sans("TopGrp"))(G, CC^times)$ be a quasi-character of $G$. Then
   $
-    omega_v: G_v & --> CC^times                    \
+    omega_v: G_v & --> CC^times \
              g_v & arrow.long.bar omega(i_v (g_v))
   $
   is a quasi-character of $G_v$ for each $v in I$.
@@ -1684,7 +2053,7 @@ be the canonical embedding of $G_v$ into $G$.
 #proposition[][
   Let $omega_v in op("Hom")_(sans("TopGrp"))(G_v, CC^times)$ be a quasi-character of $G_v$ for each $v in I$. Assume $omega_v|_(H_v) =1$ for all $v in I - S$ with $S$ is a finite subset of $I$. Define
   $
-    omega: G & --> CC^times                                   \
+    omega: G & --> CC^times \
            g & arrow.long.bar product_(v in I) omega_v (g_v).
   $
   Then $omega in op("Hom")_(sans("TopGrp"))(G, CC^times)$ is a quasi-character of $G$.
@@ -1692,9 +2061,9 @@ be the canonical embedding of $G_v$ into $G$.
 #proof[
   For any $g in G$, we have
   $
-    v in I - (S union S_g) & ==> v in (I - S) inter (I- S_g)                      \
-                           & ==> omega_v|_(H_v) =1 "and" g_v in H_v               \
-                           & ==> omega_v (g_v) =1                                 \
+    v in I - (S union S_g) & ==> v in (I - S) inter (I- S_g) \
+                           & ==> omega_v|_(H_v) =1 "and" g_v in H_v \
+                           & ==> omega_v (g_v) =1 \
                            & ==> v in.not {v in I mid(|) omega_v (g_v) eq.not 1},
   $
   which implies
@@ -1714,8 +2083,8 @@ be the canonical embedding of $G_v$ into $G$.
   It is straightforward to check that $omega$ is a group homomorphism:
   For any $g, h in G$, we have
   $
-    omega(g h) & = product_(v in S union S_g) omega_v (g_v h_v)                                          \
-               & = product_(v in S union S_g) omega_v (g_v) omega_v (h_v)                                \
+    omega(g h) & = product_(v in S union S_g) omega_v (g_v h_v) \
+               & = product_(v in S union S_g) omega_v (g_v) omega_v (h_v) \
                & = (product_(v in S union S_g) omega_v (g_v))( product_(v in S union S_h) omega_v (h_v)) \
                & = omega(g) omega(h).
   $
@@ -1754,16 +2123,19 @@ be the canonical embedding of $G_v$ into $G$.
   equipped with the multiplication of complex numbers and the topology induced from the standard topology of $CC$.
 ]
 #lemma[][
+  $typebadge(H, CHilb)$
+
   If $H$ is a one-dimensional complex Hilbert space,  then
   $
     U(H) = {lambda id_H mid(|) lambda in TT} tilde.equiv TT.
   $
-  The map
+  Suppose $U(H)$ is equipped with the strong operator topology and $e in H$ is a unit vector in $H$. Then the map
   $
-    phi: TT & -->^(tilde) U(H)           \
-     lambda & arrow.long.bar lambda id_H
+                     phi: TT & -->^(tilde) U(H) \
+                      lambda & arrow.long.bar lambda id_H \
+    angle.l U (e), e angle.r & arrow.long.bar.l U
   $
-  is a topological group isomorphism if $U(H)$ is equipped with the strong operator topology.
+  is a topological group isomorphism.
 ]<unitary-group-of-one-dimensional-hilbert-space>
 #proof[
   Since $dim H =1$, there exists a unit vector $v in H$ such that $H = {c v mid(|) c in CC}$. Fix a unitary operator $U in U(H)$. There exists a unique $lambda in CC$ such that $U(v)=lambda v$. Note
@@ -1784,7 +2156,7 @@ be the canonical embedding of $G_v$ into $G$.
 
   It is straightforward to check that the map $phi$ is a group homomorphism. Since $T$ is compact and $U(H)$ is Hausdorff, if we can show that $phi$ is continuous, then it is a homeomorphism. The topology on $U(H)$ is the initial topology with respect to the family of maps
   $
-    op("ev")_v : U(H) & --> H               \
+    op("ev")_v : U(H) & --> H \
                     U & arrow.long.bar U(v)
   $
   for all $v in H$. For any $v in H$, we have
@@ -1794,18 +2166,11 @@ be the canonical embedding of $G_v$ into $G$.
   Note that in a normed space the map, the scalar multiplication map $(lambda,v) & arrow.long.bar lambda v$ is continuous in each variable separately. We can conclude that $op("ev")_v compose phi$ is continuous for each $v in H$. By the characteristic property of the initial topology, we see that $phi$ is continuous.
 ]
 
-#corollary[Irreducible Unitary Representation of LCA Group is One-dimensional
-][
-  Let $G$ be a locally compact Hausdorff abelian group. There is a bijection between $op("Hom")_(sans("TopAb"))(G, TT)$ and one-dimensional unitary representations of $G$.
-]
-#proof[
-  According to @unitary-group-of-one-dimensional-hilbert-space, we have the topological group isomorphism $U(H) tilde.equiv TT$. This gives a bijection
-  $
-    op("Hom")_(sans("TopAb"))(G, TT) -->^(tilde) op("Hom")_(sans("TopGrp"))(G, U(H)) .
-  $
-]
+
 
 #definition[Pontryagin Dual of a Locally Compact Abelian Group][
+  $typebadge(G, LCA)$
+
   Let $G$ be a locally compact Hausdorff abelian group. The *Pontryagin dual* of $G$ is a topological group $algdual(G)$ defined as follows
   + Underlying set:
     $
@@ -1813,11 +2178,189 @@ be the canonical embedding of $G_v$ into $G$.
     $
     where $TT$ is the circle group.
 
-  + Group Multiplication: $algdual(G)subset.eq op("Hom")_(sans("Ab"))(G, TT)$ is abelian group with the pointwise multiplication of functions.
+  + Group Multiplication: $algdual(G)subset.eq op("Hom")_(sans("Ab"))(G, TT)$ is an abelian group with the pointwise multiplication of functions: given $chi_1, chi_2 in algdual(G)$, their multiplication $chi_1 chi_2$ is defined By
+    $
+      chi_1 chi_2: G times G & --> TT \
+                  (g_1, g_2) & arrow.long.bar chi_1(g_1) chi_2(g_2)
+    $
+
+  + Identity element: The identity element in $algdual(G)$ is the constant function 1
+    $
+      1_algdual(G): G & --> TT \
+                    g & arrow.long.bar 1
+    $
 
   + Topology: $algdual(G)$ is equipped with the compact-open topology.
 ]
+#corollary[][
+  $typebadge(
+    G, LCA;
+    H, CHilb
+  )$
+
+  Let $G$ be a locally compact Hausdorff abelian group and $H$ be a one-dimensional complex Hilbert space. Let $e in H$ be a unit vector in $H$. There is a bijection
+  $
+          algdual(G)=op("Hom")_(sans("TopAb"))(G, TT) & -->^(tilde) op("Hom")_(sans("TopGrp"))(G, U(H)) \
+                                                  chi & arrow.long.bar (pi: g arrow.long.bar chi(g) id_H) \
+    (chi: g mapsto.long angle.l pi(g) (e), e angle.r) & arrow.long.bar.l pi
+  $
+  between $op("Hom")_(sans("TopAb"))(G, TT)$ and one-dimensional unitary representations of $G$.
+]<identify-one-dimensional-unitary-representations-of-lca-group-with-characters>
+#proof[
+  According to @unitary-group-of-one-dimensional-hilbert-space, we have the topological group isomorphism $U(H) tilde.equiv TT$. This gives the desired bijection.
+
+]
+
+#proposition[][
+  $typebadge(G, LCA)$
+
+  Let $G$ be a locally compact Hausdorff abelian group with a Haar measure $mu$. Then
+
+  + Given any $chi in algdual(G)$, the map
+    $
+      xi_chi: L^1(G) & --> CC \
+                   f & mapsto.long integral_G lr(angle.l x, chi angle.r) f(x) dif mu(x) = integral_G f(x) chi(x) dif mu(x)
+    $
+    is a multiplicative functional on $L^1(G)$, i.e. a nonzero Banach algebra homomorphism.
+
+  + The map
+    $
+      xi_(bullet): algdual(G) & --> sigma(L^1(G)) \
+                          chi & mapsto.long xi_chi
+    $
+    is a homeomorphism.
+]
+#proof[
+  + Since for any $f in L^1(G)$,
+    $
+      norm(xi_chi (f)) = abs(integral_G lr(angle.l x, chi angle.r) f(x) dif mu(x)) <= integral_G abs(f(x))abs(chi(x)) dif mu(x) = norm(f)_1,
+    $
+    we see that $xi_chi$ is a well-defined continuous linear functional on $L^1(G)$.
+
+    - _Multiplicativity_. Using Fubini-Tonelli theorem, we have for any $f, g in L^1(G)$,
+    $
+      xi_chi (f*g) & = integral_G (f*g)(x) thin chi(x) dif mu(x) \
+                   & = integral_G integral_G f(y) g(y^(-1) x) thin chi(x) dif mu(y) dif mu(x) \
+                   & = integral_G f(y) (integral_G g(w) thin chi(y w) dif mu(w)) dif mu(y) quad (x = y w) \
+                   & = integral_G f(y) chi(y) dif mu(y) integral_G g(w) chi(w) dif mu(w) \
+                   & = xi_chi (f) thin xi_chi (g).
+    $
+
+    - _$*$-preservation_. For any $f in L^1(G)$, we have
+    $
+      xi_chi (f^*) & = integral_G f^*(x) chi(x) dif mu(x) \
+                   & = integral_G overline(f(x^(-1))) chi(x) dif mu(x) \
+                   & = integral_G overline(f(y)) chi(y^(-1)) dif mu(y) quad (x = y^(-1)) \
+                   & = overline(integral_G f(y) chi(y) dif mu(y)) \
+                   & = xi_chi (f)^*.
+    $
+
+    Therefore, $xi_chi$ is a multiplicative functional on $L^1(G)$.
+
+  +
+    - _Injectivity_. If there exist $chi, psi in algdual(G)$ such that $xi_chi = xi_psi$, then for any $f in L^1(G)$, we have
+    $
+      integral_G (chi - psi)f dif mu= xi_chi (f) - xi_psi (f) = 0.
+    $
+    which implies $chi = psi$ a.e. Since both $chi$ and $psi$ are continuous, we have $chi = psi$.
+
+    - _Surjectivity_. Let $psi in sigma(L^1(G))$. Since $L^1(G)' tilde.equiv L^oo (G)$, there exists $h in L^oo (G)$ such that
+      $
+        psi(f) = integral_G f h dif mu, quad forall f in L^1(G).
+      $
+      Since $psi$ is multiplicative, we have for any $f, g in L^1(G)$,
+      $
+          & integral_G psi(L_x f) g(x) dif mu(x) \
+        = & integral_G integral_G f(x^(-1)y) h(y) g(x) dif mu(y) dif mu(x) \
+        = & integral_G (f * g)(y) h(y) dif mu(y) \
+        = & psi(f * g) \
+        = & psi(f) integral_G g(x) h(x) dif mu(x) \
+        = & integral_G psi(f) h(x)g(x) dif mu(x),
+      $
+      which implies for any $f in L^1(G)$ and $mu$-almost every $x in G$,
+      $
+        psi(L_x f) = psi(f) h(x).
+      $
+      Since $psi eq.not 0$, we can choose $f_0 in L^1(G)$ with $psi(f_0) eq.not 0$, and define
+      $
+        chi(x):=psi(L_x f_0)/psi(f_0), quad forall x in G.
+      $
+      By the continuity of
+      $
+        G & --> L^1(G) \
+        x & arrow.long.bar L_x f_0
+      $
+      and continuity of $psi$, we see that $chi$ is continuous. Note
+      $
+        chi(x y) & = psi(L_(x y) f_0)/psi(f_0) \
+                 & = psi(L_x (L_y f_0))/psi(f_0) \
+                 & = (psi(L_y f_0)h(x))/psi(f_0) \
+                 & = (psi(f_0)h(y)h(x))/psi(f_0) \
+                 & = (psi(f_0)h(x))/psi(f_0) (psi(f_0)h(y))/psi(f_0) \
+                 & = psi(L_(x ) f_0)/psi(f_0) psi(L_(y) f_0)/psi(f_0) \
+                 & = chi(x) chi(y).
+      $
+      We see $chi : G -> CC^times$ is a continuous homomorphism. Since
+      $
+        abs(chi(x)) = abs(psi(L_x f_0))/abs(psi(f_0)) <= (norm(psi)norm(L_x f_0)_1 )/abs(psi(f_0)) = (norm(psi)norm(f_0)_1 )/abs(psi(f_0)),
+      $
+      $chi$ is bounded, which forces $abs(chi(x))=1$ for all $x in G$. In fact, if $abs(chi(x_0)) > 1$ for some $x_0 in G$, then as $n -> +oo$,
+      $
+        abs(chi(x_0)^n)= abs(chi(x_0))^n --> oo,
+      $
+      which contradicts the boundedness of $chi$. Similarly, we can rule out the case $abs(chi(x_0)) < 1$ since $abs(chi(x_0^(-1))) > 1$ gives the same contradiction. Thus we have $chi in algdual(G)$. Since $chi = h$ a.e., we have
+      $
+        xi_chi (f) = integral_G f(x) chi(x) dif mu (x) = integral_G f(x) h(x) dif mu (x) = psi(f), quad forall f in L^1(G).
+      $
+      So $xi_chi = psi$. Surjectivity follows.
+
+]
+
+#example[$*$-representation of $L^1(G)$][
+  $typebadge(G, LCA)$
+
+  Let $G$ be a locally compact Hausdorff abelian group and $pi: G -> U(CC)$ be a unitary representation of $G$. By @identify-one-dimensional-unitary-representations-of-lca-group-with-characters, $pi$ corresponds to some $chi in algdual(G)$.
+  For each $u in CC$, define
+  $
+    pi_u: G & --> CC \
+          x & arrow.long.bar pi(x)(u).
+  $
+  Then $pi_u$ is a bounded continuous map from $G$ to $CC$. For any $f in L^1(G, cal(B)(G), mu)$, the weak integral $integral_G f pi_u dif mu in CC$ exists, which satisfies
+  $
+    integral_G f(x) angle.l pi(x)(u),v angle.r dif mu(x) = lr(angle.l integral_G f pi_u dif mu, v angle.r),quad forall v in CC.
+  $
+
+  So we can define a representation of $L^1(G, cal(B)(G), mu)$ on $CC$ by
+  $
+    tilde(pi): L^1(G, cal(B)(G), mu) & --> op("End")_CHilb (CC) \
+    f & arrow.long.bar (u arrow.long.bar tilde(pi)(f)(u):=integral_G f pi_u dif mu=integral_G f(x)pi(x)(u) dif mu (x)).
+  $
+  $tilde(pi)$ is a nondegenerate #link(<star-representation-of-banach-star-algebra>)[$*$-representation] of $L^1(G, cal(B)(G), mu)$. Through the bijection
+  $
+                         CC & -->^(tilde)op("End")_CHilb (CC) \
+                          z & arrow.long.bar z id_CC \
+    angle.l T(1), 1 angle.r & arrow.long.bar.l T
+  $
+  $tilde(pi)$ can be identified with
+  $
+    xi_chi:L^1(G, cal(B)(G), mu) & --> CC \
+    f & arrow.long.bar integral_G f(x) chi(x) dif mu (x)=integral_G angle.l x, chi angle.r f(x) dif mu(x).
+  $
+]
+#proof[
+  - _Nondegeneracy_. Suppose $u eq.not 0$ and $tilde(pi) ( f ) u = 0$ for every $f in L^1 (G)$. Then
+    $
+      integral f (x) chi (x)dif mu (x) = 0
+    $
+    for all $f$. Choose any nonzero $g in L^1 \( G \)$ with $g gt.eq 0$ and set $f = macron(chi) g in L^1 \( G \)$. Then
+    $
+      integral_G f (x) chi (x) dif mu (x) = integral_G g (x) dif mu (x) > 0
+    $
+    a contradiction. Hence there is no nonzero $u$ annihilated by all $tilde(pi) (f)$, so $tilde(pi)$ is nondegenerate.
+]
 #proposition[Properties of Pontryagin Dual][
+  $typebadge(G, LCA)$
+
   Suppose $G$ is a locally compact Hausdorff abelian group. Then
 
   + $G$ is discrete $==>$ $algdual(G)$ is a compact.
@@ -1830,8 +2373,6 @@ be the canonical embedding of $G_v$ into $G$.
 
   + $G$ is finite $==>$ $algdual(G)$ is finite.
 
-  + $G$ is locally compact $==>$ $algdual(G)$ is locally compact.
-
 ]
 
 #example[Examples of Pontryagin Dual][
@@ -1842,30 +2383,36 @@ be the canonical embedding of $G_v$ into $G$.
 ]
 
 #example[$C_c (G)$ is Dense in $L^p (G)$][
+  $typebadge(G, LCA)$
+
   Let $G$ be a locally compact abelian group. We use $C_c (G)$ to denote the space of continuous complex-valued functions on $G$ with compact support.
 ]
 
 #definition[Functions of Positive Type][
-  Let $G$ be a locally compact abelian group. A Haar measurable
-  function function $phi: G -> CC$ is called a *function of positive type* if for any $f in C_c (G)$, we have
+  $typebadge(G, LCA)$
+
+  A Haar measurable function function $phi: G -> CC$ is called a *function of positive type* if for any $f in C_c (G)$, we have
   $
     integral_G integral_G phi(g^(-1) h) f(g) dif mu(g) overline(f(h)) dif mu(h) >= 0.
   $
 ]
 
+
 == Fourier Transform
 
 
 #definition[Fourier Transform on $L^1(G)$][
+  $typebadge(G, LCA)$
+
   Let $G$ be a locally compact abelian group and $mu$ be a Haar measure on $G$. The *Fourier transform* of a function $f in L^1(G)$ is defined as
   $
-    hat(f): algdual(G) & --> CC                                                   \
-                   chi & arrow.bar.long integral_G f(g) overline(chi(g)) dif mu .
+    hat(f): algdual(G) & --> CC \
+                   chi & mapsto.long integral_G f(g) overline(chi(g)) dif mu .
   $
   The Fourier transform is a continuous linear map from $L^1(G)$ to $L^oo (algdual(G))$ defined by
   $
-    cal(F): L^1(G) & --> L^oo (algdual(G))  \
-                 f & arrow.bar.long hat(f).
+    cal(F): L^1(G) & --> L^oo (algdual(G)) \
+                 f & mapsto.long hat(f).
   $
 ]
 #remark[
@@ -1898,7 +2445,7 @@ be the canonical embedding of $G_v$ into $G$.
     $
     For example,
     $
-       5 & =2^2+1^2 =(2+i)(2-i),  \
+       5 & =2^2+1^2 =(2+i)(2-i), \
       13 & =3^2+2^2=(3+2i)(3-2i), \
       17 & =4^2+1^2=(4+i)(4-i).
     $
@@ -2012,8 +2559,8 @@ $QQ$-rational points are also called rational points for simplicity.
     $
     Then we have the following bijection
     $
-                         f:C(QQ)-{(-1,0)} & -->^(tilde) QQ            \
-                                    (x,y) & arrow.bar.long y / (x+1), \
+                         f:C(QQ)-{(-1,0)} & -->^(tilde) QQ \
+                                    (x,y) & mapsto.long y / (x+1), \
       ((1-t^2) / (1+t^2), (2t) / (1+t^2)) & arrow.bar.long.l t.
     $
     which maps the rational point $(x,y)$ on the circle to the slope of the line passing through the point $(x,y)$ and the point $(-1,0)$ on the circle.
@@ -2024,11 +2571,11 @@ $QQ$-rational points are also called rational points for simplicity.
     Then we have the following bijection
     $
             overline(f):C'(QQ) & -->^(tilde) bold("P")_QQ^1=QQ union.sq {oo} \
-                       [X:Y:Z] & arrow.bar.long cases(
+                       [X:Y:Z] & mapsto.long cases(
                                    [Y: X+Z] & quad " if" X+Z eq.not 0 \
-                                                                      \
+                                            \
                                       [1,0] & quad " if" X+Z = 0
-                                 )                                           \
+                                 ) \
       [S^2-R^2: 2R S: R^2+S^2] & arrow.bar.long.l [R:S].
     $
 ]
@@ -2248,8 +2795,8 @@ $
 #proof[
   It is sufficient to show that for any $a in QQ_p$ and $n in bb(Z)$, the open ball $B_(p^(-n)) (a)$ is homeomorphic to $B_(1) (0)=p bb(Z)_p$. Consider the map
   $
-    phi:B_(1) (0) & --> B_(p^(-n)) (a)        \
-                x & arrow.bar.long a + p^n x.
+    phi:B_(1) (0) & --> B_(p^(-n)) (a) \
+                x & mapsto.long a + p^n x.
   $
   It is well-defined because for any $x = limits(sum)_(i = 1)^(oo) a_i p^i in B_(1) (0)$, we have
   $
@@ -2257,8 +2804,8 @@ $
   $
   And we can verify the inverse map of $phi$ is given by
   $
-    phi^(-1):B_(p^(-n)) (a) & --> B_(1) (0)                  \
-                          y & arrow.bar.long p^(-n) (y - a).
+    phi^(-1):B_(p^(-n)) (a) & --> B_(1) (0) \
+                          y & mapsto.long p^(-n) (y - a).
   $
   The continuity of $phi$ and $phi^(-1)$ follows from the fact that the addition and multiplication are continuous in $QQ_p$.
 ]
@@ -2279,16 +2826,16 @@ $
 #proposition[][
   The group $QQ_p^times$ is isomorphic to $p^ZZ times ZZ_p^times$ via the continous homomorphism
   $
-    phi: QQ_p^times & -->^(tilde) p^ZZ times ZZ_p^times           \
-                  x & arrow.bar.long (p^(v_p (x)), p^(-v_p (x))x) \
+    phi: QQ_p^times & -->^(tilde) p^ZZ times ZZ_p^times \
+                  x & mapsto.long (p^(v_p (x)), p^(-v_p (x))x) \
               p^n u & arrow.bar.long.l (p^n, u)
   $
   where $p^ZZ= { p^n mid(|) n in bb(Z) }$ is endowed with the discrete topology and $ZZ_p^times$ is endowed with the subspace topology induced from $QQ_p^times$.
 
   Through the topological group isomorphism
   $
-    p^ZZ & -->^(tilde) ZZ   \
-     p^n & arrow.bar.long n \
+    p^ZZ & -->^(tilde) ZZ \
+     p^n & mapsto.long n \
   $
   we have $QQ_p^times tilde.equiv ZZ times ZZ_p^times$ as topological groups.
 ]
@@ -2300,8 +2847,8 @@ $
 
   - _Group homomorphism_. For any $x,y in QQ_p^times$, we have
     $
-      phi(x y) & = (p^(v_p (x y)), p^(-v_p (x y)) x y)                        \
-               & = (p^(v_p (x) + v_p (y)), p^(-v_p (x) - v_p (y)) x y)        \
+      phi(x y) & = (p^(v_p (x y)), p^(-v_p (x y)) x y) \
+               & = (p^(v_p (x) + v_p (y)), p^(-v_p (x) - v_p (y)) x y) \
                & = (p^(v_p (x)), p^(-v_p (x)) x)(p^(v_p (y)), p^(-v_p (y)) y) \
                & = phi(x) phi(y).
     $
@@ -2328,7 +2875,7 @@ $
   The unit group of $ZZ_p$ is given by
   $
     ZZ_p^times & = { x in ZZ_p mid(|) x = a_0 + a_1 p + dots.h.c + a_n p^n + dots.h.c " and" a_0 != 0} \
-               & = { x in ZZ_p mid(|) abs(x)_p=1 }                                                     \
+               & = { x in ZZ_p mid(|) abs(x)_p=1 } \
                & = { x in ZZ_p mid(|) v_p (x) = 0 }
   $
   In other words, the units of $ZZ_p$ are precisely those $p$-adic integers whose first digit in base-$p$ form is non-zero.
@@ -2348,8 +2895,8 @@ $
 #proposition[Teichmuller Lift][
   Let $p$ be a prime number. Let
   $
-    pi: ZZ_p^times & --> (ZZ\/ p ZZ)^times  \
-                 x & arrow.bar.long x mod p
+    pi: ZZ_p^times & --> (ZZ\/ p ZZ)^times \
+                 x & mapsto.long x mod p
   $
   be the projection map. Then the following statements hold:
 
@@ -2382,8 +2929,8 @@ $
       Note $v equiv b equiv a med(mod p)$. By #link(<hensel-lemma>)[
         Hensel's lemma], $u=v$, which implies $omega(overline(a)) = omega(overline(b))$. Thus we have a well-defined map
       $
-        omega:(ZZ\/ p ZZ)^times & --> ZZ_p^times                    \
-                    overline(a) & arrow.bar.long omega(overline(a))
+        omega:(ZZ\/ p ZZ)^times & --> ZZ_p^times \
+                    overline(a) & mapsto.long omega(overline(a))
       $
       where $omega(overline(a))$ is the unique solution of $f(X) = 0$ such that $X equiv a med(mod p)$.
       For any $overline(a) in (ZZ\/ p ZZ)^times$, we have
@@ -2432,8 +2979,8 @@ $
 #proposition[][
   Let
   $
-    pi: ZZ_p^times & --> (ZZ\/ p ZZ)^times  \
-                 x & arrow.bar.long x mod p
+    pi: ZZ_p^times & --> (ZZ\/ p ZZ)^times \
+                 x & mapsto.long x mod p
   $
   be the projection map. Then $pi$ is a continuous surjective group homomorphism with kernel
   $
@@ -2481,8 +3028,8 @@ $
 #proposition[][
   Let
   $
-    pi_k: ZZ_p^times & --> (ZZ\/ p^k ZZ)^times  \
-                   x & arrow.bar.long x mod p^k
+    pi_k: ZZ_p^times & --> (ZZ\/ p^k ZZ)^times \
+                   x & mapsto.long x mod p^k
   $
   be the reduction modulo $p^k$ map. Then $pi_k$ is a continuous surjective group homomorphism with kernel
   $
@@ -2494,8 +3041,8 @@ $
   $
   And we have the following isomorphism of topological groups
   $
-    theta:(ZZ\/ p^k ZZ)^times & -->^(tilde) ZZ_p^times \/ (1 + p^k ZZ_p)        \
-                  overline(a) & arrow.bar.long a( 1 + p^k ZZ_p) = a + p^k ZZ_p.
+    theta:(ZZ\/ p^k ZZ)^times & -->^(tilde) ZZ_p^times \/ (1 + p^k ZZ_p) \
+                  overline(a) & mapsto.long a( 1 + p^k ZZ_p) = a + p^k ZZ_p.
   $
 ]
 #proof[
@@ -2506,10 +3053,10 @@ $
 
   For any $x in ZZ_p^times$, we have
   $
-    pi_k \( x \) = overline(a) & <==> x equiv a med \( mod med p^k \)         \
+    pi_k \( x \) = overline(a) & <==> x equiv a med \( mod med p^k \) \
                                & <==> a^(- 1) x equiv 1 med \( mod med p^k \) \
-                               & <==> a^(- 1) x in 1 + p^k bb(Z)_p            \
-                               & <==> x in a( 1 + p^k bb(Z)_p)                \
+                               & <==> a^(- 1) x in 1 + p^k bb(Z)_p \
+                               & <==> x in a( 1 + p^k bb(Z)_p) \
                                & <==> x in a + p^k bb(Z)_p.
   $
   Hence $pi_k^(-1) ({overline(a)})=a+ p^k bb(Z)_p$.
@@ -2561,7 +3108,7 @@ Though $II_(K)$ is a subset of $AA_K$, the topology of $II_(K)$ is not the subsp
 #definition[Idelic Absolute Value][
   Let $K$ be a global field. The #strong[idelic absolute value] is defined as
   $
-    lr(|thin dot.op thin|)_(bb(I)_(K)) : bb(I)_(K) & arrow.r.long bb(R)_(gt.eq 0)                             \
+    lr(|thin dot.op thin|)_(bb(I)_(K)) : bb(I)_(K) & arrow.r.long bb(R)_(gt.eq 0) \
                          (x_v)_(v in mono("pl")_K) & arrow.r.bar.long product_(v in mono("pl")_K) lr(|x_v|_v)
   $
 ]
@@ -2578,7 +3125,7 @@ Though $II_(K)$ is a subset of $AA_K$, the topology of $II_(K)$ is not the subsp
 #definition[Adele Ring of $QQ$][
   The #strong[adele ring] #index("adele ring") of $QQ$ is defined as
   $
-    bb(A)_(QQ) & = RR times attach(product_p, t: ') QQ_p                                                                    \
+    bb(A)_(QQ) & = RR times attach(product_p, t: ') QQ_p \
                & = { (x_(oo),x_2,x_3,dots.c) in RR times product_p QQ_p mid(|) x_p in ZZ_p "for all but finitely many" p }.
   $
   The topology on $bb(A)_(QQ)$ is given by defining the basis of the form
@@ -2595,7 +3142,7 @@ Though $II_(K)$ is a subset of $AA_K$, the topology of $II_(K)$ is not the subsp
 #example[Diagonal Embedding $QQ arrow.r.hook bb(A)_(QQ)$][
   The diagonal embedding $QQ arrow.r.hook bb(A)_(QQ)$ is given by
   $
-    x & arrow.bar.long (x, x, x, dots.c)
+    x & mapsto.long (x, x, x, dots.c)
   $
   This map is a continuous and injective topological ring embedding. Therefore, we can identify $QQ$ with a subring of $bb(A)_(QQ)$.
 ]
@@ -2605,8 +3152,8 @@ Since $QQ$ embeds into $AA_QQ$, whenever we perform operations involving element
 #example[Action of $bb(Q)$ on $bb(A)_(QQ)$][
   Since we can see $bb(Q)$ as a additive subgroup of $bb(A)_(QQ)$, we can consider the quotient group $bb(A)_(QQ)\/ bb(Q)$. This gives an action of $bb(Q)$ on $bb(A)_(QQ)$ as follows
   $
-                     bb(Q) times bb(A)_(QQ) & --> bb(A)_(QQ)                                                      \
-    (q, (x_(oo),x_2,x_3,dots.c,x_p,dots.c)) & arrow.bar.long (q + x_(oo), q + x_2, q + x_3, dots.c,q+x_p,dots.c).
+                     bb(Q) times bb(A)_(QQ) & --> bb(A)_(QQ) \
+    (q, (x_(oo),x_2,x_3,dots.c,x_p,dots.c)) & mapsto.long (q + x_(oo), q + x_2, q + x_3, dots.c,q+x_p,dots.c).
   $
 
 ]
@@ -2759,16 +3306,16 @@ $bb(A)_(QQ)^times$ is a locally compact Hausdorff topological group. The connect
 #example[Action of $bb(Q)^times$ on $bb(A)_(QQ)^times$][
   Since we can see $bb(Q)^times$ as a subgroup of $bb(A)_(QQ)^times$, we can consider the quotient group $bb(A)_(QQ)^times \/ bb(Q)^times$. This gives an action of $bb(Q)^times$ on $bb(A)_(QQ)^times$ as follows
   $
-    bb(Q)^times times bb(A)_(QQ)^times & --> bb(A)_(QQ)^times                             \
-          (q, (x_(oo),x_2,x_3,dots.c)) & arrow.bar.long (q x_(oo), q x_2, q x_3, dots.c).
+    bb(Q)^times times bb(A)_(QQ)^times & --> bb(A)_(QQ)^times \
+          (q, (x_(oo),x_2,x_3,dots.c)) & mapsto.long (q x_(oo), q x_2, q x_3, dots.c).
   $
 ]
 
 #example[Local Embedding $QQ_v^times arrow.r.hook bb(A)_(QQ)^times$][
   For each place $v$, the local embedding $i_v: QQ_v^times arrow.r.hook bb(A)_(QQ)^times$ is given by
   $
-    i_v: QQ_v^times & --> AA_(QQ)^times                         \
-                  x & arrow.bar.long (1, dots.c, 1,x,1, dots.c)
+    i_v: QQ_v^times & --> AA_(QQ)^times \
+                  x & mapsto.long (1, dots.c, 1,x,1, dots.c)
   $
   where $x$ is in the position for place $v$ and all other positions are $1$. This map is a continuous and injective topological group embedding.
 ]
@@ -2852,7 +3399,7 @@ $bb(A)_(QQ)^times$ is a locally compact Hausdorff topological group. The connect
 #definition[Euler's Totient Function][
   The #strong[Euler's totient function] is defined as
   $
-    phi : bb(N) & arrow.r bb(N)                                                            \
+    phi : bb(N) & arrow.r bb(N) \
               n & arrow.r.bar lr(|{a in bb(N) divides 1 lt.eq a lt.eq n , (a , n) = 1}|) .
   $
 ]
@@ -2920,7 +3467,7 @@ $bb(A)_(QQ)^times$ is a locally compact Hausdorff topological group. The connect
 #remark[
   We can switch between $chi_m$ and $chi_m^star$ according to the following relation
   $
-    chi_m^star ([a]) & = chi_m (a),                                                  \
+    chi_m^star ([a]) & = chi_m (a), \
            chi_m (a) & = chi_m^star ([a]) bold(1)_([a] in (bb(Z) \/ m bb(Z))^times).
   $
 ]
@@ -3084,11 +3631,7 @@ Suppose $chi_m^star: (bb(Z) \/ m bb(Z))^times -> bb(C)^times$ is a Dirichlet cha
     )
   $
 ]
-#proof[
 
-
-
-]
 
 == Dirichlet $L$-Function
 
@@ -3127,7 +3670,7 @@ Suppose $chi_m^star: (bb(Z) \/ m bb(Z))^times -> bb(C)^times$ is a Dirichlet cha
 #definition[Root Number of Dirichlet Character][
   Let $chi$ be a primitive Dirichlet character modulo $m$. The #strong[root number] #index("Dirichlet Character", "Root Number") of $chi$ is defined as
   $
-    epsilon(chi)=G(chi) / (i^delta sqrt(q))=cases(G(chi)/( sqrt(q)) & upright(" if ") chi "is even,", -i G(chi)/( sqrt(q))& upright(" if ") chi "is odd.").
+    epsilon(chi)=G(chi) / (i^delta sqrt(q))=cases(G(chi)/( sqrt(q)) & " if " chi "is even,", -i G(chi)/( sqrt(q))& " if " chi "is odd.").
   $
   #index_math(display: [$epsilon(chi)$], "epsilon(chi)")
 ]
@@ -3144,7 +3687,10 @@ Suppose $chi_m^star: (bb(Z) \/ m bb(Z))^times -> bb(C)^times$ is a Dirichlet cha
 #proposition[Functional Equation for Dirichlet L-functions][
   Let $chi$ be a primitive Dirichlet character modulo $q$ with $q>1$. Let
   $
-    delta = cases(0 & upright(" if ") chi(-1) = 1 " i.e. " chi "is even,", 1 & upright(" if ") chi(-1) = -1 " i.e. " chi "is odd.")
+    delta = cases(
+      0 & " if" chi(-1) = 1 "i.e." chi "is even,", ,
+      1 & " if" chi(-1) = -1 "i.e." chi "is odd."
+    )
   $
   The Euler factor of the Riemann zeta function at a prime $p$ is given by #index_math(display: [$L_p(s, chi)$], "L_p(s, chi)")
   $
@@ -3152,7 +3698,10 @@ Suppose $chi_m^star: (bb(Z) \/ m bb(Z))^times -> bb(C)^times$ is a Dirichlet cha
   $
   The Euler factor of the Dirichlet L-function at infinity is given by #index_math(display: [$L_(oo)(s, chi)$], "L_(oo)(s, chi)")
   $
-    L_(oo)(s, chi)=pi^(-(s+delta) / 2) Gamma((s+delta) / 2) = cases(pi^(-s / 2) Gamma(s / 2) & upright(" if ") chi "is even,", pi^(-(s+1) / 2) Gamma((s+1) / 2) & upright(" if ") chi "is odd.")
+    L_(oo)(s, chi)=pi^(-(s+delta) / 2) Gamma((s+delta) / 2) = cases(
+      pi^(-s / 2) Gamma(s / 2) & " if" chi "is even,", ,
+      pi^(-(s+1) / 2) Gamma((s+1) / 2) & " if" chi "is odd."
+    )
   $
   Let
   $
@@ -3160,7 +3709,10 @@ Suppose $chi_m^star: (bb(Z) \/ m bb(Z))^times -> bb(C)^times$ is a Dirichlet cha
   $
   and
   $
-    W(s,chi)=epsilon(chi)q^(1 / 2-s)=(G(chi)q^(-s)) / (i^delta)=cases(G(chi)q^(-s) & upright(" if ") chi "is even,", -i G(chi)q^(-s)& upright(" if ") chi "is odd.")
+    W(s,chi)=epsilon(chi)q^(1 / 2-s)=(G(chi)q^(-s)) / (i^delta)=cases(
+      G(chi)q^(-s) & " if" chi "is even,", ,
+      -i G(chi)q^(-s) & " if" chi "is odd."
+    )
   $
   Then $Lambda(s, chi)$ satisfies the following functional equation
   $
@@ -3171,8 +3723,8 @@ Suppose $chi_m^star: (bb(Z) \/ m bb(Z))^times -> bb(C)^times$ is a Dirichlet cha
 #example[Dirichlet L-function of Primitive Dirichlet Character mod 4][
   There are 2 Dirichlet characters modulo $4$. Let $chi_4$ be the unique primitive Dirichlet character modulo $4$, which is defined by $chi_4 (3) = -1$. Then the Dirichlet $L$-series of $chi_4$ is given by
   $
-    L(s, chi_4) & = 1 - 1 / 3^s + 1 / 5^s - 1 / 7^s + dots.c                              \
-                & = sum_(n = 0)^oo (-1)^(n) / (2n + 1)^s                                  \
+    L(s, chi_4) & = 1 - 1 / 3^s + 1 / 5^s - 1 / 7^s + dots.c \
+                & = sum_(n = 0)^oo (-1)^(n) / (2n + 1)^s \
                 & = 1 / Gamma(s) integral_(0)^(oo) (x^(s - 1)e^(-x)) / (1+e^(-2x)) dif x.
   $
   It is absolutely convergent for $upright(R e)(s) > 0$ and can be extended to a meromorphic function on the whole complex plane. $L(s, chi_4)$ also called *Dirichlet beta function*#index("Dirichlet beta function").
@@ -3262,9 +3814,7 @@ $
     (-i tau)^(1/2) = r^(1/2) e^(i phi / 2).
   $
 ]
-#proof[
 
-]
 
 #corollary()[][
   Define
@@ -3350,8 +3900,8 @@ The following lemma is handy as it provides an equivalent definition of a unitar
 #definition[Local Hecke Character][
   Let $pi.alt: AA_QQ^times -> CC^times$ be a Hecke character and $v$ be a place of $QQ$. A #strong[local Hecke character] at $v$ is a continuous group homomorphism defined as
   $
-    pi.alt_v:= pi.alt compose i_v: QQ_v & --> CC^times                                                           \
-                                    g_v & arrow.bar.long pi.alt(i_v (g_v))= pi.alt(1, dots.c, 1, g_v, 1, dots.c)
+    pi.alt_v:= pi.alt compose i_v: QQ_v & --> CC^times \
+                                    g_v & mapsto.long pi.alt(i_v (g_v))= pi.alt(1, dots.c, 1, g_v, 1, dots.c)
   $
 ]
 
@@ -3389,7 +3939,7 @@ The following lemma is handy as it provides an equivalent definition of a unitar
   $
 ]
 
-#definition[Automorphic Form][
+#definition[Automorphic Form for $GL_1(AA_QQ)$][
   Let $pi.alt: AA_QQ^times -> CC^times$ be a unitary Hecke character of $AA_QQ^times$. A #strong[automorphic form] for $GL_1(AA_QQ)$ with character $pi.alt$ is a function $phi.alt: AA_QQ^times -> CC$ such that
 
   + For any $gamma in QQ^times$ and $g in AA_QQ^times$,
@@ -3402,7 +3952,7 @@ The following lemma is handy as it provides an equivalent definition of a unitar
       phi.alt(z g) = pi.alt(z) phi.alt(g).
     $
   + $phi.alt$ is of moderate growth.
-]
+]<automorphic-form-for-gl_1>
 #let autoformspace(x) = $A_(#x)$
 #example[Linear Space of Automorphic Forms][
   Let $pi.alt: AA_QQ^times -> CC^times$ be a unitary Hecke character of $AA_QQ^times$. The #strong[linear space of automorphic forms] for $GL_1(AA_QQ)$ with character $pi.alt$ is defined as
@@ -3468,7 +4018,7 @@ The following lemma is handy as it provides an equivalent definition of a unitar
                     )
   $
   and $v$ is a prime number.
-]
+]<idelic-lift-of-a-dirichlet-character>
 #remark[
 
 ]
@@ -3489,13 +4039,21 @@ The following lemma is handy as it provides an equivalent definition of a unitar
 
 ]
 
-#proposition[][
-  Every automorphic form for $GL_1(AA_QQ)$ can be uniquely expressed in the form
+
+#theorem[Structure of Space of Automorphic Forms on $GL_1(AA_QQ)$][
+  Every #link(<automorphic-form-for-gl_1>)[automorphic form] $phi.alt$ on $GL_1 (bb(A)_(bb(Q)))$, can be uniquely expressed in the form
   $
-    phi.alt(g) = c dot chi_("idelic")(g) dot abs(g)_(AA_QQ)^(i t), quad forall g in AA_QQ^times
+    phi.alt: AA_QQ^times & --> CC \
+                       g & mapsto.long c dot.op chi_(upright("idelic")) (g) dot.op abs(g)_(bb(A))^(i t),
   $
-  where $c in CC$, $t in RR$ and $chi_("idelic"):AA_QQ^times -> CC^times$ is the idelic lift of a Dirichlet character $chi$.
+  where $c in bb(C) \, t in bb(R)$, are fixed constants, and
+  $chi_(upright("idelic"))$ is an #link(<idelic-lift-of-a-dirichlet-character>)[idelic lift] of a fixed Dirichlet character $chi$. Here, if $g = (g_oo \, g_2 , g_3 , dots.c)$, then $abs(g)_(bb(A)) = product_(v ) abs(g_v)_v$ is the
+  idelic absolute value.
 ]
+
+=== $L$-function of Automorphic Form
+
+
 
 == Motivic Side
 
@@ -3555,6 +4113,5 @@ The following lemma is handy as it provides an equivalent definition of a unitar
     rho(G_K)=mu_n= {z in CC^times mid(|) z^n = 1} tilde.equiv ZZ\/n ZZ.
   $
 ]
-
 
 
