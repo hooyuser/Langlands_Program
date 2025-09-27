@@ -20,20 +20,6 @@
 #let Gal = math.op("Gal")
 #let Frob = math.op("Frob")
 
-#let Top = math.op($sans("Top")$)
-#let Grp = math.op($sans("Grp")$)
-#let FinGrp = math.op($sans("FinGrp")$)
-#let Ab = math.op($sans("Ab")$)
-#let FinAb = math.op($sans("FinAb")$)
-#let TopGrp = math.op($sans("TopGrp")$)
-#let LCHGrp = math.op($sans("LCHGrp")$)
-#let LCA = math.op($sans("LCA")$)  // locally compact Hausdorff abelian groups
-#let Vect(k) = math.op($#k#h(0.1em)sans("-Vect")$)
-#let FinVect(k) = math.op($#k#h(0.1em)sans("-FinVect")$)
-#let Mod(k) = math.op($#k#h(0.1em)sans("-Mod")$)
-#let CHilb = math.op($CC#h(0.07em)sans("-Hilb")$)  // Common Definitions of Morphisms in Hilb: Bounded Linear Maps / All Linear Maps / Short Linear Maps / Isometric Isomorphisms, Here We Use Bounded Linear Maps
-#let Fld = math.op($sans("Fld")$)
-
 #let pmod(n) = $med (mod med #n)$
 
 #let chargrp(G) = $frak(X)(#G)$
@@ -68,78 +54,7 @@
   body
 }
 
-// Badge
-#let rounded_badge(left, right, color: rgb("#907a6b").desaturate(20%)) = {
-  (
-    box(
-      stroke: color,
-      radius: (left: 50pt), // Pill/capsule shape
-      inset: (left: 5pt, y: 4pt), // Generous horizontal, moderate vertical padding
-      baseline: 25%, // Center with surrounding text
-      {
-        set text(
-          fill: color.darken(25%),
-          size: 0.8em,
-        )
-        $left #h(4pt)$
-      },
-    )
-      + box(
-        stroke: color,
-        fill: color,
-        radius: (right: 50pt), // Pill/capsule shape
-        inset: (right: 5pt, y: 4pt), // Generous horizontal, moderate vertical padding
-        baseline: 25%, // Center with surrounding text
-        {
-          set text(
-            fill: white,
-            weight: "bold",
-            size: 0.8em,
-          )
-          $#h(4pt)right$
-        },
-      )
-  )
-}
 
-#let type_badge_internal(badge_func, ..args) = {
-  let result = ()
-  // Parse matrix-like arguments (semicolon creates rows, comma creates columns)
-  let rows = args.pos()
-
-  // If input is a single row
-  if type(rows) == array and rows.len() > 0 and type(rows.at(0)) != array {
-    return badge_func(rows.at(0), rows.at(1))
-  }
-
-  // Else, input is a 2D array
-
-  let separator = h(0.3em)
-
-  for (i, row) in rows.enumerate() {
-    // Each row is an array of elements
-    if type(row) == array and row.len() >= 2 {
-      // Take first two elements as the pair
-      result.push(badge_func(row.at(0), row.at(1)))
-      if i < rows.len() - 1 {
-        result.push(separator)
-      }
-    }
-  }
-  //result.push(hide($display(in_(()))$))
-  result.join()
-}
-
-
-#let typebadge(..args) = with_theme_config(theme => context {
-  let thm-env = current-env-name()
-  let front-color = if thm-env == "example" {
-    theme.at("example_env_color_dict").at("frame").darken(2%).desaturate(-25%)
-  } else {
-    theme.at("thm_env_color_dict").at(thm-env).at("front").desaturate(20%)
-  }
-  type_badge_internal(rounded_badge.with(color: front-color), ..args)
-})
 
 
 
@@ -331,8 +246,8 @@ $
   mark((-0.5, 1.75), (-0.5, 1.8), symbol: "straight", stroke: boundry_stroke_1, scale: 0.7)
 
   circle((0, 1), radius: .04, fill: boundry_point_color, stroke: none)
-  circle((60deg, 1), radius: .04, fill: rgb("#19bf13"), stroke: none)
-  circle((120deg, 1), radius: .04, fill: rgb("#19bf13"), stroke: none)
+  circle((60deg, 1), radius: .04, fill: rgb("#806cd0"), stroke: none)
+  circle((120deg, 1), radius: .04, fill: rgb("#806cd0"), stroke: none)
 
   content((0.5, -0.15), $1 / 2$)
   content((-0.5, -0.15), $-1 / 2$)
@@ -1132,8 +1047,8 @@ $
   + If $V$ and $W$ are finite-dimensional vector spaces over an algebraically closed field $bb(k)$, then
     $
       dim_bb(k) op("Hom")_(Mod(bb(k)[G])) (V, W) = cases(
-        1 & " if " dim_bb(k) V = dim_bb(k) W,
-        0 & " if " dim_bb(k) V eq.not dim_bb(k) W
+        1 & " if" dim_bb(k) V = dim_bb(k) W,
+        0 & " if" dim_bb(k) V eq.not dim_bb(k) W
       )
     $
 ]
@@ -1217,11 +1132,11 @@ $
 #proof[
   Suppose $f: G -> bb(k)$ is a function. If $f$ is a class function, then for any $h in G$, we have
   $
-    (sum_(g in G) f(g) g)h = sum_(g in G) f(h g h^(-1)) h g h^(-1) h= sum_(g in G) f(g) h g =h(sum_(g in G) f(g) g).
+    (sum_(g in G) f(g) g)h = sum_(g in G) f(h g h^(-1)) h g h^(-1) h= sum_(g in G) f(g) h g =h(sum_(g in G) f(g) g),
   $
-  which implies $sum_(g in G) f(g) g in Z(bb(k)[G])$.
+  which implies $limits(sum)_(g in G) f(g) g in Z(bb(k)[G])$.
 
-  Conversely, if $sum_(g in G) f(g) g in Z(bb(k)[G])$, then for any $h in G$, we have
+  Conversely, if $limits(sum)_(g in G) f(g) g in Z(bb(k)[G])$, then for any $h in G$, we have
   $
     sum_(g in G) f(g) g = h (sum_(g in G) f(g) g)h^(-1) = sum_(g in G) f(g) h g h^(-1)= sum_(g in G) f(h^(-1) g h) g ==> f(g) = f(h^(-1) g h),
   $
@@ -1281,7 +1196,6 @@ $
 In this section we focus on the finite-dimensional representations of finite groups.
 
 Recall a linear map $p:V->V$ is called a projection if $p^2=p$. If $p:V->V$ is a projection, then $V=im p plus.circle ker p$.
-
 
 
 
@@ -1443,16 +1357,16 @@ The following property is called complete reducibility, or semisimplicity.
     $
       sum_(g in G) chi(g) & = abs(G)med bold(1)_(chi = 1_chargrp(G))=cases(
                               gap: #0.5em,
-                              |G| & " if " chi = 1_chargrp(G),
-                              0 & " if " chi eq.not 1_chargrp(G)
+                              |G| & " if" chi = 1_chargrp(G),
+                              0 & " if" chi eq.not 1_chargrp(G)
                             )
     $
   + For any $g in G$,
     $
       sum_(chi in algdual(G)) chi(g) = abs(chargrp(G))med bold(1)_(g = 1_G)=cases(
         gap: #0.5em,
-        abs(algdual(G)) & " if " g = 1_G,
-        0 & " if " g eq.not 1_G
+        abs(algdual(G)) & " if" g = 1_G,
+        0 & " if" g eq.not 1_G
       )
     $
 ]<orthogonality-of-characters>
@@ -1465,16 +1379,16 @@ The following property is called complete reducibility, or semisimplicity.
     $
       sum_(g in G) chi_1(g) overline(chi_2)(g) = abs(G) med bold(1)_(chi_1 = chi_2)=cases(
         gap: #0.5em,
-        abs(G) & " if " chi_1 = chi_2,
-        0 & " if " chi_1 eq.not chi_2
+        abs(G) & " if" chi_1 = chi_2,
+        0 & " if" chi_1 eq.not chi_2
       )
     $
   + For any $g_1, g_2 in G$, we have
     $
       sum_(chi in chargrp(G)) chi(g_1) overline(chi)(g_2) = abs(chargrp(G)) med bold(1)_(g_1 = g_2)=cases(
         gap: #0.5em,
-        abs(chargrp(G)) & " if " g_1 = g_2,
-        0 & " if " g_1 eq.not g_2
+        abs(chargrp(G)) & " if" g_1 = g_2,
+        0 & " if" g_1 eq.not g_2
       )
     $
 ]
@@ -1482,13 +1396,13 @@ The following property is called complete reducibility, or semisimplicity.
   + In the first equation, let $chi=chi_1 overline(chi)_2$. Then we have
     $
       sum_(g in G) chi(g) = sum_(g in G) chi_1(g) overline(chi_2)(g) = abs(G) med bold(1)_(chi_1 overline(chi)_2=1_())=cases(
-        gap: #0.5em, abs(G) & " if " chi_1 = chi_2, 0 & " if " chi_1 eq.not chi_2
+        gap: #0.5em, abs(G) & " if" chi_1 = chi_2, 0 & " if" chi_1 eq.not chi_2
       )
     $
   + In the second equation, let $g=g_1 g_2^(-1)$. Then we have
     $
       sum_(chi in algdual(G)) chi(g) =sum_(chi in chargrp(G)) chi(g_1) overline(chi)(g_2) = abs(chargrp(G)) med bold(1)_(g_1 g_2^(-1)=1_G)=cases(
-        gap: #0.5em, abs(chargrp(G)) & " if " g_1 = g_2, 0 & " if " g_1 eq.not g_2
+        gap: #0.5em, abs(chargrp(G)) & " if" g_1 = g_2, 0 & " if" g_1 eq.not g_2
       )
     $
 ]
@@ -1915,7 +1829,7 @@ By considering the action of $G$ on $G$ itself by left multiplication, we get th
 ]
 
 
-== Representations of a Group and Its Group Algebra
+== Group Algebra of a Representation
 
 #definition[$*$-Representation of Banach $*$-Algebra][
   $typebadge(H, CHilb)$
@@ -2572,9 +2486,8 @@ $QQ$-rational points are also called rational points for simplicity.
     $
             overline(f):C'(QQ) & -->^(tilde) bold("P")_QQ^1=QQ union.sq {oo} \
                        [X:Y:Z] & mapsto.long cases(
-                                   [Y: X+Z] & quad " if" X+Z eq.not 0 \
-                                            \
-                                      [1,0] & quad " if" X+Z = 0
+                                   [Y: X+Z] & quad " if" X+Z eq.not 0,
+                                   [1,0] & quad " if" X+Z = 0
                                  ) \
       [S^2-R^2: 2R S: R^2+S^2] & arrow.bar.long.l [R:S].
     $
@@ -2619,8 +2532,8 @@ in a similar way.
   $
     (a / p) & = \# {x in FF_p | x^2 = overline(a) } - 1 \
             & = cases(
-                0 & "if" a equiv 0 pmod(p), \
-                1 & "if" a equiv.not 0 pmod(p) "and" a "is a quadratic residue" mod p, \
+                0 & "if" a equiv 0 pmod(p),
+                1 & "if" a equiv.not 0 pmod(p) "and" a "is a quadratic residue" mod p,
                 -1 & "if" a equiv.not 0 pmod(p) "and" a "is a quadratic non-residue" mod p.
               )
   $
@@ -2647,7 +2560,7 @@ in a similar way.
   + The first supplement to the law of quadratic reciprocity:
     $
       ( (-1) / p ) = (-1)^( (p - 1) / 2 ) = cases(
-        1 & "if" p equiv 1 pmod(4), \
+        1 & "if" p equiv 1 pmod(4),
         -1 & "if" p equiv 3 pmod(4).
       )
     $
@@ -2655,7 +2568,7 @@ in a similar way.
   + The second supplement to the law of quadratic reciprocity:
     $
       ( (2) / p ) = (-1)^( (p^2 - 1) / 8 ) = cases(
-        1 & "if" p equiv 1 "or" 7 pmod(8), \
+        1 & "if" p equiv 1 "or" 7 pmod(8),
         -1 & "if" p equiv 3 "or" 5 pmod(8).
       )
     $
@@ -2664,7 +2577,7 @@ in a similar way.
 With the Legendre symbol, for odd prime number $p$, we can describe the structure of $FF_p (sqrt(a)):=FF_p [x]\/(x^2-a)$ as follows
 $
   FF_p (sqrt(a)) tilde.equiv cases(
-    FF_p & "if" (a / p) = 1",", \
+    FF_p & "if" (a / p) = 1",",
     FF_(p^2) & "if" (a / p) = -1.
   )
 $
@@ -2728,16 +2641,22 @@ form.
 #definition[$p$-adic Valuation][
   Let $p$ be a prime number. The #strong[$p$-adic valuation] is defined as
   $
-    v_p : bb(Q) & arrow.r.long bb(Z) union {oo}\
-    a / b & arrow.r.bar.long cases(delim: "{", oo & upright("if ") a = 0, , max { n in bb(Z) divides p^n divides a } - max { n in bb(Z) divides p^n divides b } & upright("if ") a eq.not 0 .)
+    v_p : bb(Q) & arrow.r.long bb(Z) union {oo} \
+          a / b & arrow.r.bar.long cases(
+                    oo & " if" a = 0\,,
+                    max { n in bb(Z) divides p^n divides a } - max { n in bb(Z) divides p^n divides b } & " if" a eq.not 0 .
+                  )
   $
 ]
 
 
 The #strong[$p$-adic absolute value] is defined as
 $
-  lr(|thin dot.op thin|)_p : bb(Q) & arrow.r.long bb(R)_(gt.eq 0)\
-  x & arrow.r.bar.long cases(delim: "{", 0 & upright("if ") a = 0, , p^(- v_p (x)) & upright("if ") x eq.not 0 .)
+  lr(|thin dot.op thin|)_p : bb(Q) & arrow.r.long bb(R)_(gt.eq 0) \
+                                 x & arrow.r.bar.long cases(
+                                       0 & " if" a = 0\,,
+                                       p^(- v_p (x)) & " if" x eq.not 0 .
+                                     )
 $
 
 #proposition[Properties of $p$-adic Valuation][
@@ -2821,6 +2740,69 @@ $
   This shows that $bb(Z)_p$ can be covered by a finite number of open balls of radius $epsilon$. Thus $bb(Z)_p$ is totally bounded. Since $bb(Z)_p$ is also closed in $QQ_p$, it is complete. A complete and totally bounded metric space is compact. Therefore, $bb(Z)_p$ is compact and we complete the proof.
 ]
 
+=== Harr Measure on $QQ_p$
+
+
+#example[Haar Measure on $QQ_p$][
+  Let $p$ be a prime number. There exists a unique (up to a scalar multiple) Haar measure $mu$ on the additive group $QQ_p$ such that $mu(ZZ_p)=1$. And we have
+  $
+    mu(a + p^n ZZ_p) = p^(-n), quad forall a in QQ_p,med n in ZZ.
+  $
+  where
+  $
+    a + p^n ZZ_p = overline(B_(p^(-n)) (a)) = { x in QQ_p mid(|) abs(x - a)_p <= p^(-n) }
+  $
+  is a closed ball in $QQ_p$.
+]
+
+#example[][
+  For any $n in bb(Z)_(>= 0)$, we have
+  $
+    mu(p^n ZZ_p^times) = p^(-n) (1 - p^(-1)).
+  $
+]
+#proof[
+  Note
+  $
+    p^n ZZ_p^times & = { x in ZZ_p mid(|) abs(x)_p = p^(-n) } \
+    & ={ x in ZZ_p mid(|) abs(x)_p <= p^(-n) }-{ x in ZZ_p mid(|) abs(x)_p <= p^(-n-1) } \
+    & = p^n ZZ_p - p^(n+1) ZZ_p \
+    &= union.sq.big_(k = 0)^(p-1) (k p^n + p^(n+1) ZZ_p) -  p^(n+1) ZZ_p \
+    & = ( p^n + p^(n+1)ZZ_p ) union.sq (2 p^n + p^(n+1) ZZ_p ) union.sq dots.h.c union.sq ((p-1) p^n+ p^(n+1) ZZ_p ).
+  $
+  We have
+  $
+    mu(p^n ZZ_p^times) = mu(p^n ZZ_p) - mu(p^(n+1) ZZ_p) = p^(-n) - p^(-n-1)= p^(-n) (1 - p^(-1)).
+  $
+]
+
+#example[Integral on $ZZ_p-{0}$][
+  The complex function
+  $
+    f: ZZ_p-{0} & --> bb(C) \
+              x & mapsto.long abs(x)_p^s
+  $
+  is continuous and accordingly Haar measurable. Moreover, $f in L^1(ZZ_p-{0})$ if and only if $op("Re")(s) > -1$. In this case, we have
+  $
+    integral_(ZZ_p-{0}) abs(x)_p^s dif x = (1 - p^(-1)) / (1 - p^(-s-1)) , quad forall op("Re")(s) > -1.
+  $
+]
+#proof[
+  Since
+  $
+    ZZ_p-{0} = union.sq.big_(n = 0)^(oo) (p^n ZZ_p^times) ,
+  $
+  we have
+  $
+    norm(f)_(L^1) & =integral_(ZZ_p-{0}) abs(abs(x)_p^s) dif x \
+    & = integral_(ZZ_p-{0}) abs(x)_p^(op("Re")(s)) dif x \
+    & = sum_(n = 0)^(oo) integral_(p^n ZZ_p^times) abs(x)_p^(op("Re")(s)) dif x \
+    & = sum_(n = 0)^(oo) p^(-n op("Re")(s)) mu(p^n ZZ_p^times) \
+    &= sum_(n = 0)^(oo) p^(-n op("Re")(s)) mu(p^n ZZ_p^times)
+    & = (1 - p^(-1)) sum_(n = 0)^(oo) p^(-n s).
+  $
+]
+
 === Structure of $QQ_p^times$
 
 #proposition[][
@@ -2892,7 +2874,7 @@ $
   $
 ]<hensel-lemma>
 
-#proposition[Teichmuller Lift][
+#proposition[Teichmüller Lift][
   Let $p$ be a prime number. Let
   $
     pi: ZZ_p^times & --> (ZZ\/ p ZZ)^times \
@@ -2909,8 +2891,8 @@ $
       omega((ZZ\/ p ZZ)^times)= mu_(p-1)(ZZ_p^times) = { x in ZZ_p^times mid(|) x^(p-1) = 1 }.
     $
 
-  This map $omega$ is called the *Teichmuller lift*.
-]<teichmuller-lift>
+  This map $omega$ is called the *Teichmüller lift*.
+]<Teichmüller-lift>
 #proof[
   + - _Existence_. Consider the polynomial $f(X) = X^(p-1) - 1 in ZZ_p [X]$. For any $overline(a) in (ZZ\/ p ZZ)^times$, where $a in ZZ$ is an integer such that $p divides.not a$, we have
       $
@@ -2994,7 +2976,7 @@ $
   $
     omega: (ZZ\/ p ZZ)^times & --> ZZ_p^times
   $
-  be the #link(<teichmuller-lift>)[Teichmuller lift]. If satisfies $pi compose omega = id$ and the image of $omega$ is given by
+  be the #link(<Teichmüller-lift>)[Teichmüller lift]. If satisfies $pi compose omega = id$ and the image of $omega$ is given by
   $
     omega((ZZ\/ p ZZ)^times)= mu_(p-1)(ZZ_p^times) = { x in ZZ_p^times mid(|) x^(p-1) = 1 }.
   $
@@ -3457,8 +3439,8 @@ $bb(A)_(QQ)^times$ is a locally compact Hausdorff topological group. The connect
     chi_m (a) & =chi_m^star ([a])bold(1)_([a] in (bb(Z) \/ m bb(Z))^times) \
               & =
                 cases(
-                                 0 & upright(" if ") [a] in.not (bb(Z) \/ m bb(Z))^times & upright(" i.e. ") (a , m) eq.not 1 \
-                  chi_m^star ([a]) & upright(" if ") [a] in (bb(Z) \/ m bb(Z))^times     &      upright(" i.e. ") (a , m) = 1
+                  0 & upright(" if") [a] in.not (bb(Z) \/ m bb(Z))^times & upright(" i.e. ") (a , m) eq.not 1,
+                  chi_m^star ([a]) & upright(" if") [a] in (bb(Z) \/ m bb(Z))^times & upright(" i.e. ") (a , m) = 1
                 )
   $
   Such function $chi_m$ is called a #strong[Dirichlet character modulo
@@ -3502,8 +3484,8 @@ $bb(A)_(QQ)^times$ is a locally compact Hausdorff topological group. The connect
 
   $
     chi_(q,r) (a) = cases(
-      0 & upright(" if ") [a] in.not (bb(Z) \/ m bb(Z))^times & upright(" i.e. ") (a , q) eq.not 1\
-      zeta_(phi(q))^(v_q (r)v_q (a)) & upright(" if ") [a] in (bb(Z) \/ m bb(Z))^times & upright(" i.e. ") (a , q) = 1
+      0 & upright(" if") [a] in.not (bb(Z) \/ m bb(Z))^times & upright(" i.e. ") (a , q) eq.not 1\
+      zeta_(phi(q))^(v_q (r)v_q (a)) & upright(" if") [a] in (bb(Z) \/ m bb(Z))^times & upright(" i.e. ") (a , q) = 1
     )
   $
 ]
@@ -3521,8 +3503,8 @@ $bb(A)_(QQ)^times$ is a locally compact Hausdorff topological group. The connect
   Dirichlet character defined by
   $
     chi_(m,1) (a) = cases(
-      0 & upright(" if ") [a] in.not (bb(Z) \/ m bb(Z))^times & upright(" i.e. ") (a , q) eq.not 1 \
-      1 & upright(" if ") [a] in (bb(Z) \/ m bb(Z))^times     &      upright(" i.e. ") (a , q) = 1
+      0 & upright(" if") [a] in.not (bb(Z) \/ m bb(Z))^times & upright(" i.e. ") (a , q) eq.not 1 \
+      1 & upright(" if") [a] in (bb(Z) \/ m bb(Z))^times     &      upright(" i.e. ") (a , q) = 1
     )
   $
   This character is also called the *trivial character*#index("Dirichlet Character", "trivial").
@@ -3605,15 +3587,15 @@ Suppose $chi_m^star: (bb(Z) \/ m bb(Z))^times -> bb(C)^times$ is a Dirichlet cha
   - Let $chi_m$ be a Dirichlet characters modulo $m$. Then we have
   $
     sum_(k = 1)^(m) chi_m (k) = cases(
-      phi(m) & upright(" if ") chi_m = chi_(m,1), \
-      0 & upright(" if ") chi_m eq.not chi_(m,1)
+      phi(m) & upright(" if") chi_m = chi_(m,1),
+      0 & upright(" if") chi_m eq.not chi_(m,1)
     )
   $
   - Given $n in ZZ$,
   $
     sum_(chi^star in algdual(((ZZ\/m ZZ)^times)) )chi (n) = cases(
-      phi(m) & upright(" if ") n equiv 1 mod m, \
-      0 & upright(" if ") n equiv.not 1 mod m
+      phi(m) & upright(" if") n equiv 1 mod m,
+      0 & upright(" if") n equiv.not 1 mod m
     )
   $
 ]
@@ -3626,8 +3608,8 @@ Suppose $chi_m^star: (bb(Z) \/ m bb(Z))^times -> bb(C)^times$ is a Dirichlet cha
   Let $chi_m$ be a Dirichlet character modulo $m$. Suppose $n in ZZ$ and $[a] in (ZZ\/m ZZ)^times$. Then we have
   $
     1 / (phi(a)) sum_(chi^star in algdual(((ZZ\/m ZZ)^times)) )overline(chi)(a)chi (n) = cases(
-      1 & upright(" if ") n equiv a mod m, \
-      0 & upright(" if ") n equiv.not a mod m
+      1 & upright(" if") n equiv a mod m,
+      0 & upright(" if") n equiv.not a mod m
     )
   $
 ]
@@ -3670,7 +3652,10 @@ Suppose $chi_m^star: (bb(Z) \/ m bb(Z))^times -> bb(C)^times$ is a Dirichlet cha
 #definition[Root Number of Dirichlet Character][
   Let $chi$ be a primitive Dirichlet character modulo $m$. The #strong[root number] #index("Dirichlet Character", "Root Number") of $chi$ is defined as
   $
-    epsilon(chi)=G(chi) / (i^delta sqrt(q))=cases(G(chi)/( sqrt(q)) & " if " chi "is even,", -i G(chi)/( sqrt(q))& " if " chi "is odd.").
+    epsilon(chi)=G(chi) / (i^delta sqrt(q))=cases(
+      G(chi)/( sqrt(q)) & " if" chi "is even,",
+      -i G(chi)/( sqrt(q)) & " if" chi "is odd."
+    )
   $
   #index_math(display: [$epsilon(chi)$], "epsilon(chi)")
 ]
@@ -3688,18 +3673,18 @@ Suppose $chi_m^star: (bb(Z) \/ m bb(Z))^times -> bb(C)^times$ is a Dirichlet cha
   Let $chi$ be a primitive Dirichlet character modulo $q$ with $q>1$. Let
   $
     delta = cases(
-      0 & " if" chi(-1) = 1 "i.e." chi "is even,", ,
+      0 & " if" chi(-1) = 1 "i.e." chi "is even,",
       1 & " if" chi(-1) = -1 "i.e." chi "is odd."
     )
   $
-  The Euler factor of the Riemann zeta function at a prime $p$ is given by #index_math(display: [$L_p(s, chi)$], "L_p(s, chi)")
+  The Euler factor of the Riemann zeta function at a prime $p$ is given by #index_math(display: [$L_p (s, chi)$], "L_p(s, chi)")
   $
     L_p (s, chi)=1 / (1 - chi (p) p^(-s)).
   $
   The Euler factor of the Dirichlet L-function at infinity is given by #index_math(display: [$L_(oo)(s, chi)$], "L_(oo)(s, chi)")
   $
     L_(oo)(s, chi)=pi^(-(s+delta) / 2) Gamma((s+delta) / 2) = cases(
-      pi^(-s / 2) Gamma(s / 2) & " if" chi "is even,", ,
+      pi^(-s / 2) Gamma(s / 2) & " if" chi "is even,",
       pi^(-(s+1) / 2) Gamma((s+1) / 2) & " if" chi "is odd."
     )
   $
@@ -3710,7 +3695,7 @@ Suppose $chi_m^star: (bb(Z) \/ m bb(Z))^times -> bb(C)^times$ is a Dirichlet cha
   and
   $
     W(s,chi)=epsilon(chi)q^(1 / 2-s)=(G(chi)q^(-s)) / (i^delta)=cases(
-      G(chi)q^(-s) & " if" chi "is even,", ,
+      G(chi)q^(-s) & " if" chi "is even,",
       -i G(chi)q^(-s) & " if" chi "is odd."
     )
   $
@@ -4009,11 +3994,11 @@ The following lemma is handy as it provides an equivalent definition of a unitar
   where
   $
     chi_oo (g_oo) & = cases(
-                      -1\, & quad "if" chi "is odd, and" g_oo < 0, ,
-                      1\, & quad upright("otherwise ")
+                      -1\, & quad "if" chi "is odd, and" g_oo < 0,
+                      1\, & quad upright("otherwise")
                     ) \
       chi_v (g_v) & = cases(
-                      chi(v)^m \, & quad "if" v != p "and" g_v in v^m ZZ_v^times, ,
+                      chi(v)^m \, & quad "if" v != p "and" g_v in v^m ZZ_v^times,
                       chi(j)^(-1) & quad "if" v = p "and" g_v in p^k (j+p^f ZZ_v) "with" j\,k in ZZ\, med gcd(j, p)=1
                     )
   $
@@ -4070,7 +4055,7 @@ The following lemma is handy as it provides an equivalent definition of a unitar
   $
 ]
 
-#definition[Artin L-function over $QQ$][
+#definition[Artin $L$-function over $QQ$][
   Let $rho: Gal(overline(QQ)\/QQ) -> GL_n (CC)$ be a continuous representation of the absolute Galois group of $QQ$. The #strong[Artin $L$-function over $QQ$] #index("Artin L-function") associated to $rho$ is defined as
   $
     L(s, rho) = product_(p "prime") L_p (s, rho)
@@ -4086,7 +4071,7 @@ The following lemma is handy as it provides an equivalent definition of a unitar
 
   + The unit circle
   $
-    T= {z in CC^times mid(|) z = 1}.
+    TT= {z in CC^times mid(|) z = 1}.
   $
 
   + The groups of $n$-th roots of unity
@@ -4098,7 +4083,6 @@ The following lemma is handy as it provides an equivalent definition of a unitar
 
 #proposition[][
   Let $K$ be a field. Every continuous homomorphism $rho: Gal(K^(op("sep"))\/K) -> CC^times$ factors through the Galois group of a finite cyclic extension $L\/K$, yielding the epimorphism-monomorphism decomposition
-
   #commutative_diagram(
     $
       Gal(K^(op("sep"))\/K) edge("d", ->>, pi) edge(->, rho) & CC^times \
