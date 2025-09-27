@@ -505,7 +505,7 @@ $
   - The index $abs(SL_2(ZZ):Gamma)$ is finite.
 ]
 #proof[
-  - It is clear that $upright(M)_2(ZZ)$ is a discrete subspace of $upright(M)_2(RR)$. Since any subspace of a discrete space is discrete, any concruence subgroup is discrete in $upright(M)_2(RR)$.
+  - It is clear that $upright(M)_2(ZZ)$ is a discrete subspace of $upright(M)_2(RR)$. Since any subspace of a discrete space is discrete, any congruence subgroup is discrete in $upright(M)_2(RR)$.
   - Suppose $Gamma$ has a subgroup $Gamma(N)$. Since $pi_N : SL_2 (bb(Z)) ->> SL_2 (bb(Z) \/ N bb(Z))$ is surjective, we have $abs(SL_2(ZZ):Gamma(N))=abs(im pi_N)= abs(SL_2 (bb(Z) \/ N bb(Z)))<oo$. From
     $
       abs(SL_2(ZZ):Gamma) med abs(Gamma : Gamma(N))=abs(SL_2(ZZ):Gamma(N))
@@ -866,7 +866,7 @@ $
       rho: G & --> GL(V) \
            g & --> rho_g
     $
-    for some $bb(k)$-vector space $V$. (The infomation of $V$ is part of the data of $rho$.)
+    for some $bb(k)$-vector space $V$. (The information of $V$ is part of the data of $rho$.)
 
   + A *linear representation* of $G$ is a $bb(k)[G]$-module $M$.
 
@@ -1005,7 +1005,7 @@ $
   From the viewpoint of $bb(k)[G]$-modules, an irreducible representation of a group $G$ is a simple $bb(k)[G]$-module.
 ]
 
-#lemma[Kernal and Image of a $G$-equivariant Map are $G$-invariant][
+#lemma[Kernel and Image of a $G$-equivariant Map are $G$-invariant][
   $typebadge(
     G, Grp;
     bb(k), Fld;
@@ -1083,7 +1083,7 @@ $
   A nonzero finite-dimensional representation always contains a nonzero irreducible subrepresentation.
 ]
 
-=== Charater Theory
+=== Character Theory
 #definition[Character of a Representation][
   $typebadge(
     G, Grp;
@@ -1433,7 +1433,7 @@ The following property is called complete reducibility, or semisimplicity.
 #lemma[
   $typebadge(G, FinAb)$
 
-  Assume that $G$ is a fnite cyclic group of order $n$ and $a in G$ is a generator of $G$. Define a character
+  Assume that $G$ is a finite cyclic group of order $n$ and $a in G$ is a generator of $G$. Define a character
   $
     chi: G & --> CC^times \
        a^m & arrow.long.bar e^((2 pi i m ) / n)=zeta_n^(m)
@@ -2615,7 +2615,7 @@ can be represented as
 $ x_n = a_0 + a_1 p + dots.c + a_(n - 1) p^(n - 1) = (thin overline(a_(n - 1) op(dots.h.c) a_1 a_0) thin)_p . $
 The condition $x_(n + 1) equiv x_n med mod med p^n$ means that
 $x_(n + 1)$ and $x_n$ have the same last $n$ digits in base-$p$ form.
-Thus $p$-adic integer $x$ can be thought as a base-$p$ interger with
+Thus $p$-adic integer $x$ can be thought as a base-$p$ integer with
 infinite digits
 $ x = a_0 + a_1 p + dots.h.c + a_n p^n + dots.h.c = (thin overline(op(dots.h.c) a_n op(dots.h.c) a_1 a_0) thin)_p . $
 The projection map $pi_n : bb(Z)_p arrow.r bb(Z) \/ p^n bb(Z)$ is the
@@ -2661,7 +2661,7 @@ $
 
 #proposition[Properties of $p$-adic Valuation][
   Let $p$ be a prime number.
-  + If $n in ZZ$ is an interger, then
+  + If $n in ZZ$ is an integer, then
     $
       p^N divides n <==> n equiv 0 pmod(p^N) <==> v_p (n) >= N <==> abs(n)_(p) <= p^(-N).
     $
@@ -2806,7 +2806,7 @@ $
 === Structure of $QQ_p^times$
 
 #proposition[][
-  The group $QQ_p^times$ is isomorphic to $p^ZZ times ZZ_p^times$ via the continous homomorphism
+  The group $QQ_p^times$ is isomorphic to $p^ZZ times ZZ_p^times$ via the continuous homomorphism
   $
     phi: QQ_p^times & -->^(tilde) p^ZZ times ZZ_p^times \
                   x & mapsto.long (p^(v_p (x)), p^(-v_p (x))x) \
@@ -3195,7 +3195,7 @@ Since $QQ$ embeds into $AA_QQ$, whenever we perform operations involving element
   $
     abs(b - d_i)_(p_i) < delta quad (1 <= i <= n).
   $
-  Let $alpha=b/M$. Thenfor each $i$ we have
+  Let $alpha=b/M$. Then for each $i$ we have
   $
     abs(alpha - c_i)_(p_i) = abs(M^(-1)(b-d))_(p_i)= p^(k_i)abs(b-d_i)_(p_i)<p^(k_i)delta<= epsilon.
   $
@@ -3376,7 +3376,7 @@ $bb(A)_(QQ)^times$ is a locally compact Hausdorff topological group. The connect
 
 = _L_-Functions
 
-== Dirichlet Charater
+== Dirichlet Character
 
 #definition[Euler's Totient Function][
   The #strong[Euler's totient function] is defined as
@@ -3866,7 +3866,7 @@ The following lemma is handy as it provides an equivalent definition of a unitar
   $
     QQ^times subset.eq ker (rho),
   $
-  which induces a unique continous group homomorphism $omega:QQ^times \\AA_QQ^times -> CC^times$ by the universal property of quotient topological group. The unitarity of $omega$ follows from (iv).
+  which induces a unique continuous group homomorphism $omega:QQ^times \\AA_QQ^times -> CC^times$ by the universal property of quotient topological group. The unitarity of $omega$ follows from (iv).
 ]
 
 #proposition[Properties of Hecke Character][
