@@ -39,8 +39,11 @@
 #let xrightarrow = $stretch(->, size: #150%)$
 
 
+#let scr(it) = text(
+  font: "New Computer Modern Math",
+  $std.math.scr(it)$,
+)
 
-#let cal(x) = math.class("unary", text(font: "Computer Modern Symbol", x))
 #let racts = $arrow.ccw.half$
 
 #let mmat(..array) = (
@@ -55,8 +58,86 @@
 }
 
 
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+
+#let single_line_gradient(mid_color, edge_color, ratio, ..args) = {
+  let interp_pos_1 = (100% - ratio) * 50%
+  let interp_pos_2 = (100% + ratio) * 50%
+  let stops = (
+    (mid_color, 0%),
+    (mid_color, interp_pos_1),
+    (edge_color, interp_pos_1),
+    (edge_color, interp_pos_2),
+    (mid_color, interp_pos_2),
+    (mid_color, 100%),
+  )
+  gradient.linear(..stops, ..args)
+}
 
 
+#let vertical_line_stroke = (
+  paint: single_line_gradient(
+    luma(100%, 0%),
+    luma(0%, 30%),
+    80%,
+    angle: 90deg,
+  ),
+  thickness: 0.5pt,
+)
+
+#let vertical_line_stroke_white = (
+  paint: single_line_gradient(
+    luma(100%, 0%),
+    white,
+    80%,
+    angle: 90deg,
+  ),
+  thickness: 0.5pt,
+)
+
+// See the strokes section for details on this!
+#let frame = (x, y) => (
+  bottom: if y >= 1 {
+    0.5pt + rgb("#ABB0AE")
+  },
+  left: if x > 0 {
+    if y == 0 {
+      vertical_line_stroke_white
+    } else {
+      vertical_line_stroke
+    }
+  },
+)
+
+
+
+#let simple-table(columns: 2, ..items) = align(center)[
+  #show table.cell.where(y: 0): it => {
+    set text(white)
+    strong(it)
+  }
+  #v(0.5em, weak: false)
+  #with_theme_config(theme => context {
+    let thm-env = current-env-name()
+    let front-color = if thm-env == "example" {
+      theme.at("example_env_color_dict").at("header")
+    } else {
+      theme.at("thm_env_color_dict").at(thm-env).at("front").desaturate(20%)
+    }
+    table(
+      columns: columns,
+      stroke: frame,
+      // fill: (_, y) => if y == 0 { rgb("#2a7f7f") },
+      fill: (_, y) => if y == 0 { front-color },
+      column-gutter: -0.5pt,
+      row-gutter: 0pt,
+      inset: 8pt,
+      ..items.pos(),
+      table.hline(stroke: 0.6pt + rgb("#264343")),
+    )
+  })
+]
 
 
 = Basic Concepts of Elliptic Curves <basic-concepts-of-elliptic-curves>
@@ -204,12 +285,12 @@ $
   set-style(stroke: (paint: luma(40%), thickness: 1pt))
   // Your drawing code goes here
   let rho_y = calc.sqrt(3) / 2
-  let boundry_color_1 = teal.darken(10%)
-  let boundry_color_2 = orange.lighten(10%).desaturate(15%)
-  let boundry_point_color = red.darken(5%).desaturate(15%)
+  let boundary_color_1 = teal.darken(10%)
+  let boundary_color_2 = orange.lighten(10%).desaturate(15%)
+  let boundary_point_color = red.darken(5%).desaturate(15%)
 
-  let boundry_stroke_1 = (paint: boundry_color_1, thickness: 2pt)
-  let boundry_stroke_2 = (paint: boundry_color_2, thickness: 2pt)
+  let boundary_stroke_1 = (paint: boundary_color_1, thickness: 2pt)
+  let boundary_stroke_2 = (paint: boundary_color_2, thickness: 2pt)
 
   get-ctx(ctx => {
     let background_color = ctx.background
@@ -224,28 +305,28 @@ $
     arc((1, 0), start: 0deg, delta: 180deg, fill: ctx.background)
   })
 
-  arc((60deg, 1), start: 60deg, delta: 60deg, stroke: boundry_stroke_2, mark: (
+  arc((60deg, 1), start: 60deg, delta: 60deg, stroke: boundary_stroke_2, mark: (
     symbol: "straight",
-    stroke: boundry_stroke_2,
+    stroke: boundary_stroke_2,
     offset: 12%,
     scale: 0.7,
   )) // mark
 
-  arc((60deg, 1), start: 60deg, delta: 60deg, stroke: boundry_stroke_2)
+  arc((60deg, 1), start: 60deg, delta: 60deg, stroke: boundary_stroke_2)
 
   line((-1.5, 0), (1.5, 0)) // x-axis
 
 
   line((0.5, 0), (0.5, rho_y))
-  line((0.5, rho_y), (0.5, 2.3), stroke: boundry_stroke_1)
-  mark((0.5, 1.75), (0.5, 1.8), symbol: "straight", stroke: boundry_stroke_1, scale: 0.7)
+  line((0.5, rho_y), (0.5, 2.3), stroke: boundary_stroke_1)
+  mark((0.5, 1.75), (0.5, 1.8), symbol: "straight", stroke: boundary_stroke_1, scale: 0.7)
 
 
   line((-0.5, 0), (-0.5, 2.3))
-  line((-0.5, rho_y), (-0.5, 2.3), stroke: boundry_stroke_1)
-  mark((-0.5, 1.75), (-0.5, 1.8), symbol: "straight", stroke: boundry_stroke_1, scale: 0.7)
+  line((-0.5, rho_y), (-0.5, 2.3), stroke: boundary_stroke_1)
+  mark((-0.5, 1.75), (-0.5, 1.8), symbol: "straight", stroke: boundary_stroke_1, scale: 0.7)
 
-  circle((0, 1), radius: .04, fill: boundry_point_color, stroke: none)
+  circle((0, 1), radius: .04, fill: boundary_point_color, stroke: none)
   circle((60deg, 1), radius: .04, fill: rgb("#806cd0"), stroke: none)
   circle((120deg, 1), radius: .04, fill: rgb("#806cd0"), stroke: none)
 
@@ -269,14 +350,14 @@ $
 //       set-style(stroke: (paint: luma(40%), thickness: 1pt))
 //       // Your drawing code goes here
 //       let rho_y = calc.sqrt(3) / 2
-//       let boundry_color_1 = teal.darken(10%)
-//       let boundry_color_2 = orange.lighten(10%).desaturate(15%)
-//       let boundry_point_color = red.darken(5%).desaturate(15%)
+//       let boundary_color_1 = teal.darken(10%)
+//       let boundary_color_2 = orange.lighten(10%).desaturate(15%)
+//       let boundary_point_color = red.darken(5%).desaturate(15%)
 
 //       let region_color = gradient.linear(aqua.desaturate(90%), aqua.desaturate(50%), angle: 90deg)
 
-//       let boundry_stroke_1 = (paint: boundry_color_1, thickness: 2pt)
-//       let boundry_stroke_2 = (paint: boundry_color_2, thickness: 2pt)
+//       let boundary_stroke_1 = (paint: boundary_color_1, thickness: 2pt)
+//       let boundary_stroke_2 = (paint: boundary_color_2, thickness: 2pt)
 
 
 //       rect((-0.5, 0), (0.5, 2.299), fill: region_color, stroke: none) // region
@@ -289,25 +370,25 @@ $
 //         (60deg, 1),
 //         start: 60deg,
 //         delta: 60deg,
-//         stroke: boundry_stroke_2,
-//         mark: (symbol: "straight", stroke: boundry_stroke_2, offset: 12%, scale: 0.7),
+//         stroke: boundary_stroke_2,
+//         mark: (symbol: "straight", stroke: boundary_stroke_2, offset: 12%, scale: 0.7),
 //       ) // mark
 
-//       arc((60deg, 1), start: 60deg, delta: 60deg, stroke: boundry_stroke_2)
+//       arc((60deg, 1), start: 60deg, delta: 60deg, stroke: boundary_stroke_2)
 
 //       line((-1.5, 0), (1.5, 0)) // x-axis
 
 
 //       line((0.5, 0), (0.5, rho_y))
-//       line((0.5, rho_y), (0.5, 2.3), stroke: boundry_stroke_1)
-//       mark((0.5, 1.75), (0.5, 1.8), symbol: "straight", stroke: boundry_stroke_1, scale: 0.7)
+//       line((0.5, rho_y), (0.5, 2.3), stroke: boundary_stroke_1)
+//       mark((0.5, 1.75), (0.5, 1.8), symbol: "straight", stroke: boundary_stroke_1, scale: 0.7)
 
 
 //       line((-0.5, 0), (-0.5, 2.3))
-//       line((-0.5, rho_y), (-0.5, 2.3), stroke: boundry_stroke_1)
-//       mark((-0.5, 1.75), (-0.5, 1.8), symbol: "straight", stroke: boundry_stroke_1, scale: 0.7)
+//       line((-0.5, rho_y), (-0.5, 2.3), stroke: boundary_stroke_1)
+//       mark((-0.5, 1.75), (-0.5, 1.8), symbol: "straight", stroke: boundary_stroke_1, scale: 0.7)
 
-//       circle((0, 1), radius: .04, fill: boundry_point_color, stroke: none)
+//       circle((0, 1), radius: .04, fill: boundary_point_color, stroke: none)
 //       circle((60deg, 1), radius: .04, fill: rgb("#19bf13"), stroke: none)
 //       circle((120deg, 1), radius: .04, fill: rgb("#19bf13"), stroke: none)
 
@@ -442,7 +523,7 @@ $
     pi_N : SL_2 (bb(Z)) --> SL_2 (bb(Z) \/ N bb(Z)).
   $
   The *principal congruence subgroup of
-    level $N$* #index("congruence subgroup", "principal") in $upright(S L)_2 (bb(Z))$ is the kernel of $pi_N$,
+  level $N$* #index("congruence subgroup", "principal") in $upright(S L)_2 (bb(Z))$ is the kernel of $pi_N$,
   and it is usually denoted by
   $
     Gamma (N) = ker pi_N = { mat(a, b; c, d) in upright(S L)_2 (bb(Z)) : mat(delim: "[", a, b; c, d) equiv mat(1, ; , 1) med(mod med N) }.
@@ -2366,23 +2447,23 @@ be the canonical embedding of $G_v$ into $G$.
     If $p$ is a prime number and $p equiv 3 pmod(4)$, then there are no rational numbers $a$ and $b$ such that $p = x^2 + y^2$.
 
   + Moreover, we have the following tables for more cases:
-  #align(center)[
-    #show table.cell.where(y: 0): strong
-    #table(
-      columns: 3,
-      stroke: none,
-      row-gutter: 0.1em,
-      inset: 8pt,
-      table.hline(),
-      table.header([Equation], [Has integer solutions], [Number ring]),
-      table.hline(stroke: 0.5pt),
-      [$p=x^2+y^2$], [$p equiv 1 pmod(4)$], [$ZZ[sqrt(-1)thin]$],
-      [$p=x^2+2y^2$], [$p equiv 1 "or" 3 pmod(8)$], [$ZZ[sqrt(-2)thin]$],
-      [$p=x^2+3y^2$], [$p equiv 1 pmod(3)$], [$ZZ[sqrt(-3)thin]$],
-      [$p=x^2-2y^2$], [$p equiv 1 "or" 7 pmod(8)$], [$ZZ[sqrt(2)thin]$],
-      table.hline(),
-    )
-  ]
+    #align(center)[
+      #show table.cell.where(y: 0): strong
+      #table(
+        columns: 3,
+        stroke: none,
+        row-gutter: 0.1em,
+        inset: 8pt,
+        table.hline(),
+        table.header([Equation], [Has integer solutions], [Number ring]),
+        table.hline(stroke: 0.5pt),
+        [$p=x^2+y^2$], [$p equiv 1 pmod(4)$], [$ZZ[sqrt(-1)thin]$],
+        [$p=x^2+2y^2$], [$p equiv 1 "or" 3 pmod(8)$], [$ZZ[sqrt(-2)thin]$],
+        [$p=x^2+3y^2$], [$p equiv 1 pmod(3)$], [$ZZ[sqrt(-3)thin]$],
+        [$p=x^2-2y^2$], [$p equiv 1 "or" 7 pmod(8)$], [$ZZ[sqrt(2)thin]$],
+        table.hline(),
+      )
+    ]
 ]
 #remark[
   Note
@@ -2526,7 +2607,6 @@ in a similar way.
   + The field $FF_p [x] \/ (x^2 - a)$ is isomorphic to $FF_(p^2)$.
 ]
 
-
 #definition[Legendre Symbol][
   Let $p$ be an odd prime number and $a in ZZ$ be an integer. The *Legendre symbol* is defined as
   $
@@ -2537,7 +2617,7 @@ in a similar way.
                 -1 & "if" a equiv.not 0 pmod(p) "and" a "is a quadratic non-residue" mod p.
               )
   $
-]
+]<legendre-symbol>
 
 #proposition[Properties of Legendre Symbol][
   Let $p$ be an odd prime number and $a,b in ZZ$ be integers. Then the following properties hold:
@@ -2577,10 +2657,55 @@ in a similar way.
 With the Legendre symbol, for odd prime number $p$, we can describe the structure of $FF_p (sqrt(a)):=FF_p [x]\/(x^2-a)$ as follows
 $
   FF_p (sqrt(a)) tilde.equiv cases(
-    FF_p & "if" (a / p) = 1",",
-    FF_(p^2) & "if" (a / p) = -1.
+    FF_p & quad "if" (a / p) = 1",",
+    FF_(p^2) & quad "if" (a / p) = -1.
   )
 $
+
+#definition[Kronecker Symbol][
+  Let $a, n in ZZ$ be integers. The *Kronecker symbol* is defined as follows:
+
+  + If $n = 0$, then
+    $
+      (a / 0) = cases(
+        1 & quad "if" a = plus.minus 1,
+        0 & quad "otherwise"
+      )
+    $
+
+  + If $n = 1$, then
+    $
+      (a / 1) = 1.
+    $
+
+  + If $n = -1$, then
+    $
+      (a / (-1)) = cases(
+        1 & quad "if" a > 0,
+        -1 & quad "if" a < 0
+      )
+    $
+
+  + If $n = 2$, then
+    $
+      (a / 2) = cases(
+        0 & quad "if" a equiv 0 pmod(2),
+        1 & quad "if" a equiv plus.minus 1 pmod(8),
+        -1 & quad "if" a equiv plus.minus 3 pmod(8),
+      )
+    $
+
+  + if $n = p$ is an odd prime number, then
+    $
+      (a / p)
+    $
+    is the #link(<legendre-symbol>)[Legendre symbol].
+
+  + If $n = u p_1^(e_1) p_2^(e_2) dots.c p_k^(e_k)$ is the prime factorization of $n$ where $u in {-1,1}$ is a unit, then
+    $
+      (a / n) = product_(i=1)^k (a / p_i)^(e_i).
+    $
+]
 
 == $p$-adic Numbers
 
@@ -2767,7 +2892,7 @@ $
     p^n ZZ_p^times & = { x in ZZ_p mid(|) abs(x)_p = p^(-n) } \
     & ={ x in ZZ_p mid(|) abs(x)_p <= p^(-n) }-{ x in ZZ_p mid(|) abs(x)_p <= p^(-n-1) } \
     & = p^n ZZ_p - p^(n+1) ZZ_p \
-    &= union.sq.big_(k = 0)^(p-1) (k p^n + p^(n+1) ZZ_p) -  p^(n+1) ZZ_p \
+    &= union.sq.big_(k = 0)^(p-1) (k p^n + p^(n+1) ZZ_p) - p^(n+1) ZZ_p \
     & = ( p^n + p^(n+1)ZZ_p ) union.sq (2 p^n + p^(n+1) ZZ_p ) union.sq dots.h.c union.sq ((p-1) p^n+ p^(n+1) ZZ_p ).
   $
   We have
@@ -3371,6 +3496,187 @@ $bb(A)_(QQ)^times$ is a locally compact Hausdorff topological group. The connect
   This forces $q/q' =1$ and $q = q'$.
 
 ]
+
+
+
+== Cyclotomic Field
+
+#definition[Cyclotomic Field][
+  Let $n$ be a positive integer. The #strong[cyclotomic field] #index("cyclotomic field") $QQ(zeta_n)$ is defined as the field extension of $QQ$ obtained by adjoining a primitive $n$-th root of unity $zeta_n = exp(2 pi i / n)$, i.e.
+  $
+    QQ(zeta_n) = QQ(e^((2 pi i) / n)).
+  $
+]
+
+#proposition[Galois Group of Cyclotomic Extension][
+  Let $n$ be a positive integer. The Galois group of the cyclotomic field $QQ(zeta_n)$ over $QQ$ is given by
+  $
+    op("Gal")(QQ(zeta_n) \/ QQ) = { sigma_a mid(|) a in (ZZ \/ n ZZ)^times }
+  $
+
+
+  is isomorphic to the multiplicative group of integers modulo $n$
+  $
+    op("Gal")(QQ(zeta_n) \/ QQ) tilde.equiv (ZZ \/ n ZZ)^times.
+  $
+  The isomorphism is given by
+  $
+    sigma_a : zeta_n & mapsto.long zeta_n^a
+  $
+  for each $a in (ZZ \/ n ZZ)^times$.
+]
+
+== Quadratic Field
+Suppose $d$ be a square-free integer and $d eq.not 1$.
+
+
+#proposition[Discriminant of Quadratic Field][
+  For a quadratic field $K=QQ(sqrt(d))$, the discriminant of $K$ is given by
+  $
+    Delta_K =
+    cases(
+      d & upright(" if") d equiv 1 med(mod 4),
+      4 d & upright(" if") d equiv.not 1 med(mod 4)
+    )
+  $
+  And the ring of integers $cal(O)_K$ of $K$ is given by
+  $
+    cal(O)_K =
+    cases(
+      ZZ [ (1 + sqrt(d)) / 2] & upright(" if") d equiv 1 med(mod 4),
+      ZZ [sqrt(d)] & upright(" if") d equiv.not 1 med(mod 4)
+    )
+  $
+]
+
+#proposition[Ramification in Quadratic Extension][
+  Let $K=QQ(sqrt(d))$ be a quadratic field with discriminant $Delta_K$ and $p$ be a prime number. The ramification behavior of $(p)$ in the ring of integers $cal(O)_K$ is described as follows:
+
+  + $(p)$ is ramified in $cal(O)_K$ $<==> p divides Delta_K$.
+
+  + $(p)$ splits completely in $cal(O)_K$ $<==> p divides.not Delta_K "and" (Delta_K / p) = 1$.
+
+  + $(p)$ is inert in $cal(O)_K$ $<==> p divides.not Delta_K "and" (Delta_K / p) = -1$.
+
+  This can be summarized in the following table:
+
+  #simple-table(
+    columns: 3,
+    table.header([Ramification Behavior in $cal(O)_K$], [Discriminant], [Kronecker symbol]),
+    [ramified],
+    [$p divides Delta_K$],
+    [$-$],
+    [splits completely],
+    [$p divides.not Delta_K$],
+    [$(Delta_K / p) = 1$],
+    [inert],
+    [$p divides.not Delta_K$],
+    [$(Delta_K / p) = -1$],
+  )
+]
+
+
+#example[Quadratic Field $QQ(sqrt(3))$][
+  Consider the quadratic field $K=QQ(sqrt(3))$. The discriminant of $K$ is $Delta_K = 12$. The ramification behavior of prime numbers in the ring of integers $cal(O)_K = ZZ[sqrt(3)]$ is described as follows:
+
+  #simple-table(
+    columns: 2,
+    table.header([Ramification Behavior in $ZZ[sqrt(3)]$], [$p$]),
+    [ramified],
+    [2 or 3],
+    [splits completely],
+    [$p equiv plus.minus 1 pmod(12)$],
+    [inert],
+    [$p equiv plus.minus 5 pmod(12)$],
+  )
+
+  #v(2.5em, weak: false)
+  #figure({
+    align(center)[
+      #show math.equation: set text(0.9em)
+      #cetz.canvas({
+        import cetz.draw: *
+        let h1 = 1
+        let w1 = 1.2
+
+        content((-1.3 * w1, 0), anchor: "mid", $op("Spec")(ZZ)$)
+
+        line((0, 0), (10.5 * w1, 0), stroke: 0.5pt)
+        circle((0, 0), radius: 2pt, fill: black, name: "(2)")
+        content((0, -0.5), anchor: "base", $(2)$)
+        circle((2 * w1, 0), radius: 2pt, fill: black, name: "(3)")
+        content((2 * w1, -0.5), anchor: "base", $(3)$)
+        circle((4 * w1, 0), radius: 2pt, fill: black, name: "$(5)$")
+        content((4 * w1, -0.5), anchor: "base", $(5)$)
+        circle((6 * w1, 0), radius: 2pt, fill: black, name: "$(7)$")
+        content((6 * w1, -0.5), anchor: "base", $(7)$)
+        circle((8 * w1, 0), radius: 2pt, fill: black, name: "$(11)$")
+        content((8 * w1, -0.5), anchor: "base", $(11)$)
+        circle((10 * w1, 0), radius: 2pt, fill: black, name: "$(13)$")
+        content((10 * w1, -0.5), anchor: "base", $(13)$)
+
+
+        content((-1.3 * w1, 2 * h1), anchor: "mid", $op("Spec")(ZZ[sqrt(3)])$)
+
+        line((8 * w1, 2.5 * h1), (10.5 * w1, 2.5 * h1), stroke: 0.5pt)
+        line((8 * w1, 1.5 * h1), (10.5 * w1, 1.5 * h1), stroke: 0.5pt)
+        bezier((0, 2 * h1), (2 * w1, 2 * h1), (1 * w1, 3 * h1), stroke: 0.5pt)
+        bezier((0, 2 * h1), (2 * w1, 2 * h1), (1 * w1, h1), stroke: 0.5pt)
+        bezier((2 * w1, 2 * h1), (4 * w1, 2 * h1), (3 * w1, 3 * h1), stroke: 0.5pt)
+        bezier((2 * w1, 2 * h1), (4 * w1, 2 * h1), (3 * w1, h1), stroke: 0.5pt)
+        bezier((4 * w1, 2 * h1), (6 * w1, 2 * h1), (5 * w1, 3 * h1), stroke: 0.5pt)
+        bezier((4 * w1, 2 * h1), (6 * w1, 2 * h1), (5 * w1, h1), stroke: 0.5pt)
+        bezier((6 * w1, 2 * h1), (8 * w1, 2.5 * h1), (6.5 * w1, 2.5 * h1), (6.8 * w1, 2.5 * h1), stroke: 0.5pt)
+        bezier((6 * w1, 2 * h1), (8 * w1, 1.5 * h1), (6.5 * w1, 1.5 * h1), (6.8 * w1, 1.5 * h1), stroke: 0.5pt)
+
+        circle((0, 2 * h1), radius: 4pt, fill: luma(60%), stroke: none, name: "$(1+sqrt(3))$")
+        content((0, 3 * h1), anchor: "mid", $(1 + sqrt(3))$)
+
+        circle((2 * w1, 2 * h1), radius: 4pt, fill: luma(60%), stroke: none, name: "$(sqrt(3))$")
+        content((2 * w1, 3 * h1), anchor: "mid", $(sqrt(3))$)
+
+        circle((4 * w1, 2 * h1), radius: 2pt, fill: black, name: "$(5)$")
+        content((4 * w1, 3 * h1), anchor: "mid", $(5)$)
+
+        circle((6 * w1, 2 * h1), radius: 2pt, fill: black, name: "$(7)$")
+        content((6 * w1, 3 * h1), anchor: "mid", $(7)$)
+
+        circle((8 * w1, 2.5 * h1), radius: 2pt, fill: black)
+        content((8 * w1, 3 * h1), anchor: "mid", $(4 + 3 sqrt(3))$)
+
+        circle((8 * w1, 1.5 * h1), radius: 2pt, fill: black)
+        content((8 * w1, 1 * h1), anchor: "mid", $(4 - 3 sqrt(3))$)
+
+        circle((10 * w1, 2.5 * h1), radius: 2pt, fill: black)
+        content((10 * w1, 3 * h1), anchor: "mid", $(4 + sqrt(3))$)
+
+        circle((10 * w1, 1.5 * h1), radius: 2pt, fill: black)
+        content((10 * w1, 1 * h1), anchor: "mid", $(4 - sqrt(3))$)
+      })
+    ]
+    v(0.5em)
+    align(left)[
+      #set text(size: 0.9em)
+      #text(size: 1.2em, baseline: 0.1em, $▹$)#h(0.1em)*Note*. The big point #text(size: 1.2em, fill: luma(60%), $circle.filled$) indicates ramification and non-reducedness.
+    ]
+  })
+]
+#proof[
+  Since $Delta_K = 12 = 2^2 times 3$, the prime numbers $2$ and $3$ are ramified in $cal(O)_K$. For any prime number $p$ not equal to $2$ or $3$, we have
+  $
+    (Delta_K / p) = (12 / p) = (2 / p)^2 times (3 / p) = (3 / p).
+  $
+  By quadratic reciprocity law, we have
+  $
+    (3 / p) = (p / 3) times (-1)^( (p-1)/2) =
+    cases(
+      1 & upright(" if") p equiv plus.minus 1 med(mod 12),
+      -1 & upright(" if") p equiv plus.minus 5 med(mod 12)
+    )
+  $
+  Therefore, the ramification behavior of prime numbers in $cal(O)_K$ is as described above.
+]
+
 
 #pagebreak()
 
