@@ -5,8 +5,7 @@
 
 
 #show: math_notes.with(
-  title: [ELLIPTIC CURVES \
-    And MODULAR FORMS],
+  title: [TOWARDS The LANGLANGS PROGRAM],
   theme: "light",
 )
 
@@ -3398,7 +3397,7 @@ If we endow $bb(A)_(QQ)^times$ with the subspace topology induced from $bb(A)_(Q
 #definition[Idele Group of $bb(Q)$][
   The #strong[idele group] #index("idele group") of $bb(Q)$ is defined as
   $
-    bb(I)_(QQ) = bb(A)_(QQ)^times = op("GL")_1 (bb(A)_(QQ))= { (x_(oo),x_2,x_3,dots.c) in AA_QQ mid(|) x_p in ZZ_p^times "for all but finitely many" p }.
+    bb(I)_(QQ) := bb(A)_(QQ)^times = op("GL")_1 (bb(A)_(QQ))= { (x_(oo),x_2,x_3,dots.c) in AA_QQ mid(|) x_p in ZZ_p^times "for all but finitely many" p }.
   $
   The topology on $bb(I)_(QQ)$ is given by defining the basis of the form
   $
@@ -3554,9 +3553,9 @@ Suppose $d$ be a square-free integer and $d eq.not 1$.
 
   + $(p)$ is ramified in $cal(O)_K$ $<==> p divides Delta_K$.
 
-  + $(p)$ splits completely in $cal(O)_K$ $<==> p divides.not Delta_K "and" (Delta_K / p) = 1$.
+  + $(p)$ splits completely in $cal(O)_K$ $<==> p divides.not Delta_K "and" lr(size: #110%, (Delta_K / p)) = 1$.
 
-  + $(p)$ is inert in $cal(O)_K$ $<==> p divides.not Delta_K "and" (Delta_K / p) = -1$.
+  + $(p)$ is inert in $cal(O)_K$ $<==> p divides.not Delta_K "and" lr(size: #110%, (Delta_K / p)) = -1$.
 
   This can be summarized in the following table:
 
@@ -3568,10 +3567,10 @@ Suppose $d$ be a square-free integer and $d eq.not 1$.
     [$-$],
     [splits completely],
     [$p divides.not Delta_K$],
-    [$(Delta_K / p) = 1$],
+    [$lr(size: #110%, (Delta_K / p)) = 1$],
     [inert],
     [$p divides.not Delta_K$],
-    [$(Delta_K / p) = -1$],
+    [$lr(size: #110%, (Delta_K / p)) = -1$],
   )
 ]
 
