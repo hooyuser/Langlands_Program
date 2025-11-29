@@ -1,9 +1,9 @@
-# Elliptic Curves and Modular Forms
-![Lines of code](https://tokei.rs/b1/github/hooyuser/elliptic_curves_and_modular_forms) ![](https://img.shields.io/github/repo-size/hooyuser/elliptic_curves_and_modular_forms?style=plastic
-)
+# Towards the Langlands Program
+![Lines of code](https://tokei.rs/b1/github/hooyuser/elliptic_curves_and_modular_forms) 
+![](https://img.shields.io/github/repo-size/hooyuser/Langlands_Program)
 
-**Preview Here**: [elliptic_curves_and_modular_forms.pdf](https://hooyuser.github.io/elliptic_curves_and_modular_forms/elliptic_curves_and_modular_forms.pdf)
+**Preview Here**: [Langlands_Program.pdf](https://hooyuser.github.io/Langlands_Program/Langlands_Program.pdf)
 
-**Download Here**: [elliptic_curves_and_modular_forms.pdf](https://github.com/hooyuser/elliptic_curves_and_modular_forms/releases/latest/download/elliptic_curves_and_modular_forms.pdf)
+**Download Here**: [Langlands_Program.pdf](https://github.com/hooyuser/Langlands_Program/releases/latest/download/Langlands_Program.pdf)
 
-Notes on Elliptic Curves and Modular Forms written in Typst.
+Notes on Langlands program written in Typst.
