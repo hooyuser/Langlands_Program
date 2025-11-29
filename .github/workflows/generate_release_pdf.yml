@@ -12,4 +12,4 @@ jobs:
   release_pdf:
     uses: hooyuser/pdf-ci-templates/.github/workflows/typst-pdf-release.yml@main
     with:
-      TYPST_FILE_NAME: Langlands_Program
+      TYPST_FILE_NAME: Towards_the_Langlands_Program
