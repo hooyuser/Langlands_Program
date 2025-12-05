@@ -1,143 +1,12 @@
-#import "@preview/fletcher:0.5.8" as fletcher: diagram, edge, node
 #import "@preview/cetz:0.3.4"
-#import "@preview/in-dexter:0.7.2" as in-dexter: index
-#import "@local/math-notes:0.3.0": *
+#import "@preview/fletcher:0.5.8" as fletcher: diagram, edge, node
 
+#import "@local/math-notes:0.4.0": *
 
 #show: math_notes.with(
   title: [TOWARDS The LANGLANGS PROGRAM],
   theme: "light",
 )
-
-#let index_math = index.with(index: "Math")
-
-#let SL = math.op("SL")
-#let PSL = math.op("PSL")
-#let GL = math.op("GL")
-#let Tr = math.op("Tr")
-
-#let Gal = math.op("Gal")
-#let Frob = math.op("Frob")
-
-#let pmod(n) = $med (mod med #n)$
-
-#let chargrp(G) = $frak(X)(#G)$
-#let algdual(G) = $#G^(or.curly)$
-
-#let rightarrow = $stretch(->, size: #15pt)$
-
-#let leftarrow = $stretch(<-, size: #15pt)$
-
-#let movebase(size, x) = text(baseline: size)[#x]
-
-#let (varprojlim, varinjlim) = (leftarrow, rightarrow).map(arrow => $display(limits(lim_(movebase(#(-1.9pt), arrow))))$)
-
-#let injlim(subscript) = $varinjlim_movebase(#(-2.8pt), subscript)$
-#let projlim(subscript) = $varprojlim_movebase(#(-2.8pt), subscript)$
-
-#let xrightarrow = $stretch(->, size: #150%)$
-
-
-#let scr(it) = text(
-  font: "New Computer Modern Math",
-  $std.math.scr(it)$,
-)
-
-#let racts = $arrow.ccw.half$
-
-#let mmat(..array) = (
-  $
-    lr([| #math.mat(delim: none, ..array) |], size: #120%)
-  $
-)
-
-#let noindent(body) = {
-  set par(first-line-indent: 0pt)
-  body
-}
-
-
-///////////////////////////////////////////////////////
-///////////////////////////////////////////////////////
-
-#let single_line_gradient(mid_color, edge_color, ratio, ..args) = {
-  let interp_pos_1 = (100% - ratio) * 50%
-  let interp_pos_2 = (100% + ratio) * 50%
-  let stops = (
-    (mid_color, 0%),
-    (mid_color, interp_pos_1),
-    (edge_color, interp_pos_1),
-    (edge_color, interp_pos_2),
-    (mid_color, interp_pos_2),
-    (mid_color, 100%),
-  )
-  gradient.linear(..stops, ..args)
-}
-
-
-#let vertical_line_stroke = (
-  paint: single_line_gradient(
-    luma(100%, 0%),
-    luma(0%, 30%),
-    80%,
-    angle: 90deg,
-  ),
-  thickness: 0.5pt,
-)
-
-#let vertical_line_stroke_white = (
-  paint: single_line_gradient(
-    luma(100%, 0%),
-    white,
-    80%,
-    angle: 90deg,
-  ),
-  thickness: 0.5pt,
-)
-
-// See the strokes section for details on this!
-#let frame = (x, y) => (
-  bottom: if y >= 1 {
-    0.5pt + rgb("#ABB0AE")
-  },
-  left: if x > 0 {
-    if y == 0 {
-      vertical_line_stroke_white
-    } else {
-      vertical_line_stroke
-    }
-  },
-)
-
-
-
-#let simple-table(columns: 2, ..items) = align(center)[
-  #show table.cell.where(y: 0): it => {
-    set text(white)
-    strong(it)
-  }
-  #v(0.5em, weak: false)
-  #with_theme_config(theme => context {
-    let thm-env = current-env-name()
-    let front-color = if thm-env == "example" {
-      theme.at("example_env_color_dict").at("header")
-    } else {
-      theme.at("thm_env_color_dict").at(thm-env).at("front").desaturate(20%)
-    }
-    table(
-      columns: columns,
-      stroke: frame,
-      // fill: (_, y) => if y == 0 { rgb("#2a7f7f") },
-      fill: (_, y) => if y == 0 { front-color },
-      column-gutter: -0.5pt,
-      row-gutter: 0pt,
-      inset: 8pt,
-      ..items.pos(),
-      table.hline(stroke: 0.6pt + rgb("#264343")),
-    )
-  })
-]
-
 
 = Basic Concepts of Elliptic Curves <basic-concepts-of-elliptic-curves>
 == Elliptic Curves <elliptic-curves>
@@ -457,7 +326,7 @@ $
   Since $op("Stab")_(Gamma)(gamma tau)=gamma op("Stab")_(Gamma)(tau)gamma^(-1)$, if $tau$ is an elliptic point of $Gamma$, then all points in the $Gamma$-orbit of $tau$ are also elliptic points of $Gamma$.
 ]
 
-#proposition[Elliptic Points form a Discrete Subset of $HH$][
+#proposition[Elliptic Points Form a Discrete Subset of $HH$][
   Suppose $Gamma$ is a discrete subgroup of $SL_2(RR)$. The set of elliptic points of $Gamma$ is a discrete subset of $HH$.
 ]
 
@@ -471,7 +340,7 @@ $
   Moreover, $PSL_2(ZZ)$ has the following group presentation:
 
   $
-    phi :PSL_2(ZZ) & -->^(tilde)angle.l x, y mid(|) x^2 = y^3 = 1 angle.r tilde.equiv C_2 * C_3 \
+    phi :PSL_2(ZZ) & -->^(tilde)chevron.l x, y mid(|) x^2 = y^3 = 1 chevron.r tilde.equiv C_2 * C_3 \
                  S & mapsto.long x, \
                S T & mapsto.long y.
   $
@@ -540,11 +409,13 @@ $
 ]
 #proof[
   For any matrix $B=mat(overline(a), overline(b); overline(c), overline(d)) in SL_2 (bb(Z) \/ N bb(Z))$, we need to find a matrix $A=mat(a', b'; c', d') in SL_2 (bb(Z))$ such that $pi_N (A)=B$. That is, find integers $a',b',c',d' in ZZ$ such that $a' equiv a med (mod med N)$, $b' equiv b med (mod med N)$, $c' equiv c med (mod med N)$, $d' equiv d med (mod med N)$ and $a' d' - b' c' = 1$.
+
   - First we are to find $a',b' in ZZ$ such that $gcd(a', b')=1$ and $a' d - b' c equiv 1 med (mod med N)$. Suppose $a eq.not 0$. According to Chinese remainder theorem, there exists an integer $t$ such that
     $
-      t equiv cases(
-        1 quad & ( mod med p)\, &                        quad forall"prime" p divides gcd (a , b) \
-        0 quad & ( mod med p)\, & quad forall"prime" p divides.not gcd (a , b) \, med p divides a
+      t equiv
+      cases(
+        1 med ( mod med p)\, quad forall "prime" p divides gcd (a , b),
+        0 med ( mod med p)\, quad forall "prime" p divides.not gcd (a , b) med p divides a
       )
     $
     Let $a'=a$, $b'=b+t N$. Then $a' d - b' c equiv 1 med (mod med N)$. Assume that $p$ is any prime factor of $a$.
@@ -974,7 +845,7 @@ $
 
   The morphisms of linear representations of a group $G$ can be defined in the following equivalent ways:
 
-  + Equivariant maps: A morphism of linear representations $f: (V, rho) -> (W, sigma)$ is a linear map $f: V -> W$ such that
+  + *Equivariant maps*: A morphism of linear representations $f: (V, rho) -> (W, sigma)$ is a linear map $f: V -> W$ such that
     $
       f(g dot v) = g dot f(v), quad forall g in G, forall v in V.
     $
@@ -987,12 +858,12 @@ $
       $,
     )
 
-  + Module homomorphisms: A morphism of linear representations $f: M -> N$ is a $bb(k)[G]$-module homomorphism. That is, $f$ is a linear map such that
+  + *Module homomorphisms*: A morphism of linear representations $f: M -> N$ is a $bb(k)[G]$-module homomorphism. That is, $f$ is a linear map such that
     $
       f(g dot v+w) = g dot f(v)+f(w), quad forall g in G,forall v,w in M.
     $
 
-  + Natural transformations: A morphism of linear representations $f: R_1 => R_2$ is a natural transformation between functors $R_1, R_2: sans(upright("B")) G -> Vect(bb(k))$.
+  + *Natural transformations*: A morphism of linear representations $f: R_1 => R_2$ is a natural transformation between functors $R_1, R_2: sans(upright("B")) G -> Vect(bb(k))$.
 ]
 
 #definition[Category of Linear Representations][
@@ -1144,9 +1015,9 @@ $
 
 === Basic Construction
 #definition[Direct Sum of Linear Representations][
-  Let $rho: G -> GL(V)$ and $sigma: G -> GL(W)$ be two linear representations of a group $G$. The *direct sum* of $rho$ and $sigma$ is the linear representation $rho plus.circle sigma: G -> GL(V plus.circle W)$ defined by
+  Let $rho: G -> GL(V)$ and $sigma: G -> GL(W)$ be two linear representations of a group $G$. The *direct sum* of $rho$ and $sigma$ is the linear representation $rho plus.o sigma: G -> GL(V plus.o W)$ defined by
   $
-    (rho plus.circle sigma)_g (v plus.circle w) = rho_g (v) plus.circle sigma_g (w), quad forall g in G, forall v in V, forall w in W.
+    (rho plus.o sigma)_g (v plus.o w) = rho_g (v) plus.o sigma_g (w), quad forall g in G, forall v in V, forall w in W.
   $
 ]
 
@@ -1267,15 +1138,18 @@ $
 #pagebreak()
 
 = Representations of Finite Groups
-#[
-  #set par(first-line-indent: 0pt)
-  This chapter is devoted to the study of linear representations of finite groups.
-]
+
+This chapter is devoted to the study of linear representations of finite groups.
+
 
 == Finite Dimensional Representations
+
 In this section we focus on the finite-dimensional representations of finite groups.
 
-Recall a linear map $p:V->V$ is called a projection if $p^2=p$. If $p:V->V$ is a projection, then $V=im p plus.circle ker p$.
+
+=== Unitary Representation Theory
+
+Recall a linear map $p:V->V$ is called a projection if $p^2=p$. If $p:V->V$ is a projection, then $V=im p plus.o ker p$.
 
 
 
@@ -1286,14 +1160,14 @@ Recall a linear map $p:V->V$ is called a projection if $p^2=p$. If $p:V->V$ is a
     V, FinVect(bb(k))
   )$
 
-  Let $rho: G -> GL(V)$ be a representation. Suppose $op("char")(bb(k))$ does not divide $|G|$. If $W$ is a $G$-invariant subspace of $V$, then there exists a complement $W^0$ of $W$ in $V$ such that $V = W plus.circle W^0$ and $W^0$ is also $G$-invariant.
+  Let $rho: G -> GL(V)$ be a representation. Suppose $op("char")(bb(k))$ does not divide $|G|$. If $W$ is a $G$-invariant subspace of $V$, then there exists a complement $W^0$ of $W$ in $V$ such that $V = W plus.o W^0$ and $W^0$ is also $G$-invariant.
 ]<complement-of-invariant-subspace>
 #proof[
-  Let $W'$ be an arbitrary complement of $W$ in $V$. Then $V = W plus.circle W'$. Let $op("pr")_W: W plus.circle W' -> W$ be the projection onto $W$. Define
+  Let $W'$ be an arbitrary complement of $W$ in $V$. Then $V = W plus.o W'$. Let $op("pr")_W: W plus.o W' -> W$ be the projection onto $W$. Define
   $
     op("pr")_W^0 = 1 / abs(G) sum_(g in G) rho_g circle.tiny op("pr")_W circle.tiny rho_g^(-1) .
   $
-  Since $im op("pr")_W =W$ and $W$ is $G$-invariant, we see $im op("pr")_W^0 subset.eq W$ and $op("pr")_W^0|_W = op("id")_W$. Therefore, $op("pr")_W^0$ is a projection onto $W$. Let $W^0 = ker op("pr")_W^0$. We have $V = W plus.circle W^0$. For any $h in G$, we can check that
+  Since $im op("pr")_W =W$ and $W$ is $G$-invariant, we see $im op("pr")_W^0 subset.eq W$ and $op("pr")_W^0|_W = op("id")_W$. Therefore, $op("pr")_W^0$ is a projection onto $W$. Let $W^0 = ker op("pr")_W^0$. We have $V = W plus.o W^0$. For any $h in G$, we can check that
   $
     rho_h circle.tiny op("pr")_W^0 circle.tiny rho_h^(-1) = 1 / abs(G) sum_(g in G) rho_h circle.tiny rho_g circle.tiny op("pr")_W circle.tiny rho_g^(-1) circle.tiny rho_h^(-1) = 1 / abs(G) sum_(g in G) rho_(h g) circle.tiny op("pr")_W circle.tiny rho_(h g)^(-1) = op("pr")_W^0.
   $
@@ -1327,7 +1201,7 @@ The following property is called complete reducibility, or semisimplicity.
 
   - If $dim V = 0$, the statement is trivial.
 
-  - Suppose the statement is true for all finite-dimensional representations of $G$ with dimension less than $n$. Given an $n$-dimensional representation $rho:G->GL(V)$, if it is irreducible, then we are done. Otherwise, there exists a proper nontrivial subrepresentation $W$ of $V$. According to @complement-of-invariant-subspace, there exists a complement $W^0$ of $W$ in $V$ such that $V = W plus.circle W^0$ and $W^0$ is also $G$-invariant. By induction hypothesis, $W$ and $W^0$ are direct sums of irreducible representations. Therefore, $V$ is also a direct sum of irreducible representations.
+  - Suppose the statement is true for all finite-dimensional representations of $G$ with dimension less than $n$. Given an $n$-dimensional representation $rho:G->GL(V)$, if it is irreducible, then we are done. Otherwise, there exists a proper nontrivial subrepresentation $W$ of $V$. According to @complement-of-invariant-subspace, there exists a complement $W^0$ of $W$ in $V$ such that $V = W plus.o W^0$ and $W^0$ is also $G$-invariant. By induction hypothesis, $W$ and $W^0$ are direct sums of irreducible representations. Therefore, $V$ is also a direct sum of irreducible representations.
 ]
 
 
@@ -1369,7 +1243,7 @@ The following property is called complete reducibility, or semisimplicity.
   $
 ]
 #remark[
-  If $G$ is a finite abelian group, then we can endow $G$ with discrete topology. Then the character group $chargrp(G)$ is exactly the underlying group of the Pontryagin dual of $G$. In this case, we can just write $chargrp(G) = algdual(G)$.
+  If $G$ is a finite abelian group, then we can endow $G$ with discrete topology. Then the character group $chargrp(G)$ is exactly the underlying group of the Pontryagin dual of $G$. In this case, we can just write $chargrp(G) = pontdual(G)$.
 ]
 #proposition[Character Group Functor][
   Taking the character group of a group defines a hom functor $frak(X)=op("Hom")_(sans("Grp"))(-, CC^times)$ as follows
@@ -1418,11 +1292,11 @@ The following property is called complete reducibility, or semisimplicity.
   + The inverse of $chi$ is given by $chi^(-1) = overline(chi)$.
 ]
 #proof[
-  + Let $chi in algdual(G)$ be a character of $G$. Then for any $g in G$, we have
+  + Let $chi in pontdual(G)$ be a character of $G$. Then for any $g in G$, we have
     $
       chi(g)^n = chi(g^n) = chi(1) = 1,
     $
-    which implies $chi(G) subset.eq mu_n$, where $mu_n$ is the group of $n$-th roots of unity. Therefore, $algdual(G) subset.eq op("Hom")_(sans("Set"))(G,mu_n)$ Since $|mu_n|=n$, we have $|algdual(G)| <= n^n$.
+    which implies $chi(G) subset.eq mu_n$, where $mu_n$ is the group of $n$-th roots of unity. Therefore, $pontdual(G) subset.eq op("Hom")_(sans("Set"))(G,mu_n)$ Since $|mu_n|=n$, we have $|pontdual(G)| <= n^n$.
   + For any $g in G$, we have
     $
       chi(g) overline(chi)(g) = chi(g) overline(chi(g)) = |chi(g)|^2 = 1.
@@ -1443,9 +1317,9 @@ The following property is called complete reducibility, or semisimplicity.
     $
   + For any $g in G$,
     $
-      sum_(chi in algdual(G)) chi(g) = abs(chargrp(G))med bold(1)_(g = 1_G)=cases(
+      sum_(chi in pontdual(G)) chi(g) = abs(chargrp(G))med bold(1)_(g = 1_G)=cases(
         gap: #0.5em,
-        abs(algdual(G)) & " if" g = 1_G,
+        abs(pontdual(G)) & " if" g = 1_G,
         0 & " if" g eq.not 1_G
       )
     $
@@ -1481,7 +1355,7 @@ The following property is called complete reducibility, or semisimplicity.
     $
   + In the second equation, let $g=g_1 g_2^(-1)$. Then we have
     $
-      sum_(chi in algdual(G)) chi(g) =sum_(chi in chargrp(G)) chi(g_1) overline(chi)(g_2) = abs(chargrp(G)) med bold(1)_(g_1 g_2^(-1)=1_G)=cases(
+      sum_(chi in pontdual(G)) chi(g) =sum_(chi in chargrp(G)) chi(g_1) overline(chi)(g_2) = abs(chargrp(G)) med bold(1)_(g_1 g_2^(-1)=1_G)=cases(
         gap: #0.5em, abs(chargrp(G)) & " if" g_1 = g_2, 0 & " if" g_1 eq.not g_2
       )
     $
@@ -1493,19 +1367,19 @@ The following property is called complete reducibility, or semisimplicity.
   If $G$ and $H$ are finite abelian groups which have orthogonality of characters, then $G times H$ also has orthogonality of characters.
 ]<orthogonality-of-characters-of-product-groups>
 #proof[
-  For any $chi in algdual((G times H))$, by @character-group-functor it can written as $chi(g, h)=chi_1(g)chi_2(h)$ for $chi_1=chi compose i_G in algdual(G)$ and $chi_2 =chi compose i_H in algdual(H)$. We can check that
+  For any $chi in pontdual((G times H))$, by @character-group-functor it can written as $chi(g, h)=chi_1(g)chi_2(h)$ for $chi_1=chi compose i_G in pontdual(G)$ and $chi_2 =chi compose i_H in pontdual(H)$. We can check that
   $
     sum_((g times h) in G times H) chi(g, h) & = sum_((g times h) in G times H) chi_1(g)chi_2(h) \
                                              & =sum_(g in G) chi_1(g) sum_(h in H) chi_2(h) \
-                                             & =|G| |H| bold(1)_(chi_1 = 1_(algdual(G))) bold(1)_(chi_2 = 1_(algdual(H))) \
-                                             & =|G| |H| bold(1)_(chi = 1_algdual((G times H))).
+                                             & =|G| |H| bold(1)_(chi_1 = 1_(pontdual(G))) bold(1)_(chi_2 = 1_(pontdual(H))) \
+                                             & =|G| |H| bold(1)_(chi = 1_pontdual((G times H))).
   $
   For any $g in G$ and $h in H$, we have
   $
-    sum_(chi in algdual((G times H))) chi(g, h) & =sum_((chi_1,chi_2) in algdual(G)times algdual(H)) chi_1(g)chi_2(h) \
-                                                & =sum_(chi_1 in algdual(G)) chi_1(g) sum_(chi_2 in algdual(H)) chi_2(h) \
-                                                & =|algdual(G)| |algdual(H)| bold(1)_(g = 1_G) bold(1)_(h = 1_H) \
-                                                & =|algdual(G)| |algdual(H)| bold(1)_((g,h) = 1_(G times H)).
+    sum_(chi in pontdual((G times H))) chi(g, h) & =sum_((chi_1,chi_2) in pontdual(G)times pontdual(H)) chi_1(g)chi_2(h) \
+                                                 & =sum_(chi_1 in pontdual(G)) chi_1(g) sum_(chi_2 in pontdual(H)) chi_2(h) \
+                                                 & =|pontdual(G)| |pontdual(H)| bold(1)_(g = 1_G) bold(1)_(h = 1_H) \
+                                                 & =|pontdual(G)| |pontdual(H)| bold(1)_((g,h) = 1_(G times H)).
   $
   This shows that $G times H$ has orthogonality of characters.
 ]
@@ -1524,13 +1398,13 @@ The following property is called complete reducibility, or semisimplicity.
       chi^k: G & --> CC^times \
            a^m & arrow.long.bar e^((2 pi i k m ) / n)=zeta_n^(k m)
     $
-  + $algdual(G)$ is a cyclic group of order $n$ generated by the character $chi$ #h(1fr)
+  + $pontdual(G)$ is a cyclic group of order $n$ generated by the character $chi$ #h(1fr)
     $
-      algdual(G) = {chi^k : G -> CC^times mid(|) k=0,1,dots.c,n-1}.
+      pontdual(G) = {chi^k : G -> CC^times mid(|) k=0,1,dots.c,n-1}.
     $
     And we have an isomorphism
     $
-        G & -->^(tilde) algdual(G) \
+        G & -->^(tilde) pontdual(G) \
       a^m & arrow.long.bar chi^m.
     $
   + $G$ has #link(<orthogonality-of-characters>)[orthogonality of characters].
@@ -1539,23 +1413,23 @@ The following property is called complete reducibility, or semisimplicity.
 #proof[
   + This is straightforward.
 
-  + If $theta in algdual(G)$, then $theta(a) in mu_n$ implies $theta(a) = e^((2 pi i k) / n)$ for some $k in {0,1, dots.c, n-1}$. Hence $theta = chi^k$ for some $k in {0,1, dots.c, n-1}$ and we get
+  + If $theta in pontdual(G)$, then $theta(a) in mu_n$ implies $theta(a) = e^((2 pi i k) / n)$ for some $k in {0,1, dots.c, n-1}$. Hence $theta = chi^k$ for some $k in {0,1, dots.c, n-1}$ and we get
     $
-      algdual(G) subset.eq {chi^k : G -> CC^times mid(|) k=0,1,dots.c,n-1}.
+      pontdual(G) subset.eq {chi^k : G -> CC^times mid(|) k=0,1,dots.c,n-1}.
     $
     Then we can check the inverse inclusion and conclude that
     $
-      algdual(G) = {chi^k : G -> CC^times mid(|) k=0,1,dots.c,n-1}.
+      pontdual(G) = {chi^k : G -> CC^times mid(|) k=0,1,dots.c,n-1}.
     $
-    Since $chi^k$ are all distinct, we have $|algdual(G)| = n$. Note that both $G$ and $algdual(G)$ are cyclic groups of order $n$ and $a^m |-> chi^m$ sends a generator of $G$ to a generator of $algdual(G)$. We see $a^m |-> chi^m$ is an isomorphism.
+    Since $chi^k$ are all distinct, we have $|pontdual(G)| = n$. Note that both $G$ and $pontdual(G)$ are cyclic groups of order $n$ and $a^m |-> chi^m$ sends a generator of $G$ to a generator of $pontdual(G)$. We see $a^m |-> chi^m$ is an isomorphism.
 
-  + For any $chi^k in algdual(G)$, we have
+  + For any $chi^k in pontdual(G)$, we have
     $
       sum_(g in G) chi^k (g)= sum_(m=0)^(n-1)chi^k (a^m) = sum_(m=0)^(n-1) e^((2 pi i k m) / n) = n delta_(k,0) = |G| bold(1)_(chi^k = chi_0).
     $
     For any $a^m in G$ with $m=0,1,dots.c, n-1$, we have
     $
-      sum_(chi in algdual(G)) chi(a^m) =sum_(k =0)^(n-1) chi^k (a^m) = sum_(k=0)^(n-1) e^((2 pi i k m) / n) = n delta_(m,0) = |algdual(G)|bold(1)_(a^m = 1_G).
+      sum_(chi in pontdual(G)) chi(a^m) =sum_(k =0)^(n-1) chi^k (a^m) = sum_(k=0)^(n-1) e^((2 pi i k m) / n) = n delta_(m,0) = |pontdual(G)|bold(1)_(a^m = 1_G).
     $
 
 ]
@@ -1563,7 +1437,7 @@ The following property is called complete reducibility, or semisimplicity.
 #proposition[Orthogonality of Characters of Finite Abelian Group][
   $typebadge(G, FinAb)$
 
-  Let $G$ be a finite abelian group of order $n$ and $a in G$ be a generator of $G$. Then $G tilde.equiv algdual(G)$ and $G$ has orthogonality of characters.
+  Let $G$ be a finite abelian group of order $n$ and $a in G$ be a generator of $G$. Then $G tilde.equiv pontdual(G)$ and $G$ has orthogonality of characters.
 ]<orthogonality-of-characters-of-finite-abelian-group>
 #proof[
   The fundamental theorem of abelian groups implies that $G$ is isomorphic to a finite direct product of cyclic groups. Then, it follows from @cyclic-group-characters-lemma, @character-group-functor and @orthogonality-of-characters-of-product-groups.
@@ -1607,7 +1481,7 @@ In this chapter, we study representations of locally compact Hausdorff groups.
   + For any $u , v in H_pi$, the map
     $
       G & --> CC \
-      g & arrow.long.bar angle.l pi(g)(u), v angle.r
+      g & arrow.long.bar chevron.l pi(g)(u), v chevron.r
     $
     is continuous.
 ]
@@ -1750,7 +1624,7 @@ By considering the action of $G$ on $G$ itself by left multiplication, we get th
 
   Let $pi: G -> U(H)$ be a unitary representation of a locally compact Hausdorff group $G$. If $V subset.eq H$ is a invariant subspace for $pi$, then $V^(perp)$ is also a invariant subspace for $pi$. And we have
   $
-    pi = pi^V plus.circle pi^(V^(perp)).
+    pi = pi^V plus.o pi^(V^(perp)).
   $
 ]
 #proof[
@@ -1760,24 +1634,24 @@ By considering the action of $G$ on $G$ itself by left multiplication, we get th
   $
   and
   $
-    angle.l pi(g)(v), w angle.r =lr(angle.l (pi(g)^(-1) compose pi(g))(v), pi(g)^(-1) (w) angle.r) =angle.l v, pi(g^(-1))(w) angle.r = 0.
+    chevron.l pi(g)(v), w chevron.r =lr(chevron.l (pi(g)^(-1) compose pi(g))(v), pi(g)^(-1) (w) chevron.r) =chevron.l v, pi(g^(-1))(w) chevron.r = 0.
   $
   This implies $pi(g)(v) in V^(perp)$. Therefore, $V^(perp)$ is a invariant subspace for $pi$.
 
   Since $V$ is a closed subspace of $H$, we have direct sum decomposition
   $
-    H = V plus.circle V^(perp).
+    H = V plus.o V^(perp).
   $
   For any $g in G$ and $v in V$, $v$ can be uniquely written as $v = v_1 + v_2$ with $v_1 in V$ and $v_2 in V^(perp)$. Since
   $
-    (pi^V plus.circle pi^(V^(perp)) ) (g)(v) & = (pi^V plus.circle pi^(V^(perp)) ) (g) (v_1 + v_2) \
-                                             & = pi^V (g) (v) plus pi^(V^(perp)) (g) (w) \
-                                             & = pi^V (g)(v_1) + pi^(V^(perp)) (g)(v_2) \
-                                             & = pi (g)(v_1) + pi (g)(v_2) \
-                                             & = pi (g)(v_1 + v_2) \
-                                             & = pi (g)(v), quad forall g in G, forall v in V,
+    (pi^V plus.o pi^(V^(perp)) ) (g)(v) & = (pi^V plus.o pi^(V^(perp)) ) (g) (v_1 + v_2) \
+                                        & = pi^V (g) (v) plus pi^(V^(perp)) (g) (w) \
+                                        & = pi^V (g)(v_1) + pi^(V^(perp)) (g)(v_2) \
+                                        & = pi (g)(v_1) + pi (g)(v_2) \
+                                        & = pi (g)(v_1 + v_2) \
+                                        & = pi (g)(v), quad forall g in G, forall v in V,
   $
-  we have $pi = pi^V plus.circle pi^(V^(perp))$.
+  we have $pi = pi^V plus.o pi^(V^(perp))$.
 ]
 
 #definition[Cyclic Subspace][
@@ -1947,7 +1821,7 @@ By considering the action of $G$ on $G$ itself by left multiplication, we get th
   $
   Then $pi_u$ is a bounded continuous map from $G$ to $H_pi$. For any $f in L^1(G, cal(B)(G), mu)$, the weak integral $integral_G f pi_u dif mu in H_pi$ exists, which satisfies
   $
-    integral_G f(g) angle.l pi(g)(u),v angle.r dif mu(g) = lr(angle.l integral_G f pi_u dif mu, v angle.r),quad forall v in H_pi.
+    integral_G f(g) chevron.l pi(g)(u),v chevron.r dif mu(g) = lr(chevron.l integral_G f pi_u dif mu, v chevron.r),quad forall v in H_pi.
   $
 
   So we can define a representation of $L^1(G, cal(B)(G), mu)$ on $H_pi$ by
@@ -1971,7 +1845,7 @@ By considering the action of $G$ on $G$ itself by left multiplication, we get th
 
 
 
-== Quasi‑character of Restricted Product
+== Quasi-character of Restricted Product
 In this section, we assume that $I$ is an index set and $F subset.eq I$ is a finite subset of $I$. Suppose $G_i$ is a locally compact Hausdorff abelian group for each $i in I$, and
 $H_v subset.eq G_v$ is an open compact subgroup for each $v in I - F$.
 Let $ G := product_(v in I)^' G_v $ be the restricted product of the
@@ -2125,9 +1999,9 @@ be the canonical embedding of $G_v$ into $G$.
   $
   Suppose $U(H)$ is equipped with the strong operator topology and $e in H$ is a unit vector in $H$. Then the map
   $
-                     phi: TT & -->^(tilde) U(H) \
-                      lambda & arrow.long.bar lambda id_H \
-    angle.l U (e), e angle.r & arrow.long.bar.l U
+                         phi: TT & -->^(tilde) U(H) \
+                          lambda & arrow.long.bar lambda id_H \
+    chevron.l U (e), e chevron.r & arrow.long.bar.l U
   $
   is a topological group isomorphism.
 ]<unitary-group-of-one-dimensional-hilbert-space>
@@ -2165,26 +2039,26 @@ be the canonical embedding of $G_v$ into $G$.
 #definition[Pontryagin Dual of a Locally Compact Abelian Group][
   $typebadge(G, LCA)$
 
-  Let $G$ be a locally compact Hausdorff abelian group. The *Pontryagin dual* of $G$ is a topological group $algdual(G)$ defined as follows
+  Let $G$ be a locally compact Hausdorff abelian group. The *Pontryagin dual* of $G$ is a topological group $pontdual(G)$ defined as follows
   + Underlying set:
     $
-      algdual(G) = op("Hom")_(sans("TopAb"))(G, TT),
+      pontdual(G) = op("Hom")_(sans("TopAb"))(G, TT),
     $
     where $TT$ is the circle group.
 
-  + Group Multiplication: $algdual(G)subset.eq op("Hom")_(sans("Ab"))(G, TT)$ is an abelian group with the pointwise multiplication of functions: given $chi_1, chi_2 in algdual(G)$, their multiplication $chi_1 chi_2$ is defined By
+  + Group Multiplication: $pontdual(G)subset.eq op("Hom")_(sans("Ab"))(G, TT)$ is an abelian group with the pointwise multiplication of functions: given $chi_1, chi_2 in pontdual(G)$, their multiplication $chi_1 chi_2$ is defined By
     $
       chi_1 chi_2: G times G & --> TT \
                   (g_1, g_2) & arrow.long.bar chi_1(g_1) chi_2(g_2)
     $
 
-  + Identity element: The identity element in $algdual(G)$ is the constant function 1
+  + Identity element: The identity element in $pontdual(G)$ is the constant function 1
     $
-      1_algdual(G): G & --> TT \
-                    g & arrow.long.bar 1
+      1_pontdual(G): G & --> TT \
+                     g & arrow.long.bar 1
     $
 
-  + Topology: $algdual(G)$ is equipped with the compact-open topology.
+  + Topology: $pontdual(G)$ is equipped with the compact-open topology.
 ]
 #corollary[][
   $typebadge(
@@ -2194,9 +2068,9 @@ be the canonical embedding of $G_v$ into $G$.
 
   Let $G$ be a locally compact Hausdorff abelian group and $H$ be a one-dimensional complex Hilbert space. Let $e in H$ be a unit vector in $H$. There is a bijection
   $
-          algdual(G)=op("Hom")_(sans("TopAb"))(G, TT) & -->^(tilde) op("Hom")_(sans("TopGrp"))(G, U(H)) \
-                                                  chi & arrow.long.bar (pi: g arrow.long.bar chi(g) id_H) \
-    (chi: g mapsto.long angle.l pi(g) (e), e angle.r) & arrow.long.bar.l pi
+             pontdual(G)=op("Hom")_(sans("TopAb"))(G, TT) & -->^(tilde) op("Hom")_(sans("TopGrp"))(G, U(H)) \
+                                                      chi & arrow.long.bar (pi: g arrow.long.bar chi(g) id_H) \
+    (chi: g mapsto.long chevron.l pi(g) (e), e chevron.r) & arrow.long.bar.l pi
   $
   between $op("Hom")_(sans("TopAb"))(G, TT)$ and one-dimensional unitary representations of $G$.
 ]<identify-one-dimensional-unitary-representations-of-lca-group-with-characters>
@@ -2210,24 +2084,24 @@ be the canonical embedding of $G_v$ into $G$.
 
   Let $G$ be a locally compact Hausdorff abelian group with a Haar measure $mu$. Then
 
-  + Given any $chi in algdual(G)$, the map
+  + Given any $chi in pontdual(G)$, the map
     $
       xi_chi: L^1(G) & --> CC \
-                   f & mapsto.long integral_G lr(angle.l x, chi angle.r) f(x) dif mu(x) = integral_G f(x) chi(x) dif mu(x)
+      f & mapsto.long integral_G lr(chevron.l x, chi chevron.r) f(x) dif mu(x) = integral_G f(x) chi(x) dif mu(x)
     $
     is a multiplicative functional on $L^1(G)$, i.e. a nonzero Banach algebra homomorphism.
 
   + The map
     $
-      xi_(bullet): algdual(G) & --> sigma(L^1(G)) \
-                          chi & mapsto.long xi_chi
+      xi_(bullet): pontdual(G) & --> sigma(L^1(G)) \
+                           chi & mapsto.long xi_chi
     $
     is a homeomorphism.
 ]
 #proof[
   + Since for any $f in L^1(G)$,
     $
-      norm(xi_chi (f)) = abs(integral_G lr(angle.l x, chi angle.r) f(x) dif mu(x)) <= integral_G abs(f(x))abs(chi(x)) dif mu(x) = norm(f)_1,
+      norm(xi_chi (f)) = abs(integral_G lr(chevron.l x, chi chevron.r) f(x) dif mu(x)) <= integral_G abs(f(x))abs(chi(x)) dif mu(x) = norm(f)_1,
     $
     we see that $xi_chi$ is a well-defined continuous linear functional on $L^1(G)$.
 
@@ -2252,7 +2126,7 @@ be the canonical embedding of $G_v$ into $G$.
     Therefore, $xi_chi$ is a multiplicative functional on $L^1(G)$.
 
   +
-    - _Injectivity_. If there exist $chi, psi in algdual(G)$ such that $xi_chi = xi_psi$, then for any $f in L^1(G)$, we have
+    - _Injectivity_. If there exist $chi, psi in pontdual(G)$ such that $xi_chi = xi_psi$, then for any $f in L^1(G)$, we have
     $
       integral_G (chi - psi)f dif mu= xi_chi (f) - xi_psi (f) = 0.
     $
@@ -2302,7 +2176,7 @@ be the canonical embedding of $G_v$ into $G$.
       $
         abs(chi(x_0)^n)= abs(chi(x_0))^n --> oo,
       $
-      which contradicts the boundedness of $chi$. Similarly, we can rule out the case $abs(chi(x_0)) < 1$ since $abs(chi(x_0^(-1))) > 1$ gives the same contradiction. Thus we have $chi in algdual(G)$. Since $chi = h$ a.e., we have
+      which contradicts the boundedness of $chi$. Similarly, we can rule out the case $abs(chi(x_0)) < 1$ since $abs(chi(x_0^(-1))) > 1$ gives the same contradiction. Thus we have $chi in pontdual(G)$. Since $chi = h$ a.e., we have
       $
         xi_chi (f) = integral_G f(x) chi(x) dif mu (x) = integral_G f(x) h(x) dif mu (x) = psi(f), quad forall f in L^1(G).
       $
@@ -2313,7 +2187,7 @@ be the canonical embedding of $G_v$ into $G$.
 #example[$*$-representation of $L^1(G)$][
   $typebadge(G, LCA)$
 
-  Let $G$ be a locally compact Hausdorff abelian group and $pi: G -> U(CC)$ be a unitary representation of $G$. By @identify-one-dimensional-unitary-representations-of-lca-group-with-characters, $pi$ corresponds to some $chi in algdual(G)$.
+  Let $G$ be a locally compact Hausdorff abelian group and $pi: G -> U(CC)$ be a unitary representation of $G$. By @identify-one-dimensional-unitary-representations-of-lca-group-with-characters, $pi$ corresponds to some $chi in pontdual(G)$.
   For each $u in CC$, define
   $
     pi_u: G & --> CC \
@@ -2321,7 +2195,7 @@ be the canonical embedding of $G_v$ into $G$.
   $
   Then $pi_u$ is a bounded continuous map from $G$ to $CC$. For any $f in L^1(G, cal(B)(G), mu)$, the weak integral $integral_G f pi_u dif mu in CC$ exists, which satisfies
   $
-    integral_G f(x) angle.l pi(x)(u),v angle.r dif mu(x) = lr(angle.l integral_G f pi_u dif mu, v angle.r),quad forall v in CC.
+    integral_G f(x) chevron.l pi(x)(u),v chevron.r dif mu(x) = lr(chevron.l integral_G f pi_u dif mu, v chevron.r),quad forall v in CC.
   $
 
   So we can define a representation of $L^1(G, cal(B)(G), mu)$ on $CC$ by
@@ -2331,14 +2205,14 @@ be the canonical embedding of $G_v$ into $G$.
   $
   $tilde(pi)$ is a nondegenerate #link(<star-representation-of-banach-star-algebra>)[$*$-representation] of $L^1(G, cal(B)(G), mu)$. Through the bijection
   $
-                         CC & -->^(tilde)op("End")_CHilb (CC) \
-                          z & arrow.long.bar z id_CC \
-    angle.l T(1), 1 angle.r & arrow.long.bar.l T
+                             CC & -->^(tilde)op("End")_CHilb (CC) \
+                              z & arrow.long.bar z id_CC \
+    chevron.l T(1), 1 chevron.r & arrow.long.bar.l T
   $
   $tilde(pi)$ can be identified with
   $
     xi_chi:L^1(G, cal(B)(G), mu) & --> CC \
-    f & arrow.long.bar integral_G f(x) chi(x) dif mu (x)=integral_G angle.l x, chi angle.r f(x) dif mu(x).
+    f & arrow.long.bar integral_G f(x) chi(x) dif mu (x)=integral_G chevron.l x, chi chevron.r f(x) dif mu(x).
   $
 ]
 #proof[
@@ -2357,23 +2231,23 @@ be the canonical embedding of $G_v$ into $G$.
 
   Suppose $G$ is a locally compact Hausdorff abelian group. Then
 
-  + $G$ is discrete $==>$ $algdual(G)$ is a compact.
+  + $G$ is discrete $==>$ $pontdual(G)$ is a compact.
 
-  + $G$ is compact $==>$ $algdual(G)$ is discrete.
+  + $G$ is compact $==>$ $pontdual(G)$ is discrete.
 
-  + $G$ is discrete and torsion-free $==>$ $algdual(G)$ is a compact and connected.
+  + $G$ is discrete and torsion-free $==>$ $pontdual(G)$ is a compact and connected.
 
-  + $G$ is compact and connected $==>$ $algdual(G)$ is discrete and torsion-free.
+  + $G$ is compact and connected $==>$ $pontdual(G)$ is discrete and torsion-free.
 
-  + $G$ is finite $==>$ $algdual(G)$ is finite.
+  + $G$ is finite $==>$ $pontdual(G)$ is finite.
 
 ]
 
 #example[Examples of Pontryagin Dual][
-  + $algdual(T) tilde.equiv ZZ$.
-  + $algdual(ZZ) tilde.equiv T$.
-  + $algdual(RR) tilde.equiv RR$.
-  + $algdual(((ZZ\/n ZZ)^times)) tilde.equiv (ZZ\/n ZZ)^times$.
+  + $pontdual(T) tilde.equiv ZZ$.
+  + $pontdual(ZZ) tilde.equiv T$.
+  + $pontdual(RR) tilde.equiv RR$.
+  + $pontdual(((ZZ\/n ZZ)^times)) tilde.equiv (ZZ\/n ZZ)^times$.
 ]
 
 #example[$C_c (G)$ is Dense in $L^p (G)$][
@@ -2400,32 +2274,32 @@ be the canonical embedding of $G_v$ into $G$.
 
   Let $G$ be a locally compact abelian group and $mu$ be a Haar measure on $G$. The *Fourier transform* of a function $f in L^1(G)$ is defined as
   $
-    hat(f): algdual(G) & --> CC \
-                   chi & mapsto.long integral_G f(g) overline(chi(g)) dif mu .
+    hat(f): pontdual(G) & --> CC \
+                    chi & mapsto.long integral_G f(g) overline(chi(g)) dif mu .
   $
-  The Fourier transform is a continuous linear map from $L^1(G)$ to $L^oo (algdual(G))$ defined by
+  The Fourier transform is a continuous linear map from $L^1(G)$ to $L^oo (pontdual(G))$ defined by
   $
-    cal(F): L^1(G) & --> L^oo (algdual(G)) \
+    cal(F): L^1(G) & --> L^oo (pontdual(G)) \
                  f & mapsto.long hat(f).
   $
 ]
 #remark[
-  Note $abs(chi(g))=1$ for all $g in G$ and $chi in algdual(G)$. For any $f in L^1(G)$ and $chi in algdual(G)$, we have
+  Note $abs(chi(g))=1$ for all $g in G$ and $chi in pontdual(G)$. For any $f in L^1(G)$ and $chi in pontdual(G)$, we have
   $
     abs(hat(f)(chi)) = abs(integral_G f(g) overline(chi(g)) dif mu(g)) <= integral_G abs(f(g)) dif mu(g) = norm(f)_(L^1(G)).
   $
   Thus for any $f in L^1(G)$, we have
   $
-    norm(hat(f))_(L^oo (algdual(G)))= sup_(chi in algdual(G)) abs(hat(f)(chi)) <= norm(f)_(L^1(G)) <infinity,
+    norm(hat(f))_(L^oo (pontdual(G)))= sup_(chi in pontdual(G)) abs(hat(f)(chi)) <= norm(f)_(L^1(G)) <infinity,
   $
-  which implies $cal(F)f=hat(f) in L^oo (algdual(G))$.
+  which implies $cal(F)f=hat(f) in L^oo (pontdual(G))$.
 ]
 
 #pagebreak()
 
 = Number Theory <number-theory>
 
-== Questions
+== QUESTIONS
 #example[Fermat's Theorem on Sums of Two Squares][
   + Which primes $p$ are sums of two squares? In other words, for which primes $p$ does the equation
     $
@@ -3172,7 +3046,7 @@ $
 == Profinite Completion of $ZZ$
 The #strong[profinite completion] of $ZZ$ is defined as
 $
-  hat(ZZ) = lim_(leftarrow_n) ZZ \/ n ZZ.
+  hat(ZZ) = projlim(n) ZZ \/ n ZZ.
 $
 
 
@@ -3660,6 +3534,9 @@ Suppose $d$ be a square-free integer and $d eq.not 1$.
     ]
   })
 ]
+
+
+
 #proof[
   Since $Delta_K = 12 = 2^2 times 3$, the prime numbers $2$ and $3$ are ramified in $cal(O)_K$. For any prime number $p$ not equal to $2$ or $3$, we have
   $
@@ -3699,18 +3576,16 @@ Suppose $d$ be a square-free integer and $d eq.not 1$.
 #proposition[Properties of Euler's Totient Function][
   For any $m , n in bb(N)$, we have
 
-  #block[
-    #set enum(numbering: "(i)", start: 1)
-    + $phi (m n) = phi (m) phi (n)$ if $(m , n) = 1$.
+  + $phi (m n) = phi (m) phi (n)$ if $(m , n) = 1$.
 
-    + $phi (n) divides n$.
+  + $phi (n) divides n$.
 
-    + $phi (n) = n$ if and only if $n = 1$.
+  + $phi (n) = n$ if and only if $n = 1$.
 
-    + $phi (p^k) = p^k - p^(k - 1)$ for any prime $p$ and $k in bb(N)$.
+  + $phi (p^k) = p^k - p^(k - 1)$ for any prime $p$ and $k in bb(N)$.
 
-    + $phi (n) lt.eq n - sqrt(n)$ for any $n in bb(N)$.
-  ]
+  + $phi (n) lt.eq n - sqrt(n)$ for any $n in bb(N)$.
+
 ]
 
 #proposition[Structure of $(bb(Z) \/ n bb(Z))^(times)$][
@@ -3723,7 +3598,7 @@ Suppose $d$ be a square-free integer and $d eq.not 1$.
 
   + $n=2^k$ for $k >= 2$:
     $
-      (bb(Z) \/ 2^k bb(Z))^times=angle.l -1 angle.r times angle.l 5 angle.r={1, -1} times {1, 5, 5^2, dots.c, 5^(2^(k-2)-1)} tilde.equiv upright(C)_2 times upright(C)_(2^(k-2))
+      (bb(Z) \/ 2^k bb(Z))^times=chevron.l -1 chevron.r times chevron.l 5 chevron.r={1, -1} times {1, 5, 5^2, dots.c, 5^(2^(k-2)-1)} tilde.equiv upright(C)_2 times upright(C)_(2^(k-2))
     $
     has order $2^(k-1)$.
 
@@ -3789,8 +3664,8 @@ Suppose $d$ be a square-free integer and $d eq.not 1$.
 
   $
     chi_(q,r) (a) = cases(
-      0 & upright(" if") [a] in.not (bb(Z) \/ m bb(Z))^times & upright(" i.e. ") (a , q) eq.not 1\
-      zeta_(phi(q))^(v_q (r)v_q (a)) & upright(" if") [a] in (bb(Z) \/ m bb(Z))^times & upright(" i.e. ") (a , q) = 1
+      0 & " if" [a] in.not (bb(Z) \/ m bb(Z))^times & " i.e. " (a , q) eq.not 1,
+      zeta_(phi(q))^(v_q (r)v_q (a)) & " if" [a] in (bb(Z) \/ m bb(Z))^times & " i.e. " (a , q) = 1
     )
   $
 ]
@@ -3808,8 +3683,8 @@ Suppose $d$ be a square-free integer and $d eq.not 1$.
   Dirichlet character defined by
   $
     chi_(m,1) (a) = cases(
-      0 & upright(" if") [a] in.not (bb(Z) \/ m bb(Z))^times & upright(" i.e. ") (a , q) eq.not 1 \
-      1 & upright(" if") [a] in (bb(Z) \/ m bb(Z))^times     &      upright(" i.e. ") (a , q) = 1
+      0 & " if" [a] in.not (bb(Z) \/ m bb(Z))^times & "i.e." (a , q) eq.not 1,
+      1 & " if" [a] in (bb(Z) \/ m bb(Z))^times & "i.e." (a , q) = 1
     )
   $
   This character is also called the *trivial character*#index("Dirichlet Character", "trivial").
@@ -3882,7 +3757,7 @@ Suppose $chi_m^star: (bb(Z) \/ m bb(Z))^times -> bb(C)^times$ is a Dirichlet cha
 ]<parity-of-dirichlet-character>
 
 #definition[Order of Dirichlet Character][
-  Let $chi_m$ be a Dirichlet character modulo $m$. The #strong[order] of $chi_m$ is defined as the smallest positive integer $k$ such that $chi_m^k = chi_(m,1)$, which is exactly the order of $chi_m^star$ in $algdual(((ZZ\/m ZZ)^times))=op("Hom")_(sans("Ab"))((ZZ\/m ZZ)^times,CC^times)$. #index("Dirichlet character", "order")
+  Let $chi_m$ be a Dirichlet character modulo $m$. The #strong[order] of $chi_m$ is defined as the smallest positive integer $k$ such that $chi_m^k = chi_(m,1)$, which is exactly the order of $chi_m^star$ in $pontdual(((ZZ\/m ZZ)^times))=op("Hom")_(sans("Ab"))((ZZ\/m ZZ)^times,CC^times)$. #index("Dirichlet character", "order")
 ]
 
 #definition[Quadratic Dirichlet Character][
@@ -3898,7 +3773,7 @@ Suppose $chi_m^star: (bb(Z) \/ m bb(Z))^times -> bb(C)^times$ is a Dirichlet cha
   $
   - Given $n in ZZ$,
   $
-    sum_(chi^star in algdual(((ZZ\/m ZZ)^times)) )chi (n) = cases(
+    sum_(chi^star in pontdual(((ZZ\/m ZZ)^times)) )chi (n) = cases(
       phi(m) & upright(" if") n equiv 1 mod m,
       0 & upright(" if") n equiv.not 1 mod m
     )
@@ -3912,7 +3787,7 @@ Suppose $chi_m^star: (bb(Z) \/ m bb(Z))^times -> bb(C)^times$ is a Dirichlet cha
 #corollary[][
   Let $chi_m$ be a Dirichlet character modulo $m$. Suppose $n in ZZ$ and $[a] in (ZZ\/m ZZ)^times$. Then we have
   $
-    1 / (phi(a)) sum_(chi^star in algdual(((ZZ\/m ZZ)^times)) )overline(chi)(a)chi (n) = cases(
+    1 / (phi(a)) sum_(chi^star in pontdual(((ZZ\/m ZZ)^times)) )overline(chi)(a)chi (n) = cases(
       1 & upright(" if") n equiv a mod m,
       0 & upright(" if") n equiv.not a mod m
     )
@@ -4324,7 +4199,7 @@ The following lemma is handy as it provides an equivalent definition of a unitar
   $
   where $t in RR$ is a constant. And the Pontryagin dual of $RR^times$ is given by
   $
-    algdual((RR^times)) = {op("sgn")(g_oo)^(epsilon) dot abs(g_oo)^(i t) mid(|) thin [epsilon] in ZZ\/2ZZ, med t in RR} tilde.equiv ZZ\/2ZZ times RR.
+    pontdual((RR^times)) = {op("sgn")(g_oo)^(epsilon) dot abs(g_oo)^(i t) mid(|) thin [epsilon] in ZZ\/2ZZ, med t in RR} tilde.equiv ZZ\/2ZZ times RR.
   $
 
 ]

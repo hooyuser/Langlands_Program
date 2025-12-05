@@ -31,7 +31,7 @@ weight = 700
 [[fonts]]
 family_name = "STIX Two Text"
 style = "Normal"
-weight = [400, 600]
+weight = [400, 600, 700]
 
 [[fonts]]
 family_name = "STIX Two Text"
@@ -44,6 +44,14 @@ family_name = "Icon Design"
 [[fonts]]
 family_name = "Inter 18pt"
 weight = 600
+
+[[fonts]]
+family_name = "Satoshi"
+weight = 700
+
+[[fonts]]
+family_name = "Baskervville"
+weight = 700
 
 # math fonts
 [[fonts]]
